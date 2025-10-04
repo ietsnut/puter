@@ -139,21 +139,7 @@ final class ZoomingCanvasView: UIView, UIScrollViewDelegate {
         return created
     }
     
-    @objc private func handleModulePan(_ gesture: UIPanGestureRecognizer) {
-        guard let view = gesture.view else { return }
-        let translation = gesture.translation(in: contentView)
-        switch gesture.state {
-        case .changed:
-            view.center = CGPoint(x: view.center.x + translation.x, y: view.center.y + translation.y)
-            gesture.setTranslation(.zero, in: contentView)
-            updateModulePosition(view: view)
-            if let id = moduleViews.first(where: { $0.value === view })?.key {
-                updateConnections(for: id)
-            }
-        default:
-            break
-        }
-    }
+
     
     private func updateModulePosition(view: UIView) {
         if let index = modules.firstIndex(where: { moduleViews[$0.id] === view }) {
@@ -258,16 +244,6 @@ final class ZoomingCanvasView: UIView, UIScrollViewDelegate {
         port.layer.borderColor = highlighted ? UIColor.systemYellow.cgColor : UIColor.clear.cgColor
     }
     
-    private func createConnection(from: PortView, to: PortView) {
-        let layer = CAShapeLayer()
-        layer.strokeColor = UIColor.label.withAlphaComponent(0.8).cgColor
-        layer.fillColor = UIColor.clear.cgColor
-        layer.lineWidth = 2
-        contentView.layer.insertSublayer(layer, above: gridView.layer)
-        let c = Connection(from: from, to: to, layer: layer)
-        connections.append(c)
-        updateConnectionPath(c)
-    }
     
     private func portCenterInContent(_ port: PortView) -> CGPoint {
         let local = CGRect(x: 0, y: 0, width: port.bounds.width, height: port.bounds.height)
@@ -275,15 +251,46 @@ final class ZoomingCanvasView: UIView, UIScrollViewDelegate {
         return port.convert(center, to: contentView)
     }
     
-    private func updateConnectionPath(_ connection: Connection) {
-        guard let a = connection.from, let b = connection.to else { return }
-        let p1 = portCenterInContent(a)
-        let p2 = portCenterInContent(b)
-        let path = UIBezierPath()
-        path.move(to: p1)
-        path.addLine(to: p2)
-        connection.layer.path = path.cgPath
-    }
+    private func createConnection(from: PortView, to: PortView) {
+            let layer = CAShapeLayer()
+            layer.strokeColor = UIColor.label.withAlphaComponent(0.8).cgColor
+            layer.fillColor = UIColor.clear.cgColor
+            layer.lineWidth = 2
+            layer.lineJoin = .round          // rounded corners at bends
+            layer.lineCap = .round           // rounded line endpoints
+            contentView.layer.insertSublayer(layer, above: gridView.layer)
+            let connection = Connection(from: from, to: to, layer: layer)
+            connections.append(connection)
+            updateConnectionPath(connection)
+        }
+        
+        private func updateConnectionPath(_ connection: Connection) {
+            guard let fromPort = connection.from, let toPort = connection.to else { return }
+            // Calculate port center positions in canvas coordinates
+            let p1 = portCenterInContent(fromPort)
+            let p2 = portCenterInContent(toPort)
+            // Use the orthogonal router to get a path with 90-degree turns
+            let bezierPath = OrthogonalConnectionRouter.makePath(from: p1, fromPort: fromPort,
+                                                                 to: p2, toPort: toPort)
+            connection.layer.path = bezierPath.cgPath
+        }
+        
+        @objc private func handleModulePan(_ gesture: UIPanGestureRecognizer) {
+            guard let view = gesture.view else { return }
+            let translation = gesture.translation(in: contentView)
+            if gesture.state == .changed {
+                // Move the module
+                view.center = CGPoint(x: view.center.x + translation.x,
+                                       y: view.center.y + translation.y)
+                gesture.setTranslation(.zero, in: contentView)
+                // Update module's logical position
+                updateModulePosition(view: view)
+                // Dynamically reroute all connections involving this module
+                if let movedID = moduleViews.first(where: { $0.value === view })?.key {
+                    updateConnections(for: movedID)
+                }
+            }
+        }
     
     private func updateConnections(for moduleID: UUID) {
         for i in 0..<connections.count {

@@ -151,3 +151,6 @@ struct ZoomingCanvasRepresentable: UIViewRepresentable {
         }
     }
 }
+#Preview {
+    MainScreen()
+}
