@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		A225BE722E91658F00B1E217 /* puter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = puter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A225BE722E91658F00B1E217 /* Puter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Puter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A225BE742E91658F00B1E217 /* puter */ = {
+		A225BE742E91658F00B1E217 /* Puter */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = puter;
+			path = Puter;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		A225BE692E91658F00B1E217 = {
 			isa = PBXGroup;
 			children = (
-				A225BE742E91658F00B1E217 /* puter */,
+				A225BE742E91658F00B1E217 /* Puter */,
 				A225BE732E91658F00B1E217 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +40,7 @@
 		A225BE732E91658F00B1E217 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A225BE722E91658F00B1E217 /* puter.app */,
+				A225BE722E91658F00B1E217 /* Puter.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A225BE712E91658F00B1E217 /* puter */ = {
+		A225BE712E91658F00B1E217 /* Puter */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A225BE7F2E91659100B1E217 /* Build configuration list for PBXNativeTarget "puter" */;
+			buildConfigurationList = A225BE7F2E91659100B1E217 /* Build configuration list for PBXNativeTarget "Puter" */;
 			buildPhases = (
 				A225BE6E2E91658F00B1E217 /* Sources */,
 				A225BE6F2E91658F00B1E217 /* Frameworks */,
@@ -61,13 +61,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A225BE742E91658F00B1E217 /* puter */,
+				A225BE742E91658F00B1E217 /* Puter */,
 			);
-			name = puter;
+			name = Puter;
 			packageProductDependencies = (
 			);
 			productName = puter;
-			productReference = A225BE722E91658F00B1E217 /* puter.app */;
+			productReference = A225BE722E91658F00B1E217 /* Puter.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A225BE6D2E91658F00B1E217 /* Build configuration list for PBXProject "puter" */;
+			buildConfigurationList = A225BE6D2E91658F00B1E217 /* Build configuration list for PBXProject "Puter" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A225BE712E91658F00B1E217 /* puter */,
+				A225BE712E91658F00B1E217 /* Puter */,
 			);
 		};
 /* End PBXProject section */
@@ -254,6 +254,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Puter;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -298,6 +300,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Puter;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -332,7 +336,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A225BE6D2E91658F00B1E217 /* Build configuration list for PBXProject "puter" */ = {
+		A225BE6D2E91658F00B1E217 /* Build configuration list for PBXProject "Puter" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A225BE7D2E91659100B1E217 /* Debug */,
@@ -341,7 +345,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A225BE7F2E91659100B1E217 /* Build configuration list for PBXNativeTarget "puter" */ = {
+		A225BE7F2E91659100B1E217 /* Build configuration list for PBXNativeTarget "Puter" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A225BE802E91659100B1E217 /* Debug */,
