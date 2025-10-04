@@ -2,10 +2,8 @@ import SwiftUI
 import UIKit
 
 final class OrthogonalConnectionRouter {
-    /// Compute an orthogonal (90°) path connecting two ports with rounded bends.
     static func makePath(from p1: CGPoint, fromPort: PortView,
                          to p2: CGPoint, toPort: PortView) -> UIBezierPath {
-        // Ensure fromPort is output and toPort is input
         var sourcePort = fromPort
         var targetPort = toPort
         var start = p1
@@ -14,39 +12,118 @@ final class OrthogonalConnectionRouter {
             swap(&sourcePort, &targetPort)
             swap(&start, &end)
         }
-        // Base offsets for horizontal port extension
         let offset: CGFloat = 40.0
-        let startX = start.x + offset  // extend to the right of source module
-        let endX   = end.x - offset    // extend to the left of target module
-        let path = UIBezierPath()
+        let spacing: CGFloat = 40.0
+        let startOffset = offset + spacing * CGFloat(sourcePort.index)
+        let endOffset = offset + spacing * CGFloat(targetPort.index)
+        let startX = start.x + startOffset
+        let endX = end.x - endOffset
+        let bendRadius: CGFloat = 15.0
+        let path = CGMutablePath()
         path.move(to: start)
-        
         if startX <= endX {
-            // Straightforward L-shaped or Z-shaped path (no forced detour)
-            var midX = (startX + endX) / 2
-            // Offset midX slightly based on port indices to avoid overlaps
-            midX += CGFloat(sourcePort.index - targetPort.index) * 10.0
-            // Horizontal out from source, vertical, then horizontal into target
-            path.addLine(to: CGPoint(x: midX, y: start.y))
-            path.addLine(to: CGPoint(x: midX, y: end.y))
-            path.addLine(to: CGPoint(x: endX, y: end.y))
-            path.addLine(to: end)
-        } else {
-            // Source is to the right of target – route around via an orthogonal detour
-            // Choose a detour Y-level above or below both modules to avoid crossing
-            let detourY: CGFloat
-            if start.y < end.y {
-                detourY = min(start.y, end.y) - 100.0  // go above both modules
+            var midX = (startX + endX) / 2.0
+            let diff = sourcePort.index - targetPort.index
+            if diff != 0 {
+                midX += CGFloat(diff) * spacing
             } else {
-                detourY = max(start.y, end.y) + 100.0  // go below both modules
+                midX += CGFloat(sourcePort.index) * spacing
             }
-            // Path: out from source, orthogonal detour around, then into target
-            path.addLine(to: CGPoint(x: startX, y: start.y))
-            path.addLine(to: CGPoint(x: startX, y: detourY))
-            path.addLine(to: CGPoint(x: endX, y: detourY))
-            path.addLine(to: CGPoint(x: endX, y: end.y))
-            path.addLine(to: end)
+            var routePoints: [CGPoint] = []
+            routePoints.append(CGPoint(x: midX, y: start.y))
+            if start.y != end.y {
+                routePoints.append(CGPoint(x: midX, y: end.y))
+            }
+            routePoints.append(CGPoint(x: endX, y: end.y))
+            routePoints.append(end)
+            var points: [CGPoint] = [start]
+            points.append(contentsOf: routePoints)
+            var filtered: [CGPoint] = [points[0]]
+            for i in 1..<points.count-1 {
+                let prev = points[i-1]
+                let cur = points[i]
+                let next = points[i+1]
+                if (prev.x == cur.x && cur.x == next.x) || (prev.y == cur.y && cur.y == next.y) {
+                    continue
+                }
+                filtered.append(cur)
+            }
+            filtered.append(points.last!)
+            for i in 1..<filtered.count-1 {
+                path.addArc(tangent1End: filtered[i], tangent2End: filtered[i+1], radius: bendRadius)
+            }
+            path.addLine(to: filtered.last!)
+        } else {
+            let detourClear: CGFloat = 100.0
+            let verticalGap = abs(start.y - end.y)
+            if verticalGap > detourClear {
+                let midY = (start.y + end.y) / 2.0
+                var routePoints: [CGPoint] = []
+                routePoints.append(CGPoint(x: startX, y: start.y))
+                routePoints.append(CGPoint(x: startX, y: midY))
+                routePoints.append(CGPoint(x: endX, y: midY))
+                routePoints.append(CGPoint(x: endX, y: end.y))
+                routePoints.append(end)
+                var points: [CGPoint] = [start]
+                points.append(contentsOf: routePoints)
+                var filtered: [CGPoint] = [points[0]]
+                for i in 1..<points.count-1 {
+                    let prev = points[i-1]
+                    let cur = points[i]
+                    let next = points[i+1]
+                    if (prev.x == cur.x && cur.x == next.x) || (prev.y == cur.y && cur.y == next.y) {
+                        continue
+                    }
+                    filtered.append(cur)
+                }
+                filtered.append(points.last!)
+                for i in 1..<filtered.count-1 {
+                    path.addArc(tangent1End: filtered[i], tangent2End: filtered[i+1], radius: bendRadius)
+                }
+                path.addLine(to: filtered.last!)
+            } else {
+                let baseDetourY: CGFloat
+                if start.y < end.y {
+                    baseDetourY = min(start.y, end.y) - detourClear
+                } else {
+                    baseDetourY = max(start.y, end.y) + detourClear
+                }
+                let diff = sourcePort.index - targetPort.index
+                var detourY = baseDetourY
+                if diff != 0 {
+                    detourY += CGFloat(diff) * (start.y < end.y ? -spacing : spacing)
+                } else {
+                    if start.y < end.y {
+                        detourY -= CGFloat(sourcePort.index) * spacing
+                    } else {
+                        detourY += CGFloat(sourcePort.index) * spacing
+                    }
+                }
+                var routePoints: [CGPoint] = []
+                routePoints.append(CGPoint(x: startX, y: start.y))
+                routePoints.append(CGPoint(x: startX, y: detourY))
+                routePoints.append(CGPoint(x: endX, y: detourY))
+                routePoints.append(CGPoint(x: endX, y: end.y))
+                routePoints.append(end)
+                var points: [CGPoint] = [start]
+                points.append(contentsOf: routePoints)
+                var filtered: [CGPoint] = [points[0]]
+                for i in 1..<points.count-1 {
+                    let prev = points[i-1]
+                    let cur = points[i]
+                    let next = points[i+1]
+                    if (prev.x == cur.x && cur.x == next.x) || (prev.y == cur.y && cur.y == next.y) {
+                        continue
+                    }
+                    filtered.append(cur)
+                }
+                filtered.append(points.last!)
+                for i in 1..<filtered.count-1 {
+                    path.addArc(tangent1End: filtered[i], tangent2End: filtered[i+1], radius: bendRadius)
+                }
+                path.addLine(to: filtered.last!)
+            }
         }
-        return path
+        return UIBezierPath(cgPath: path)
     }
 }
