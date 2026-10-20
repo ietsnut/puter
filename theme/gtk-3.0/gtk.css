@@ -1,0 +1,370 @@
+/* GTK 3 apps (Thunar, KiCad, Chromium's frame) in puter's look: Adwaita's
+   layout, redrawn in the palette's roles, square and flat, Geist at 15px, and
+   every bar and row one module (30px) tall. The colours are colors.css,
+   written by ../make from ../colors. */
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+@import url("colors.css");
+
+@define-color theme_bg_color @paper;
+@define-color theme_fg_color @ink;
+@define-color theme_base_color @paper;
+@define-color theme_text_color @ink;
+@define-color theme_selected_bg_color @accent;
+@define-color theme_selected_fg_color @accent_ink;
+@define-color borders @muted;
+
+* {
+  font-family: "Geist";
+  font-size: 15px;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+  -gtk-icon-shadow: none;
+  outline: none;
+  transition: none;
+  animation: none;
+}
+
+window, .background, dialog, popover, popover.background {
+  background-color: @paper;
+  color: @ink;
+}
+
+/* Bars: menu bar, toolbars and status bars are each one module tall. */
+menubar {
+  background-color: @ink;
+  color: @paper;
+  padding: 0;
+  min-height: 30px;
+  border: none;
+}
+
+menubar > menuitem {
+  min-height: 30px;
+  padding: 0 8px;
+  color: @paper;
+}
+
+menubar > menuitem:hover {
+  background-color: @accent;
+  color: @accent_ink;
+  box-shadow: none;
+}
+
+menu, .menu, .context-menu {
+  background-color: @ink;
+  color: @paper;
+  padding: 0;
+  border: none;
+}
+
+menu menuitem {
+  min-height: 30px;
+  padding: 0 8px;
+  color: @paper;
+}
+
+menu menuitem:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+menu menuitem:disabled, menu menuitem:disabled label {
+  color: @muted_ink;
+}
+
+menu separator {
+  background-color: @paper;
+  min-height: 2px;
+  margin: 0;
+}
+
+toolbar, .toolbar, .primary-toolbar {
+  background-color: @paper;
+  background-image: none;
+  padding: 0;
+  border: none;
+  min-height: 30px;
+}
+
+statusbar, .statusbar {
+  background-color: @paper;
+  color: @muted_ink;
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+  border: none;
+}
+
+separator {
+  background-color: @muted_ink;
+  min-width: 0;
+  min-height: 0;
+}
+
+paned > separator {
+  background-color: @muted_ink;
+  background-image: none;
+  min-width: 2px;
+  min-height: 2px;
+  margin: 0;
+}
+
+/* Buttons: flat, one module square, icons in the ink. */
+button, button.flat, button.image-button, button.toggle {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  color: @ink;
+  min-height: 30px;
+  min-width: 30px;
+  padding: 0;
+  margin: 0;
+}
+
+button:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+button:active, button:checked {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+button:disabled, button:disabled image {
+  color: @muted_ink;
+  background-color: transparent;
+}
+
+button.text-button {
+  padding: 0 8px;
+  background-color: @ink;
+  color: @paper;
+}
+
+button.text-button:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Text entries are ink with paper text, like the search input. */
+entry {
+  background-color: @ink;
+  background-image: none;
+  color: @paper;
+  caret-color: @paper;
+  border: none;
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+}
+
+entry image {
+  color: @paper;
+}
+
+entry selection {
+  background-color: @paper;
+  color: @ink;
+}
+
+/* Lists and the sidebar: rows one module tall, selection in the accent. */
+.sidebar, placessidebar, placessidebar list, .thunar .sidebar, treeview.view {
+  background-color: @paper;
+  color: @ink;
+  border: none;
+}
+
+.sidebar row, placessidebar row, list row {
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+}
+
+.sidebar row:selected, placessidebar row:selected, list row:selected,
+treeview.view:selected, iconview:selected, .view:selected, .view text:selected,
+flowboxchild:selected {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+.sidebar row:hover, placessidebar row:hover, list row:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+.sidebar .sidebar-section-header, placessidebar .sidebar-section-header,
+.sidebar row.sidebar-placeholder-row {
+  color: @muted_ink;
+}
+
+treeview.view header button {
+  background-color: @paper;
+  color: @muted_ink;
+  min-height: 30px;
+  padding: 0 8px;
+  border: none;
+}
+
+iconview, .view {
+  background-color: @paper;
+  color: @ink;
+}
+
+iconview:hover, .view:hover {
+  background-color: transparent;
+}
+
+rubberband, .rubberband {
+  background-color: transparent;
+  border: 2px solid @ink;
+}
+
+/* Scrollbars: a 6px muted bar, square, no trough. */
+scrollbar, scrollbar.vertical, scrollbar.horizontal {
+  background-color: transparent;
+  border: none;
+}
+
+scrollbar slider {
+  background-color: @muted_ink;
+  border: none;
+  min-width: 6px;
+  min-height: 6px;
+  margin: 0;
+}
+
+scrollbar button {
+  min-width: 0;
+  min-height: 0;
+}
+
+tooltip, tooltip.background {
+  background-color: @ink;
+  color: @paper;
+  padding: 0 8px;
+  border: none;
+}
+
+tooltip * {
+  color: @paper;
+}
+
+headerbar, .titlebar {
+  background-color: @ink;
+  background-image: none;
+  color: @paper;
+  min-height: 30px;
+  padding: 0;
+  border: none;
+}
+
+check, radio {
+  background-color: @paper;
+  background-image: none;
+  border: 2px solid @ink;
+  color: @paper;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+check:checked, radio:checked {
+  background-color: @ink;
+}
+
+notebook > header {
+  background-color: @paper;
+  border: none;
+}
+
+notebook > header tab {
+  min-height: 30px;
+  padding: 0 8px;
+  color: @muted_ink;
+}
+
+notebook > header tab:checked {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Unfocused windows: Adwaita has its own "backdrop" colours that would win
+   over the rules above, so they are restated here. A window looks the same
+   focused or not; its title bar says which. */
+window:backdrop, .background:backdrop, .view:backdrop, iconview:backdrop,
+treeview.view:backdrop, .sidebar:backdrop, placessidebar:backdrop,
+placessidebar list:backdrop, toolbar:backdrop, statusbar:backdrop {
+  background-color: @paper;
+  color: @ink;
+}
+
+label:backdrop, button:backdrop, image:backdrop {
+  color: inherit;
+}
+
+menubar:backdrop {
+  background-color: @ink;
+}
+
+menubar > menuitem:backdrop, menubar > menuitem:backdrop label {
+  color: @paper;
+}
+
+entry:backdrop {
+  background-color: @ink;
+  color: @paper;
+}
+
+.view:selected:backdrop, iconview:selected:backdrop, list row:selected:backdrop,
+.sidebar row:selected:backdrop, placessidebar row:selected:backdrop {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Icons inside entries use their symbolic form, so they take the entry's
+   paper ink rather than being drawn in ink on ink. */
+entry {
+  -gtk-icon-style: symbolic;
+}
+
+/* Adwaita rounds and shades some widgets with rules more specific than the
+   catch-all at the top, so square and flatten them by name. */
+entry, button, menubar, menu, menuitem, popover, tooltip, row, list,
+scrollbar slider, notebook tab, treeview, iconview, frame, frame > border,
+.linked > entry, .linked > button {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* No divider between the sidebar and the files: the sidebar draws a 2px edge
+   inside its own width, so the file view starts on the grid. */
+paned > separator, paned.horizontal > separator {
+  min-width: 0;
+  min-height: 0;
+  background: none;
+  border: none;
+}
+
+.sidebar, placessidebar, .thunar .shortcuts-pane {
+  border-right: 2px solid @muted;
+}
+
+/* Tree rows (Thunar's sidebar, list views): one module tall. GTK sizes them
+   from their cells, so the cells are padded up to 30px. */
+treeview.view {
+  -GtkTreeView-vertical-separator: 0;
+  padding-top: 2px;
+  padding-bottom: 3px;
+}
+
+/* The toolbar: one module, no border under it. */
+toolbar, .toolbar, .primary-toolbar, toolbar:backdrop {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+toolbar > *, toolbar toolitem, toolbar entry, toolbar button {
+  margin: 0;
+}

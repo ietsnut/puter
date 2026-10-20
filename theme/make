@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""Writes every colour and icon in puter from theme/colors.
+
+  quickshell/Colors.qml      the roles, for the shell
+  theme/labwc/themerc        title bars, menus, the window switcher
+  theme/labwc/*.svg          the window buttons
+  theme/icons/               places and file icons
+  theme/gtk-3.0/colors.css   the roles, for GTK apps
+  ghostty/colors             the terminal
+
+Every glyph is drawn in 2px vector strokes. Straight strokes sit on whole
+pixels so they are sharp; diagonals and curves are smooth. Run it after
+changing theme/colors, then dev/sync.
+"""
+from pathlib import Path
+
+theme = Path(__file__).parent
+repo = theme.parent
+
+
+def read_apollo():
+    apollo, inside = {}, False
+    for line in (theme / "colors").read_text().splitlines():
+        if line.strip() == "[apollo]":
+            inside = True
+        elif inside and line.strip():
+            name, value = line.split()[:2]
+            apollo[name] = value
+    return apollo
+
+
+def read_roles(apollo):
+    roles = {}
+    for line in (theme / "colors").read_text().splitlines():
+        if line.strip() == "[apollo]":
+            break
+        if line.strip() and not line.startswith("#"):
+            role, name = line.split()[:2]
+            roles[role] = apollo[name]
+    return roles
+
+
+APOLLO = read_apollo()
+C = read_roles(APOLLO)
+
+
+# The shell.
+(repo / "quickshell" / "Colors.qml").write_text(
+    "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
+    "// Written by theme/make from theme/colors; edit those, not this.\n"
+    "Singleton {\n"
+    + "".join(
+        f'    readonly property color {"".join(w.capitalize() if i else w for i, w in enumerate(role.split("-")))}: "{value}"\n'
+        for role, value in C.items()
+    )
+    + "}\n"
+)
+
+
+# labwc: title bars and menus.
+(theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/colors; edit those, not this.
+# A one-module title bar, accent when focused and muted when not, paper bodies,
+# square and flat. The buttons are the SVGs beside this file.
+border.width: 0
+window.titlebar.padding.width: 0
+window.titlebar.padding.height: 0
+window.label.text.justify: left
+
+window.active.title.bg.color: {C['accent']}
+window.inactive.title.bg.color: {C['muted']}
+window.active.label.text.color: {C['accent-ink']}
+window.inactive.label.text.color: {C['muted-ink']}
+window.active.border.color: {C['accent']}
+window.inactive.border.color: {C['muted']}
+
+window.button.width: 30
+window.button.height: 30
+window.button.spacing: 0
+window.button.hover.bg.color: {C['paper']}
+window.button.hover.bg.corner-radius: 0
+
+window.active.shadow.size: 0
+window.inactive.shadow.size: 0
+
+menu.border.width: 0
+menu.items.bg.color: {C['ink']}
+menu.items.text.color: {C['paper']}
+menu.items.active.bg.color: {C['accent']}
+menu.items.active.text.color: {C['accent-ink']}
+menu.items.padding.x: 8
+menu.items.padding.y: 6
+menu.width.min: 180
+menu.separator.width: 2
+menu.separator.padding.width: 0
+menu.separator.padding.height: 0
+menu.separator.color: {C['paper']}
+
+osd.bg.color: {C['ink']}
+osd.border.width: 0
+osd.label.text.color: {C['paper']}
+osd.window-switcher.style-classic.item.active.border.width: 0
+osd.window-switcher.style-classic.item.active.bg.color: {C['accent']}
+
+# Where a dragged window will snap: a plain 2px outline in ink, no fill.
+snapping.overlay.region.bg.enabled: no
+snapping.overlay.edge.bg.enabled: no
+snapping.overlay.region.border.enabled: yes
+snapping.overlay.edge.border.enabled: yes
+snapping.overlay.region.border.width: 2
+snapping.overlay.edge.border.width: 2
+snapping.overlay.region.border.color: {C['ink']}
+snapping.overlay.edge.border.color: {C['ink']}
+""")
+
+
+# labwc: the window buttons. A button is one module (30 x 30); its glyph sits
+# in the 10 x 10 box from 10 to 20.
+def rects(*boxes):
+    return "".join(f'<rect x="{x}" y="{y}" width="{w}" height="{h}"/>' for x, y, w, h in boxes)
+
+
+BUTTONS = {
+    # The window menu: three bars. It also gives the title its inset, since
+    # labwc has no padding for the title text alone.
+    "menu": rects((10, 10, 10, 2), (10, 14, 10, 2), (10, 18, 10, 2)),
+    "iconify": rects((10, 18, 10, 2)),
+    "max": rects((10, 10, 10, 2), (10, 18, 10, 2), (10, 12, 2, 6), (18, 12, 2, 6)),
+    # Restore: a smaller square, with the top and right edges of one behind it.
+    "max_toggled": rects(
+        (10, 12, 8, 2), (10, 18, 8, 2), (10, 14, 2, 4), (16, 14, 2, 4),
+        (12, 10, 8, 2), (18, 12, 2, 6),
+    ),
+    # The cross: two strokes corner to corner, clipped square on the box.
+    "close": (
+        '<clipPath id="box"><rect x="10" y="10" width="10" height="10"/></clipPath>'
+        '<g clip-path="url(#box)" stroke-width="2" fill="none" stroke="{ink}">'
+        '<line x1="9" y1="9" x2="21" y2="21"/><line x1="21" y1="9" x2="9" y2="21"/></g>'
+    ),
+}
+for name, body in BUTTONS.items():
+    for state, ink in (("active", C["accent-ink"]), ("inactive", C["muted-ink"])):
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">'
+            f'<g fill="{ink}">{body.format(ink=ink)}</g></svg>\n'
+        )
+        for variant in (name, f"{name}_hover"):
+            (theme / "labwc" / f"{variant}-{state}.svg").write_text(svg)
+
+
+# Icons: drawn once at 16px (lists, the sidebar) and once at 64px (icon view,
+# scaled for other sizes). Anything not drawn here comes from Adwaita.
+ICONS = {
+    "folder": ("places", "M2 3H6L8 5H14V13H2Z", "M12 18H26L30 22H52V46H12Z"),
+    "user-home": ("places", "M1 8L8 2L15 8M3 7V14H13V7M7 14V10H9V14",
+                  "M10 30L32 12L54 30M16 25V50H48V25M28 50V38H36V50"),
+    "drive-harddisk": ("devices", "M2 5H14V11H2Z", "M12 22H52V42H12ZM42 32H46"),
+    "text-x-generic": ("mimetypes", "M3 1H10L13 4V15H3Z", "M18 10H38L46 18V54H18ZM38 10V18H46"),
+}
+ALIASES = {
+    "inode-directory": "folder", "folder-open": "folder", "user-desktop": "folder",
+    "drive-harddisk-system": "drive-harddisk",
+    "unknown": "text-x-generic", "application-octet-stream": "text-x-generic",
+}
+icons = theme / "icons"
+contexts = set()
+for name, (context, small, large) in ICONS.items():
+    contexts.add(context)
+    for size, path in ((16, small), (64, large)):
+        folder = icons / f"{size}x{size}" / context
+        folder.mkdir(parents=True, exist_ok=True)
+        svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
+               f'viewBox="0 0 {size} {size}"><path d="{path}" fill="none" stroke="{C["ink"]}" '
+               f'stroke-width="2"/></svg>\n')
+        for n in [name] + [a for a, t in ALIASES.items() if t == name]:
+            (folder / f"{n}.svg").write_text(svg)
+dirs = [f"{s}x{s}/{c}" for s in (16, 64) for c in sorted(contexts)]
+index = ["[Icon Theme]", "Name=puter", "Comment=2px line icons", "Inherits=Adwaita,hicolor",
+         "Directories=" + ",".join(dirs), ""]
+for d in dirs:
+    size = int(d.split("x")[0])
+    index += [f"[{d}]", f"Size={size}", f"Context={d.split('/')[1].capitalize()}"]
+    index += ["Type=Fixed"] if size == 16 else ["Type=Scalable", "MinSize=17", "MaxSize=256"]
+    index.append("")
+(icons / "index.theme").write_text("\n".join(index))
+
+
+# GTK apps.
+(theme / "gtk-3.0" / "colors.css").write_text(
+    "/* Written by theme/make from theme/colors; edit those, not this. */\n"
+    + "".join(f"@define-color {role.replace('-', '_')} {value};\n" for role, value in C.items())
+)
+
+
+# The terminal: paper and ink, the accent for selections, and Apollo for the
+# sixteen ANSI colours.
+A = APOLLO
+ansi = ["gray2", "red3", "green2", "orange3", "blue2", "purple2", "blue3", "gray7",
+        "gray5", "red4", "green3", "orange4", "blue4", "purple4", "blue5", "gray9"]
+(repo / "ghostty" / "colors").write_text(
+    "# Written by theme/make from theme/colors; edit those, not this.\n"
+    f"background = {C['paper']}\nforeground = {C['ink']}\ncursor-color = {C['ink']}\n"
+    f"selection-background = {C['accent']}\nselection-foreground = {C['accent-ink']}\n"
+    + "".join(f"palette = {i}={A[n]}\n" for i, n in enumerate(ansi))
+)

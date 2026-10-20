@@ -1,0 +1,59 @@
+# puter's palette: Apollo (AdamCYounis, lospec.com/palette-list/apollo).
+# Roles on the left, Apollo colours on the right; `theme/make` writes every
+# app's colours from this file. Change a line here, run it, and dev/sync.
+
+desk        blue5    # behind the windows
+paper       gray9    # windows, the bar, panels
+ink         green0   # text, the search square, inputs, menus
+accent      green4   # the focused title bar, the active tab, selections
+accent-ink  green0   # text and icons on the accent
+muted       gray7    # unfocused title bars and tabs
+muted-ink   gray4    # text and icons on muted
+
+[apollo]
+blue0   #172038
+blue1   #253a5e
+blue2   #3c5e8b
+blue3   #4f8fba
+blue4   #73bed3
+blue5   #a4dddb
+green0  #19332d
+green1  #25562e
+green2  #468232
+green3  #75a743
+green4  #a8ca58
+green5  #d0da91
+brown0  #4d2b32
+brown1  #7a4841
+brown2  #ad7757
+brown3  #c09473
+brown4  #d7b594
+brown5  #e7d5b3
+orange0 #341c27
+orange1 #602c2c
+orange2 #884b2b
+orange3 #be772b
+orange4 #de9e41
+orange5 #e8c170
+red0    #241527
+red1    #411d31
+red2    #752438
+red3    #a53030
+red4    #cf573c
+red5    #da863e
+purple0 #1e1d39
+purple1 #402751
+purple2 #7a367b
+purple3 #a23e8c
+purple4 #c65197
+purple5 #df84a5
+gray0   #090a14
+gray1   #10141f
+gray2   #151d28
+gray3   #202e37
+gray4   #394a50
+gray5   #577277
+gray6   #819796
+gray7   #a8b5b2
+gray8   #c7cfcc
+gray9   #ebede9

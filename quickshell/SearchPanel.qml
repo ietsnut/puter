@@ -61,7 +61,7 @@ PanelWindow {
 
                 width: parent.width
                 height: Theme.module
-                color: current ? Theme.muted : Theme.background
+                color: current ? Theme.primary : Theme.background
 
                 Text {
                     x: Theme.inset
@@ -69,7 +69,7 @@ PanelWindow {
                     anchors.verticalCenter: parent.verticalCenter
                     text: modelData.name
                     elide: Text.ElideRight
-                    color: current ? Theme.mutedForeground : Theme.foreground
+                    color: current ? Theme.primaryForeground : Theme.foreground
                     font.family: Theme.font
                     renderType: Text.CurveRendering
                     font.pixelSize: Theme.textSize

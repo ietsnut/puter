@@ -1,0 +1,22 @@
+# Written by theme/make from theme/colors; edit those, not this.
+background = #ebede9
+foreground = #19332d
+cursor-color = #19332d
+selection-background = #a8ca58
+selection-foreground = #19332d
+palette = 0=#151d28
+palette = 1=#a53030
+palette = 2=#468232
+palette = 3=#be772b
+palette = 4=#3c5e8b
+palette = 5=#7a367b
+palette = 6=#4f8fba
+palette = 7=#a8b5b2
+palette = 8=#577277
+palette = 9=#cf573c
+palette = 10=#75a743
+palette = 11=#de9e41
+palette = 12=#73bed3
+palette = 13=#c65197
+palette = 14=#a4dddb
+palette = 15=#ebede9

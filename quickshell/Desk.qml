@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 
-// The desk behind every window: plain gray.
+// The desk behind every window: one plain colour.
 PanelWindow {
     anchors {
         top: true
@@ -12,5 +12,5 @@ PanelWindow {
     }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Background
-    color: Theme.gray
+    color: Theme.desk
 }

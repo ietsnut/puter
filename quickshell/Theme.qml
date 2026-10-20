@@ -2,23 +2,20 @@ pragma Singleton
 import QtQuick
 import Quickshell
 
-// The one geometry and a closed palette of three: black, gray and white.
-// Nothing in the shell states a size or colour of its own.
+// The one geometry, and the colour roles from Colors.qml (written by
+// theme/make from theme/colors). Nothing in the shell states a size or colour
+// of its own.
 Singleton {
     readonly property int module: 30
     readonly property int inset: 8
     readonly property string font: "Geist"
     readonly property int textSize: 15
 
-    readonly property color black: "#000000"
-    readonly property color gray: "#808080"
-    readonly property color white: "#ffffff"
-
-    // Roles. Everything else reads these.
-    readonly property color background: white
-    readonly property color foreground: black
-    readonly property color primary: black
-    readonly property color primaryForeground: white
-    readonly property color muted: gray
-    readonly property color mutedForeground: black
+    readonly property color desk: Colors.desk
+    readonly property color background: Colors.paper
+    readonly property color foreground: Colors.ink
+    readonly property color primary: Colors.accent
+    readonly property color primaryForeground: Colors.accentInk
+    readonly property color muted: Colors.muted
+    readonly property color mutedForeground: Colors.mutedInk
 }
