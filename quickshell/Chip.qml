@@ -10,9 +10,6 @@ Rectangle {
     property color ink: Theme.mutedForeground
     property int minModules: 1
     property int maxModules: 64
-    // A line of the strip's white inside the right edge, to part chips that
-    // sit flush and share a fill.
-    property bool divider: false
     signal clicked
 
     readonly property int modules: Math.ceil((label.implicitWidth + Theme.inset * 2) / Theme.module)
@@ -31,14 +28,6 @@ Rectangle {
         font.family: Theme.font
         renderType: Text.CurveRendering
         font.pixelSize: Theme.textSize
-    }
-
-    Rectangle {
-        visible: chip.divider
-        anchors.right: parent.right
-        width: 1
-        height: parent.height
-        color: Theme.background
     }
 
     MouseArea {

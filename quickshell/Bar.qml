@@ -43,7 +43,7 @@ PanelWindow {
     }
 
     // Windows sit flush, side by side, one module after the search square:
-    // each tab three to eight modules wide, parted by a hairline of white.
+    // each tab three to eight modules wide.
     Row {
         x: Theme.module * 3
         y: Theme.module
@@ -57,7 +57,6 @@ PanelWindow {
                 text: modelData.title
                 minModules: 3
                 maxModules: 8
-                divider: true
                 fill: modelData.activated ? Theme.primary : Theme.muted
                 ink: modelData.activated ? Theme.primaryForeground : Theme.mutedForeground
                 onClicked: modelData.activate()

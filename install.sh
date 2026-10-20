@@ -5,7 +5,7 @@ set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
 mkdir -p "$HOME/.config"
-for dir in labwc quickshell ghostty fontconfig; do
+for dir in labwc quickshell ghostty fontconfig fuzzel; do
   target="$HOME/.config/$dir"
   if [[ -e $target && ! -L $target ]]; then
     mv "$target" "$target.bak.$(date +%s)"
