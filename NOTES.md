@@ -65,7 +65,7 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   focused or not; only its taskbar tab shows the focus.
 - `theme/palettes/stack` (20 October 2026), after Koto's Stack Overflow
   identity and Butterfly's Pond: a charcoal desk with a dot at every module
-  corner, paper windows under black title bars, a black taskbar whose focused
+  corner, paper windows under bone title bars, a bone taskbar whose focused
   tab is paper, lilac selection, and one colour per app, shown as a 14px
   square one inset in on its title bar (labwc's `icon` button, which opens
   the window menu) and its taskbar tab. Set in Stack Sans Text (code in IBM

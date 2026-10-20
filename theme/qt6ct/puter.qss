@@ -133,7 +133,7 @@ QToolButton::menu-indicator {
 /* PCManFM-Qt's path bar: its folder buttons are a module tall like any
    other toolbar button. */
 Fm--PathBar QToolButton:checked {
-    background: #958d79;
+    background: #f1f0ec;
     color: #060606;
 }
 
@@ -242,7 +242,7 @@ QTabBar::tab {
     color: #060606;
 }
 QTabBar::tab:selected {
-    background: #958d79;
+    background: #f1f0ec;
     color: #060606;
 }
 QTabBar::tab:hover:!selected {

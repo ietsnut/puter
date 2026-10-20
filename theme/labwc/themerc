@@ -7,8 +7,8 @@ window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
 window.label.text.justify: left
 
-window.active.title.bg.color: #958d79
-window.inactive.title.bg.color: #958d79
+window.active.title.bg.color: #f1f0ec
+window.inactive.title.bg.color: #f1f0ec
 window.active.label.text.color: #060606
 window.inactive.label.text.color: #060606
 window.active.border.color: #060606
