@@ -1,39 +1,106 @@
 #!/bin/bash
-# Links each config folder in this repo into ~/.config, so editing the repo
-# edits the live desktop. Anything already there is moved aside first.
+# Installs puter on a plain Arch install (archinstall, minimal profile, a user
+# with sudo). Safe to run again.
+#
+#   ./install.sh          everything: packages, fonts, configs, login screen
+#   ./install.sh config   only link the configs and apply settings (what
+#                         dev/sync runs after copying a change over)
+#   ./install.sh packages only install the packages and Geist
 set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
-mkdir -p "$HOME/.config"
-for dir in labwc quickshell ghostty fontconfig gtk-3.0; do
-  target="$HOME/.config/$dir"
-  if [[ -e $target && ! -L $target ]]; then
-    mv "$target" "$target.bak.$(date +%s)"
+packages() {
+  mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
+  sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
+
+  # Geist is only in the AUR; it is built straight with makepkg.
+  if ! pacman -Q otf-geist >/dev/null 2>&1; then
+    build="$(mktemp -d)"
+    git clone --depth 1 https://aur.archlinux.org/geist-font.git "$build"
+    (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm otf-geist-[0-9]*.pkg.tar.zst)
+    rm -rf "$build"
   fi
-  ln -sfn "$repo/$dir" "$target"
-done
+}
 
-# The theme: labwc's title bars and window buttons, and GTK apps.
-mkdir -p "$HOME/.local/share/themes"
-ln -sfn "$repo/theme" "$HOME/.local/share/themes/puter"
+# Runs a command on the session bus, starting a private one when there is no
+# desktop session yet (a first install from the console).
+on_bus() {
+  if [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]]; then "$@"; else dbus-run-session -- "$@"; fi
+}
 
-# The icon theme: line icons for places and files.
-mkdir -p "$HOME/.local/share/icons"
-ln -sfn "$repo/theme/icons" "$HOME/.local/share/icons/puter"
-
-# GTK on Wayland reads its theme from gsettings rather than settings.ini.
-if command -v gsettings >/dev/null; then
+settings() {
+  # GTK on Wayland reads its theme from gsettings rather than settings.ini.
   gsettings set org.gnome.desktop.interface gtk-theme puter
   gsettings set org.gnome.desktop.interface icon-theme puter
   gsettings set org.gnome.desktop.interface font-name "Geist 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
-fi
 
-# Thunar: the sidebar six modules wide, so the file view starts on the grid,
-# and its icons at 16px, the size they are drawn for.
-if command -v xfconf-query >/dev/null; then
-  xfconf-query -c thunar -p /last-separator-position -n -t int -s 180
-  xfconf-query -c thunar -p /shortcuts-icon-size -n -t string -s THUNAR_ICON_SIZE_16
-  xfconf-query -c thunar -p /tree-icon-size -n -t string -s THUNAR_ICON_SIZE_16
-fi
+  # Thunar.
+  local t=(xfconf-query -c thunar -n -p)
+  # No side pane (F9 shows it): the Places pane pads its headings 4px more than
+  # its rows in code, and the tree pane's rows vary, so neither keeps to the
+  # grid. The list view does: one module per file.
+  "${t[@]}" /last-side-pane -t string -s void
+  "${t[@]}" /default-view -t string -s ThunarDetailsView
+  "${t[@]}" /last-view -t string -s ThunarDetailsView
+  "${t[@]}" /last-separator-position -t int -s 180
+  "${t[@]}" /shortcuts-icon-size -t string -s THUNAR_ICON_SIZE_16
+  "${t[@]}" /tree-icon-size -t string -s THUNAR_ICON_SIZE_16
+  # Toolbar icons from puter's icon theme as drawn, not GTK's symbolic ones,
+  # which GTK fills in solid.
+  "${t[@]}" /misc-symbolic-icons-in-toolbar -t bool -s false
+}
+
+config() {
+  # Each config folder is linked into ~/.config, so editing the repo edits the
+  # live desktop. Anything already there is moved aside first.
+  mkdir -p "$HOME/.config"
+  for dir in labwc quickshell ghostty fontconfig gtk-3.0; do
+    target="$HOME/.config/$dir"
+    if [[ -e $target && ! -L $target ]]; then
+      mv "$target" "$target.bak.$(date +%s)"
+    fi
+    ln -sfn "$repo/$dir" "$target"
+  done
+
+  # The theme: labwc's title bars and window buttons, and GTK apps; and the
+  # icon theme.
+  mkdir -p "$HOME/.local/share/themes" "$HOME/.local/share/icons"
+  ln -sfn "$repo/theme" "$HOME/.local/share/themes/puter"
+  ln -sfn "$repo/theme/icons" "$HOME/.local/share/icons/puter"
+
+  on_bus bash -c "$(declare -f settings); settings"
+}
+
+login() {
+  # greetd with tuigreet: a text login screen that starts labwc.
+  sudo tee /etc/greetd/config.toml >/dev/null <<'TOML'
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --remember --asterisks --cmd labwc"
+user = "greeter"
+TOML
+  sudo systemctl enable greetd.service NetworkManager.service
+}
+
+case "${1:-all}" in
+  config)
+    config
+    ;;
+  packages)
+    packages
+    ;;
+  all)
+    packages
+    config
+    login
+    echo "Done. Reboot to log in to puter."
+    ;;
+  *)
+    echo "usage: $0 [config|packages]" >&2
+    exit 1
+    ;;
+esac

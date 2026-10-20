@@ -1,0 +1,35 @@
+# Everything puter installs from the Arch repos. Geist itself comes from the
+# AUR (install.sh builds it).
+
+# The desktop
+labwc
+quickshell
+xorg-xwayland
+greetd
+greetd-tuigreet
+xdg-desktop-portal-wlr
+xdg-desktop-portal-gtk
+
+# Apps
+ghostty
+thunar
+gvfs
+chromium
+
+# Fonts
+otf-geist-mono-nerd
+noto-fonts
+noto-fonts-emoji
+
+# System
+networkmanager
+pipewire
+pipewire-pulse
+wireplumber
+wl-clipboard
+grim
+slurp
+
+# Building Geist from the AUR
+git
+base-devel

@@ -350,12 +350,11 @@ paned > separator, paned.horizontal > separator {
   border-right: 2px solid @muted;
 }
 
-/* Tree rows (Thunar's sidebar, list views): one module tall. GTK sizes them
-   from their cells, so the cells are padded up to 30px. */
+/* Tree rows (Thunar's list view): one module tall. A row of Geist at 15px is
+   26px; GTK adds its vertical separator once per row (CSS padding would be
+   added once per column), so that makes up the other 4px. */
 treeview.view {
-  -GtkTreeView-vertical-separator: 0;
-  padding-top: 2px;
-  padding-bottom: 3px;
+  -GtkTreeView-vertical-separator: 4;
 }
 
 /* The toolbar: one module, no border under it. */
@@ -367,4 +366,79 @@ toolbar, .toolbar, .primary-toolbar, toolbar:backdrop {
 
 toolbar > *, toolbar toolitem, toolbar entry, toolbar button {
   margin: 0;
+}
+
+/* Frames draw a 1px border in Adwaita's own gray; puter has no such lines. */
+scrolledwindow, scrolledwindow.frame, frame, frame > border,
+scrolledwindow > undershoot, scrolledwindow > overshoot {
+  border: none;
+  background-image: none;
+}
+
+/* Entries are exactly one module: no border, no vertical padding. */
+entry, toolbar entry {
+  min-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+/* GtkToolbar adds a pixel of its own below its tallest item that no CSS
+   height reaches, so it gives that pixel back to stay one module tall. */
+toolbar, .toolbar, .primary-toolbar {
+  margin-bottom: -1px;
+}
+
+.sidebar, placessidebar, .sidebar scrolledwindow, .sidebar viewport {
+  padding: 0;
+  margin: 0;
+}
+
+/* Adwaita colours a focused selection with its own blue; puter uses the
+   accent whether or not the list has focus. */
+.view:selected:focus, .view:selected:focus:backdrop, treeview.view:selected:focus,
+iconview:selected:focus, .view text:selected:focus, list row:selected:focus,
+treeview.view:selected:focus:backdrop {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Toolbar buttons are one-module squares side by side: Adwaita spaces them
+   with margins of its own, set here to none. */
+toolbar toolitem, toolbar > toolitem, .toolbar toolitem, toolbutton,
+toolbar toolbutton, toolbar button, toolbar toolitem > button, .toolbar button,
+toolbar toolbutton > button, toolbar .image-button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 30px;
+  min-height: 30px;
+}
+
+/* Adwaita's own rule for that spacing, matched exactly so this one wins. */
+toolbar > *:not(.toggle):not(.popup) > *,
+toolbar > *:not(.toggle):not(.popup) > * > button {
+  margin: 0;
+}
+
+/* Adwaita shades buttons and entries in every state with shadows, gradients
+   and a 1px white highlight, through rules more specific than the ones above.
+   These selectors outrank them, so nothing is drawn but flat fills. */
+button:not(.puter-a):not(.puter-b), button:not(.puter-a):not(.puter-b):hover,
+button:not(.puter-a):not(.puter-b):active, button:not(.puter-a):not(.puter-b):checked,
+button:not(.puter-a):not(.puter-b):backdrop, button:not(.puter-a):not(.puter-b):disabled,
+entry:not(.puter-a):not(.puter-b), entry:not(.puter-a):not(.puter-b):focus,
+entry:not(.puter-a):not(.puter-b):backdrop {
+  box-shadow: none;
+  background-image: none;
+  text-shadow: none;
+  -gtk-icon-shadow: none;
+  outline: none;
+  border-color: transparent;
+}
+
+/* GtkToolbar leaves a pixel after each item; each item gives it back, so the
+   buttons sit flush, one module apart. */
+toolbar > toolbutton, toolbar > toolitem {
+  margin-right: -1px;
 }

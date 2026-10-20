@@ -8,8 +8,8 @@
   theme/gtk-3.0/colors.css   the roles, for GTK apps
   ghostty/colors             the terminal
 
-Every glyph is drawn in 2px vector strokes. Straight strokes sit on whole
-pixels so they are sharp; diagonals and curves are smooth. Run it after
+Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
+sit on whole pixels so they are sharp; diagonals and curves are smooth. Run it after
 changing theme/colors, then dev/sync.
 """
 from pathlib import Path
@@ -147,39 +147,64 @@ for name, body in BUTTONS.items():
             (theme / "labwc" / f"{variant}-{state}.svg").write_text(svg)
 
 
-# Icons: drawn once at 16px (lists, the sidebar) and once at 64px (icon view,
-# scaled for other sizes). Anything not drawn here comes from Adwaita.
-ICONS = {
-    "folder": ("places", "M2 3H6L8 5H14V13H2Z", "M12 18H26L30 22H52V46H12Z"),
-    "user-home": ("places", "M1 8L8 2L15 8M3 7V14H13V7M7 14V10H9V14",
-                  "M10 30L32 12L54 30M16 25V50H48V25M28 50V38H36V50"),
-    "drive-harddisk": ("devices", "M2 5H14V11H2Z", "M12 22H52V42H12ZM42 32H46"),
-    "text-x-generic": ("mimetypes", "M3 1H10L13 4V15H3Z", "M18 10H38L46 18V54H18ZM38 10V18H46"),
+# Icons, in two sets. Toolbar actions use the window buttons' 10 x 10 box, so
+# a toolbar reads like a title bar. Files and places are drawn on the whole
+# 16 x 16 grid, which leaves room inside their outlines. Lines sit on whole
+# pixels so a 2px stroke is sharp; at 64px (icon view) the drawing is four
+# times larger and the stroke stays 2px. Anything not drawn here comes from
+# Adwaita.
+GLYPHS = {
+    # name: (context, box, path)
+    "folder": ("places", 16, "M2 4H6L7 5H14V13H2Z"),
+    "user-home": ("places", 16, "M2 8L8 2L14 8M4 7V14H12V7"),
+    "drive-harddisk": ("devices", 16, "M2 5H14V11H2Z"),
+    "text-x-generic": ("mimetypes", 16, "M3 2H9L13 6V14H3ZM9 2V6H13"),
+    "go-previous": ("actions", 10, "M7 1L3 5L7 9"),
+    "go-next": ("actions", 10, "M3 1L7 5L3 9"),
+    "go-up": ("actions", 10, "M1 7L5 3L9 7"),
+    "go-down": ("actions", 10, "M1 3L5 7L9 3"),
+    "go-home": ("actions", 10, "M1 5L5 1L9 5M2 4V9H8V4"),
+    # The magnifier, as on the search square: a lens and a handle clipped
+    # square at the box's corner.
+    "edit-find": ("actions", 10, "M7 4A3 3 0 1 1 1 4A3 3 0 1 1 7 4ZM6 6L11 11"),
 }
 ALIASES = {
     "inode-directory": "folder", "folder-open": "folder", "user-desktop": "folder",
     "drive-harddisk-system": "drive-harddisk",
     "unknown": "text-x-generic", "application-octet-stream": "text-x-generic",
+    "system-search": "edit-find",
 }
+SIZES = (16, 24, 64)
+
+
+def icon(size, box, path):
+    scale = 4 if size == 64 and box == 16 else 1
+    offset = (size - box * scale) // 2
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
+            f'<clipPath id="box"><rect x="{offset}" y="{offset}" width="{box * scale}" height="{box * scale}"/></clipPath>'
+            f'<g clip-path="url(#box)"><path transform="translate({offset} {offset}) scale({scale})" d="{path}" '
+            f'fill="none" stroke="{C["ink"]}" stroke-width="2" vector-effect="non-scaling-stroke"/></g></svg>\n')
+
+
 icons = theme / "icons"
-contexts = set()
-for name, (context, small, large) in ICONS.items():
-    contexts.add(context)
-    for size, path in ((16, small), (64, large)):
+for old in icons.glob("[0-9]*x[0-9]*"):
+    for f in sorted(old.rglob("*"), reverse=True):
+        f.unlink() if f.is_file() else f.rmdir()
+    old.rmdir()
+contexts = sorted({context for context, _, _ in GLYPHS.values()})
+for name, (context, box, path) in GLYPHS.items():
+    for size in SIZES:
         folder = icons / f"{size}x{size}" / context
         folder.mkdir(parents=True, exist_ok=True)
-        svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
-               f'viewBox="0 0 {size} {size}"><path d="{path}" fill="none" stroke="{C["ink"]}" '
-               f'stroke-width="2"/></svg>\n')
         for n in [name] + [a for a, t in ALIASES.items() if t == name]:
-            (folder / f"{n}.svg").write_text(svg)
-dirs = [f"{s}x{s}/{c}" for s in (16, 64) for c in sorted(contexts)]
+            (folder / f"{n}.svg").write_text(icon(size, box, path))
+dirs = [f"{s}x{s}/{c}" for s in SIZES for c in contexts]
 index = ["[Icon Theme]", "Name=puter", "Comment=2px line icons", "Inherits=Adwaita,hicolor",
          "Directories=" + ",".join(dirs), ""]
 for d in dirs:
     size = int(d.split("x")[0])
     index += [f"[{d}]", f"Size={size}", f"Context={d.split('/')[1].capitalize()}"]
-    index += ["Type=Fixed"] if size == 16 else ["Type=Scalable", "MinSize=17", "MaxSize=256"]
+    index += ["Type=Scalable", "MinSize=25", "MaxSize=256"] if size == 64 else ["Type=Fixed"]
     index.append("")
 (icons / "index.theme").write_text("\n".join(index))
 
