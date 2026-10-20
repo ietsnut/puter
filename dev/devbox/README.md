@@ -15,10 +15,10 @@ install; it only makes the VM work.
 - The VM runs as a transient systemd unit at low priority so CI always wins:
   CPU weight 10, IO weight 10, 6 cores, 10 GB at most. Nothing is installed as
   a service, so it doesn't start on its own.
-- The devbox suspends after 15 minutes without a CI job or an SSH connection
-  (`/usr/local/bin/idle-suspend.sh`, theirs, not ours). An open `ssh` or
-  `dev/screen` tunnel keeps it awake; a suspended devbox freezes the VM, which
-  carries on when it wakes.
+- The devbox never sleeps (since 20 October 2026): its idle-suspend timer and
+  resume units are removed and systemd's sleep targets masked. Its
+  wake-on-LAN setup lives in `~/Desktop/devbox-wake` on the Mac
+  (`mac/wol.py b4:2e:99:36:8a:12` wakes it, should it ever be asleep).
 
 ## Starting and stopping
 

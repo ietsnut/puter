@@ -7,3 +7,6 @@ QT_QPA_PLATFORMTHEME=qt6ct
 # shell is flat rectangles and text, and this uses a third of the memory of
 # drawing it through OpenGL.
 QT_QUICK_BACKEND=software
+# GTK 3 apps and Electron ask the portal for their file dialogs too, so every
+# app gets the same one (xdg-desktop-portal/).
+GTK_USE_PORTAL=1

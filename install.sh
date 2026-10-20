@@ -85,13 +85,22 @@ config() {
   # Each config folder is linked into ~/.config, so editing the repo edits the
   # live desktop. Anything already there is moved aside first.
   mkdir -p "$HOME/.config"
-  for dir in labwc quickshell fontconfig gtk-3.0; do
+  for dir in labwc quickshell fontconfig gtk-3.0 xdg-desktop-portal; do
     target="$HOME/.config/$dir"
     if [[ -e $target && ! -L $target ]]; then
       mv "$target" "$target.bak.$(date +%s)"
     fi
     ln -sfn "$repo/$dir" "$target"
   done
+
+  # The file dialog's portal takes puter's Qt style (systemd/). Only its
+  # drop-in folder is linked: ~/.config/systemd/user also holds what
+  # systemctl --user enable writes.
+  mkdir -p "$HOME/.config/systemd/user"
+  ln -sfn "$repo/systemd/xdg-desktop-portal-lxqt.service.d" "$HOME/.config/systemd/user/xdg-desktop-portal-lxqt.service.d"
+  if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then
+    systemctl --user daemon-reload 2>/dev/null || true
+  fi
 
   # The theme: labwc's title bars and window buttons, and GTK apps; and the
   # icon theme.
@@ -117,9 +126,10 @@ PY
   fi
 
   # Qt Widgets apps: puter's widget style (qt/style), palette, fonts and
-  # stylesheet,
-  # through qt6ct (QT_QPA_PLATFORMTHEME in labwc/environment). Written here
-  # rather than kept in the repo because qt6ct wants absolute paths.
+  # stylesheet, and file dialogs from the portal (the same libfm-qt dialog
+  # every other app gets, xdg-desktop-portal/), through qt6ct
+  # (QT_QPA_PLATFORMTHEME in labwc/environment). Written here rather than
+  # kept in the repo because qt6ct wants absolute paths.
   mkdir -p "$HOME/.config/qt6ct"
   cat > "$HOME/.config/qt6ct/qt6ct.conf" <<CONF
 [Appearance]
@@ -127,7 +137,7 @@ style=puter
 custom_palette=true
 color_scheme_path=$repo/qt6ct/colors/puter.conf
 icon_theme=puter
-standard_dialogs=default
+standard_dialogs=xdgdesktopportal
 
 [Fonts]
 general="IBM Plex Sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"

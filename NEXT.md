@@ -12,6 +12,13 @@ Where things stood at the end of the 20 October 2026 session.
 
 ## Open edges
 
+- **The file dialog** (libfm-qt's, through LXQt's portal) is the same for
+  FeatherPad, Falkon and GTK 3 apps that ask for a native dialog, and takes
+  puter's style; JLCONE's (Electron) hasn't been opened yet. Not on the grid
+  yet: its side pane shows Breeze's colour icons (Trash, Computer,
+  Applications, Network, drives), the list shows Type and Created columns,
+  and its rows, path bar and buttons haven't been measured.
+
 - **The Qt apps, measured and not.** PCManFM-Qt, FeatherPad and Sheet are
   measured onto the grid (bars, tabs, headers, rows). LXImage-Qt, Falkon and
   QTerminal take the style but haven't been measured, and no dialog has been

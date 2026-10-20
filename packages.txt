@@ -12,6 +12,9 @@ greetd
 greetd-tuigreet
 xdg-desktop-portal-wlr
 xdg-desktop-portal-gtk
+# The file dialog every app gets: libfm-qt's, through the portal
+# (xdg-desktop-portal/)
+xdg-desktop-portal-lxqt
 
 # Apps
 qterminal

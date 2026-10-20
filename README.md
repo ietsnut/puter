@@ -18,6 +18,7 @@ white and gray with IBM Plex, with icons in clean 2px vector strokes.
 | `theme/` | labwc's title bars and buttons, the Qt stylesheet (`qt/puter.qss`), the GTK 3 theme (KiCad), the line icons, KiCad's colours |
 | `qt6ct/`, `featherpad/`, `qterminal/` | the Qt stylesheet and palette, FeatherPad's and QTerminal's colours (all written by `theme/make`) |
 | `fontconfig/`, `gtk-3.0/`, `mimeapps.list` | text smoothing, GTK settings, and which app opens what |
+| `xdg-desktop-portal/`, `systemd/` | which portal answers what: file dialogs from LXQt's (libfm-qt's dialog) for every app, in puter's Qt style |
 | `dev/` | work from the Mac: `sync`, `shot`, `click`, `run`, `screen`; `dev/devbox/` is the dev VM's setup |
 
 ## Installing

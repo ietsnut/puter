@@ -79,6 +79,15 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
     widget from the stylesheet as soon as it gives it a border or background
     and adds a few pixels of its own, so heights are pinned (`min-height` and
     `max-height`, or `height`), not padded.
+- **File dialogs** come from one place for every app: LXQt's portal, whose
+  dialog is libfm-qt's (PCManFM-Qt's own, so styled like any Qt window).
+  Qt apps reach it through qt6ct (`standard_dialogs=xdgdesktopportal`), GTK 3
+  apps and Electron through `GTK_USE_PORTAL`, GTK 4 and Flatpaks by default;
+  `xdg-desktop-portal/labwc-portals.conf` routes it. GTK 3 apps that build
+  their own dialog rather than asking for a native one (wxWidgets, so KiCad)
+  still show GTK's. The portal's systemd service sets
+  `QT_QPA_PLATFORMTHEME=lxqt`; `systemd/` overrides it with qt6ct, or the
+  dialog comes up in plain Fusion.
 - `quickshell/Theme.qml` holds the geometry (module 30, inset 8, IBM Plex Sans
   15px).
 - `theme/gtk-3.0/gtk.css` restyles Adwaita for the GTK 3 apps that remain
