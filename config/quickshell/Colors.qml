@@ -4,8 +4,8 @@ import Quickshell
 
 // Written by theme/make from theme/palette; edit those, not this.
 Singleton {
-    readonly property color desk: "#231f20"
-    readonly property color deskDot: "#4a4446"
+    readonly property color desk: "#583127"
+    readonly property color deskDot: "#7a4a3d"
     readonly property color bar: "#f1f0ec"
     readonly property color barInk: "#060606"
     readonly property color barEdge: "#f1f0ec"

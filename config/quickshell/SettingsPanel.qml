@@ -40,7 +40,8 @@ PanelWindow {
     }
 
     // The processor's load over the last minute: a sample every two seconds,
-    // thirty of them, from /proc/stat (the share of time not idle).
+    // thirty of them, from /proc/stat (the share of time not idle), taken
+    // only while the panel is open, so the shell does nothing when idle.
     QtObject {
         id: activity
 
@@ -70,7 +71,7 @@ PanelWindow {
 
     Timer {
         interval: 2000
-        running: true
+        running: panel.visible
         repeat: true
         triggeredOnStart: true
         onTriggered: {
