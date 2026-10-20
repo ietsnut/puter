@@ -4,11 +4,12 @@ import Quickshell.Wayland
 
 // The bottom bar, on the bottom edge: a strip one module tall with the search
 // square standing two modules tall in the left corner, open windows after it,
-// and the date and time in the right corner.
+// and the date and time in the right corner with the settings square beside.
 PanelWindow {
     id: bar
 
     signal search
+    signal settings
 
     anchors {
         bottom: true
@@ -64,7 +65,14 @@ PanelWindow {
         }
     }
 
+    SettingsButton {
+        anchors.right: time.left
+        y: Theme.module
+        onClicked: bar.settings()
+    }
+
     Chip {
+        id: time
         anchors.right: parent.right
         y: Theme.module
         text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")

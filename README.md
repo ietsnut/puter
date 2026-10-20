@@ -10,10 +10,11 @@ icons in clean 2px vector strokes.
 | `packages.txt` | everything it installs from the Arch repos |
 | `packages/thunar/` | Arch's Thunar recipe with its path field's margins removed, so its toolbar sits on the grid; when Arch updates Thunar, copy their PKGBUILD in again and keep the `prepare()` change |
 | `labwc/` | the compositor: window behaviour, keys, snapping, the desktop menu |
-| `quickshell/` | the shell in QML: desk, bottom bar, search; `Theme.qml` holds every size |
+| `quickshell/` | the shell in QML: desk, bottom bar, search, settings; `Theme.qml` holds every size |
 | `theme/colors` | the palette (Apollo) and its roles; `theme/make` writes every app's colours and icons from it |
 | `theme/` | labwc's title bars and buttons, the GTK theme, the line icons |
 | `ghostty/`, `fontconfig/`, `gtk-3.0/` | terminal, text smoothing, GTK settings |
+| `imv/`, `mpv/`, `mimeapps.list` | photo and video viewers, and which app opens what |
 | `dev/` | work from the Mac: `sync`, `shot`, `click`, `run` |
 
 ## Installing
@@ -43,6 +44,13 @@ window on it and `dev/click X Y` clicks at a point in screenshot pixels.
 
 The VM has no GPU, and wlroots crashes on OpenGL apps' native Wayland frames
 there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
+
+## Apps
+
+Thunar for files, Mousepad for text and code (syntax colours from the palette),
+imv for photos, mpv for video, ghostty for the terminal, Chromium for the web.
+The square left of the clock opens settings: network and Wi-Fi, volume in ten
+steps, and power.
 
 ## Keys
 

@@ -6,18 +6,31 @@ ShellRoot {
 
     Bar {
         onSearch: searchPanel.toggle()
+        onSettings: settingsPanel.toggle()
     }
 
     SearchPanel {
         id: searchPanel
     }
 
-    // Super+Space: `qs ipc call search toggle`.
+    SettingsPanel {
+        id: settingsPanel
+    }
+
+    // Super+Space: `qs ipc call search toggle`; `qs ipc call settings toggle`.
     IpcHandler {
         target: "search"
 
         function toggle(): void {
             searchPanel.toggle();
+        }
+    }
+
+    IpcHandler {
+        target: "settings"
+
+        function toggle(): void {
+            settingsPanel.toggle();
         }
     }
 }
