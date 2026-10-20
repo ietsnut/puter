@@ -136,6 +136,7 @@ PanelWindow {
                 visible: network.hasWifi
                 anchors.right: parent.right
                 minModules: 3
+                hoverable: true
                 text: network.wifiOn ? "Wi-Fi on" : "Wi-Fi off"
                 fill: network.wifiOn ? Theme.primary : Theme.muted
                 ink: network.wifiOn ? Theme.primaryForeground : Theme.mutedForeground
@@ -150,6 +151,7 @@ PanelWindow {
             Chip {
                 required property var modelData
                 width: rows.width
+                hoverable: true
                 text: modelData.ssid
                 fill: modelData.active ? Theme.primary : Theme.background
                 ink: modelData.active ? Theme.primaryForeground : Theme.foreground
@@ -198,6 +200,9 @@ PanelWindow {
                 text: "Log out"
                 fill: Theme.foreground
                 ink: Theme.background
+                hoverable: true
+                hoverFill: Theme.primary
+                hoverInk: Theme.primaryForeground
                 onClicked: Quickshell.execDetached(["labwc", "--exit"])
             }
 
@@ -205,6 +210,9 @@ PanelWindow {
                 text: "Restart"
                 fill: Theme.foreground
                 ink: Theme.background
+                hoverable: true
+                hoverFill: Theme.primary
+                hoverInk: Theme.primaryForeground
                 onClicked: Quickshell.execDetached(["systemctl", "reboot"])
             }
 
@@ -212,6 +220,9 @@ PanelWindow {
                 text: "Shut down"
                 fill: Theme.foreground
                 ink: Theme.background
+                hoverable: true
+                hoverFill: Theme.primary
+                hoverInk: Theme.primaryForeground
                 onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
             }
         }

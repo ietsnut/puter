@@ -18,4 +18,6 @@ Singleton {
     readonly property color primaryForeground: Colors.accentInk
     readonly property color muted: Colors.muted
     readonly property color mutedForeground: Colors.mutedInk
+    readonly property color hover: Colors.buttonHover
+    readonly property color hoverForeground: Colors.buttonHoverInk
 }

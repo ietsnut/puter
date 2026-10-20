@@ -45,7 +45,7 @@ C = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink")
+SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "button-hover", "button-hover-ink")
 (repo / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"

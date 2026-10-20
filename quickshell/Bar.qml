@@ -58,6 +58,7 @@ PanelWindow {
                 text: modelData.title
                 minModules: 3
                 maxModules: 8
+                hoverable: true
                 fill: modelData.activated ? Theme.primary : Theme.muted
                 ink: modelData.activated ? Theme.primaryForeground : Theme.mutedForeground
                 onClicked: modelData.activate()
