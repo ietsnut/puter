@@ -1,5 +1,5 @@
-# Windows in three colours: a one-module title bar, black when focused and gray
-# when not, white bodies, square and flat. The colours are quickshell/Theme.qml's;
+# Windows in three colours: a black one-module title bar, its text and buttons
+# white when focused and gray when not, white bodies, square and flat. The colours are quickshell/Theme.qml's;
 # the buttons are the SVGs beside this file, written by ../make-buttons.
 border.width: 0
 window.titlebar.padding.width: 0
@@ -7,11 +7,11 @@ window.titlebar.padding.height: 0
 window.label.text.justify: left
 
 window.active.title.bg.color: #000000
-window.inactive.title.bg.color: #808080
+window.inactive.title.bg.color: #000000
 window.active.label.text.color: #ffffff
-window.inactive.label.text.color: #000000
+window.inactive.label.text.color: #808080
 window.active.border.color: #000000
-window.inactive.border.color: #808080
+window.inactive.border.color: #000000
 
 window.button.width: 30
 window.button.height: 30

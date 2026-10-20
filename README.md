@@ -1,9 +1,8 @@
 # puter
 
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
-search, in three colours (black, gray, white; dithered where a fourth tone is
-needed) on a 30px module, square and flat. Icons are pixel art in 2 x 2 blocks,
-so every stroke is 2px and nothing but text is smoothed.
+search, in three colours (black, gray, white) on a 30px module, square and flat, with
+icons in clean 2px vector strokes.
 
 | Folder | What it is |
 | --- | --- |

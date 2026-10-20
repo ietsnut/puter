@@ -1,47 +1,65 @@
 import QtQuick
+import QtQuick.Shapes
 
 // A two-module square of ink with a magnifier in it. The glyph keeps to the
-// 20 x 20 box in the middle and is drawn as the window buttons are: 2 x 2
-// blocks on whole pixels, so every stroke is 2px and nothing is antialiased.
+// 20 x 20 box in the middle, drawn as the window buttons are: 2px vector
+// strokes, the handle clipped square where it meets the box's corner.
 Rectangle {
     id: button
 
     signal clicked
 
-    // The magnifier, one character per block: a round lens with the handle
-    // running out to the box's corner.
-    readonly property var glyph: [
-        "..###.....",
-        ".#...#....",
-        "#.....#...",
-        "#.....#...",
-        "#.....#...",
-        ".#...#....",
-        "..###.#...",
-        ".......#..",
-        "........#.",
-        ".........#",
-    ]
     readonly property color ink: mouse.containsMouse ? Theme.mutedForeground : Theme.background
 
     width: Theme.module * 2
     height: Theme.module * 2
     color: mouse.containsMouse ? Theme.muted : Theme.foreground
 
-    Repeater {
-        model: button.glyph.join("").length
+    Item {
+        x: 20
+        y: 20
+        width: 20
+        height: 20
+        clip: true
 
-        Rectangle {
-            required property int index
-            readonly property int column: index % 10
-            readonly property int row: Math.floor(index / 10)
+        Shape {
+            x: -20
+            y: -20
+            width: 60
+            height: 60
+            preferredRendererType: Shape.CurveRenderer
 
-            visible: button.glyph[row][column] === "#"
-            x: 20 + column * 2
-            y: 20 + row * 2
-            width: 2
-            height: 2
-            color: button.ink
+            // The lens: the middle of its 2px stroke on a 7px radius, so its
+            // outer edge runs from 20 to 36.
+            ShapePath {
+                strokeColor: button.ink
+                strokeWidth: 2
+                fillColor: "transparent"
+
+                PathAngleArc {
+                    centerX: 28
+                    centerY: 28
+                    radiusX: 7
+                    radiusY: 7
+                    startAngle: 0
+                    sweepAngle: 360
+                }
+            }
+
+            // The handle, from inside the lens's stroke out past the corner.
+            ShapePath {
+                strokeColor: button.ink
+                strokeWidth: 2
+                fillColor: "transparent"
+                capStyle: ShapePath.FlatCap
+                startX: 32
+                startY: 32
+
+                PathLine {
+                    x: 42
+                    y: 42
+                }
+            }
         }
     }
 

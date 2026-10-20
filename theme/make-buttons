@@ -2,25 +2,18 @@
 """Writes labwc's title bar buttons into theme/labwc/ as SVGs on the pixel grid.
 
 A button is one module (30 x 30). Each glyph sits in the 10 x 10 box from 10 to
-20 and is drawn with filled rectangles on whole pixels, so every stroke is exactly
-2px and nothing is antialiased: no colour but the ink and the bar's. Diagonals
-are steps of 2 x 2 blocks.
-Colours are the ink of the title bar each button sits on: white on the black
-focused bar, black on the gray one (quickshell/Theme.qml).
-
-It also writes quickshell/desk.png, the desk's dither: a 2 x 2 checker of gray
-and white, tiled by quickshell/Desk.qml.
+20 and is drawn in 2px strokes. Straight strokes are rectangles on whole pixels, so
+they are sharp; the close cross's diagonals are smooth vector lines.
+Title bars are black; the ink is white when the window is focused and gray
+when not (quickshell/Theme.qml).
 """
 from pathlib import Path
 
-INK = {"active": "#ffffff", "inactive": "#000000"}
+INK = {"active": "#ffffff", "inactive": "#808080"}
 
 def rects(*boxes):
     return "".join(f'<rect x="{x}" y="{y}" width="{w}" height="{h}"/>' for x, y, w, h in boxes)
 
-def blocks(*rows):
-    """Pixel art in 2 x 2 blocks from the glyph box's corner: '#' is ink."""
-    return rects(*((10 + 2 * x, 10 + 2 * y, 2, 2) for y, row in enumerate(rows) for x, c in enumerate(row) if c == "#"))
 
 GLYPHS = {
     # The window menu: three bars. It also gives the title its inset, since
@@ -35,14 +28,12 @@ GLYPHS = {
         (10, 12, 8, 2), (10, 18, 8, 2), (10, 14, 2, 4), (16, 14, 2, 4),
         (12, 10, 8, 2), (18, 12, 2, 6),
     ),
-    # The cross, in 2 x 2 blocks so its diagonals are as sharp as the bars:
-    # five blocks corner to corner each way.
-    "close": blocks(
-        "#...#",
-        ".#.#.",
-        "..#..",
-        ".#.#.",
-        "#...#",
+    # The cross: two 2px strokes corner to corner, clipped to the box so
+    # their ends are cut square on its edges.
+    "close": (
+        '<clipPath id="box"><rect x="10" y="10" width="10" height="10"/></clipPath>'
+        '<g clip-path="url(#box)" stroke-width="2" fill="none" stroke="{ink}">'
+        '<line x1="9" y1="9" x2="21" y2="21"/><line x1="21" y1="9" x2="9" y2="21"/></g>'
     ),
 }
 
@@ -51,20 +42,7 @@ for name, body in GLYPHS.items():
     for state, ink in INK.items():
         svg = (
             '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">'
-            f'<g fill="{ink}" shape-rendering="crispEdges">{body.format(ink=ink)}</g></svg>\n'
+            f'<g fill="{ink}">{body.format(ink=ink)}</g></svg>\n'
         )
         for variant in (name, f"{name}_hover"):
             (out / f"{variant}-{state}.svg").write_text(svg)
-
-# The desk: gray and white on alternate pixels.
-import struct, zlib
-
-def png(rows):
-    raw = b"".join(b"\x00" + bytes(c for px in row for c in px) for row in rows)
-    def chunk(kind, data):
-        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
-    head = struct.pack(">IIBBBBB", len(rows[0]), len(rows), 8, 2, 0, 0, 0)
-    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", head) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
-
-GRAY, WHITE = (0x80, 0x80, 0x80), (0xFF, 0xFF, 0xFF)
-(Path(__file__).parent.parent / "quickshell" / "desk.png").write_bytes(png([[GRAY, WHITE], [WHITE, GRAY]]))

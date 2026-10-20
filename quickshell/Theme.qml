@@ -3,8 +3,7 @@ import QtQuick
 import Quickshell
 
 // The one geometry and a closed palette of three: black, gray and white.
-// Anything that needs a fourth tone dithers two of them (the desk, from
-// desk.png). Nothing in the shell states a size or colour of its own.
+// Nothing in the shell states a size or colour of its own.
 Singleton {
     readonly property int module: 30
     readonly property int inset: 8
