@@ -19,7 +19,9 @@ packages() {
   for name in labwc jlcone-bin; do
     # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
     want="$(source "$repo/packages/$name/PKGBUILD" && echo "$pkgver-$pkgrel")"
-    have="$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2)"
+    # Empty when it isn't installed yet (pacman -Q fails, which would end the
+    # script under pipefail).
+    have="$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2 || true)"
     if [[ $have != "$want" ]]; then
       build="$(mktemp -d)"
       cp "$repo/packages/$name/"* "$build/"
