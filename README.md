@@ -17,7 +17,10 @@ module, a closed palette, no rounding or shadows).
 The desktop runs in an Arch VM on the devbox (`ssh archvm`). Edit here, then
 `dev/sync` copies the checkout to `~/puter` on the VM and reloads, and
 `dev/shot` saves a screenshot to `dev/shot.png`. `dev/run ghostty` opens a
-window on it.
+window on it and `dev/click X Y` clicks at a point in screenshot pixels.
+
+The VM has no GPU, and wlroots crashes on OpenGL apps' native Wayland frames
+there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 ## Keys
 
