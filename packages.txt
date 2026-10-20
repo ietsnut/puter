@@ -1,7 +1,7 @@
 # Everything puter installs from the Arch repos. The apps are Qt Widgets ones,
 # styled by puter's Qt style and stylesheet through qt6ct. Then labwc is
 # rebuilt with puter's patch, JLCONE (JLCPCB's ordering app) built from
-# JLCPCB's .deb (packages/), and puter's Qt style and table editor (qt/)
+# JLCPCB's .deb (packages/), and puter's Qt style and table editor (src/)
 # built from this repo (install.sh).
 
 # The desktop
@@ -13,7 +13,7 @@ greetd-tuigreet
 xdg-desktop-portal-wlr
 xdg-desktop-portal-gtk
 # The file dialog every app gets: libfm-qt's, through the portal
-# (xdg-desktop-portal/)
+# (config/xdg-desktop-portal/)
 xdg-desktop-portal-lxqt
 
 # Apps

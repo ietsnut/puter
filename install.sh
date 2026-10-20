@@ -30,10 +30,10 @@ packages() {
     fi
   done
 
-  # puter's Qt widget style and its table editor, Sheet, built from qt/.
+  # puter's Qt widget style and its table editor, Sheet, built from src/.
   for part in style sheet; do
     build="$(mktemp -d)"
-    cmake -S "$repo/qt/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+    cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
     cmake --build "$build"
     sudo cmake --install "$build"
     rm -rf "$build"
@@ -90,14 +90,14 @@ config() {
     if [[ -e $target && ! -L $target ]]; then
       mv "$target" "$target.bak.$(date +%s)"
     fi
-    ln -sfn "$repo/$dir" "$target"
+    ln -sfn "$repo/config/$dir" "$target"
   done
 
-  # The file dialog's portal takes puter's Qt style (systemd/). Only its
+  # The file dialog's portal takes puter's Qt style (config/systemd/). Only its
   # drop-in folder is linked: ~/.config/systemd/user also holds what
   # systemctl --user enable writes.
   mkdir -p "$HOME/.config/systemd/user"
-  ln -sfn "$repo/systemd/xdg-desktop-portal-lxqt.service.d" "$HOME/.config/systemd/user/xdg-desktop-portal-lxqt.service.d"
+  ln -sfn "$repo/config/systemd/user/xdg-desktop-portal-lxqt.service.d" "$HOME/.config/systemd/user/xdg-desktop-portal-lxqt.service.d"
   if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then
     systemctl --user daemon-reload 2>/dev/null || true
   fi
@@ -125,17 +125,17 @@ for app in ("pcbnew", "eeschema", "fpedit", "symbol_editor", "gerbview"):
 PY
   fi
 
-  # Qt Widgets apps: puter's widget style (qt/style), palette, fonts and
+  # Qt Widgets apps: puter's widget style (src/style), palette, fonts and
   # stylesheet, and file dialogs from the portal (the same libfm-qt dialog
   # every other app gets, xdg-desktop-portal/), through qt6ct
-  # (QT_QPA_PLATFORMTHEME in labwc/environment). Written here rather than
+  # (QT_QPA_PLATFORMTHEME in config/labwc/environment). Written here rather than
   # kept in the repo because qt6ct wants absolute paths.
   mkdir -p "$HOME/.config/qt6ct"
   cat > "$HOME/.config/qt6ct/qt6ct.conf" <<CONF
 [Appearance]
 style=puter
 custom_palette=true
-color_scheme_path=$repo/qt6ct/colors/puter.conf
+color_scheme_path=$repo/theme/qt6ct/puter.conf
 icon_theme=puter
 standard_dialogs=xdgdesktopportal
 
@@ -152,7 +152,7 @@ activate_item_on_single_click=0
 stylesheets=$HOME/.config/qt6ct/puter.qss
 CONF
   # The stylesheet, with the icon theme's path filled in (Qt needs it whole).
-  sed "s|@icons|$HOME/.local/share/icons/puter|g" "$repo/qt6ct/qss/puter.qss" > "$HOME/.config/qt6ct/puter.qss"
+  sed "s|@icons|$HOME/.local/share/icons/puter|g" "$repo/theme/qt6ct/puter.qss" > "$HOME/.config/qt6ct/puter.qss"
 
   # FeatherPad: system icons, IBM Plex Mono, puter's syntax colours, the
   # search bar only when searching, no toolbar, status bar or tab strip for a
@@ -165,7 +165,7 @@ CONF
   ini "$HOME/.config/featherpad/fp.conf" window noToolbar true
   ini "$HOME/.config/featherpad/fp.conf" window showStatusbar false
   ini "$HOME/.config/featherpad/fp.conf" window hideSingleTab true
-  ln -sfn "$repo/featherpad/fp_light_syntax_colors.conf" "$HOME/.config/featherpad/fp_light_syntax_colors.conf"
+  ln -sfn "$repo/theme/featherpad/fp_light_syntax_colors.conf" "$HOME/.config/featherpad/fp_light_syntax_colors.conf"
   # PCManFM-Qt: the list view with 16px icons, one module per file, showing
   # only name, size and date; no side pane (Go has the places), no tab strip
   # for a single folder, no close buttons on tabs.
@@ -179,7 +179,7 @@ CONF
 
   # The file dialog (libfm-qt's, every app's through the portal): the list
   # view as in PCManFM-Qt, 16px icons, only name, size and date, no
-  # thumbnails or tooltips, 24 x 16 modules. qt/style lays out the rest.
+  # thumbnails or tooltips, 24 x 16 modules. src/style lays out the rest.
   local d="$HOME/.config/lxqt/filedialog.conf"
   ini "$d" Sizes WindowSize "@Size(720 480)"
   ini "$d" View Mode Detailed
@@ -201,21 +201,23 @@ CONF
   ini "$f" Web-URL-Settings homepage about:blank
   ini "$f" Web-URL-Settings newTabUrl about:blank
 
-  # QTerminal: puter's colours (qterminal/, from theme/make), IBM Plex Mono,
-  # no margin, the tab bar only with more than one tab.
+  # QTerminal: puter's colours (theme/qterminal/, from theme/make), IBM Plex Mono,
+  # no margin (nor the 2px it keeps around a terminal to outline the focused
+  # one of a split), the tab bar only with more than one tab.
   mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
-  ln -sfn "$repo/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
+  ln -sfn "$repo/theme/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
   local q="$HOME/.config/qterminal.org/qterminal.ini"
   ini "$q" General colorScheme puter
   ini "$q" General fontFamily "IBM Plex Mono"
   ini "$q" General fontSize 11
   ini "$q" General TerminalMargin 0
+  ini "$q" General highlightCurrentTerminal false
   ini "$q" General HideTabBarWithOneTab true
   ini "$q" General AskOnExit false
   ini "$q" General MenuVisible true
 
   # Which app opens what.
-  ln -sfn "$repo/mimeapps.list" "$HOME/.config/mimeapps.list"
+  ln -sfn "$repo/config/mimeapps.list" "$HOME/.config/mimeapps.list"
 
   on_bus bash -c "$(declare -f settings); settings"
 }

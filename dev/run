@@ -1,5 +1,5 @@
 #!/bin/bash
 # Start a program on the VM's desktop:  dev/run ghostty
-# It gets the session's environment (labwc/environment), as a program started
+# It gets the session's environment (config/labwc/environment), as a program started
 # from the desktop does.
 ssh archvm "set -a; . ~/.config/labwc/environment; set +a; XDG_RUNTIME_DIR=/run/user/\$(id -u) WAYLAND_DISPLAY=wayland-0 DISPLAY=:0 setsid -f $* >/dev/null 2>&1"

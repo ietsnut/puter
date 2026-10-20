@@ -182,7 +182,7 @@ QComboBox QAbstractItemView {
     outline: none;
 }
 
-/* The file dialog (laid out by qt/style): the file name, the file type and
+/* The file dialog (laid out by src/style): the file name, the file type and
    the buttons are cells of the strip under the list, parted by light rules
    rather than each outlined. */
 Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
@@ -256,6 +256,11 @@ QAbstractItemView {
     selection-color: #161616;
     gridline-color: #c6c6c6;
     outline: none;
+}
+/* What fills a main window (a picture, a text, a page) has no frame of its
+   own: the menu bar's rule above it and the window's outline are its edges. */
+QMainWindow QAbstractScrollArea {
+    border: none;
 }
 QTreeView::item, QListView::item {
     border: none;

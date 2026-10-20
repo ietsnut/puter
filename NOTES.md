@@ -34,7 +34,7 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | Terminal | QTerminal | |
 | Files | PCManFM-Qt | |
 | Text and code | FeatherPad | |
-| Tables | Sheet (`qt/sheet`, puter's own) | No maintained small Qt table editor exists |
+| Tables | Sheet (`src/sheet`, puter's own) | No maintained small Qt table editor exists |
 | Photos | LXImage-Qt | |
 | Video | mpv | No interface of its own |
 | Web | Falkon | Qt Widgets chrome (styled like every other app) on Chromium's engine |
@@ -63,14 +63,14 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   colours (blue, coral, pink, from the website) are in the palette but no role
   uses them yet: hover and highlights are gray. A window looks the same
   focused or not; only its taskbar tab shows the focus.
-- `theme/make` writes everything from it: `quickshell/Colors.qml`, labwc's
+- `theme/make` writes everything from it: `config/quickshell/Colors.qml`, labwc's
   `themerc` and window buttons (with hover images), the icon theme, the GTK 3
-  colours (KiCad), the Qt stylesheet and palette (`qt6ct/`), FeatherPad's
+  colours (KiCad), the Qt stylesheet and palette (`theme/qt6ct/`), FeatherPad's
   syntax colours, QTerminal's colours, and KiCad's theme. Generated files say
   so at the top; edit the palette, not them.
 - **Qt apps** are styled in two parts, both read through qt6ct
-  (`QT_QPA_PLATFORMTHEME` in `labwc/environment`):
-  - `qt/style` is puter's widget style, a plugin on Fusion: it takes away the
+  (`QT_QPA_PLATFORMTHEME` in `config/labwc/environment`):
+  - `src/style` is puter's widget style, a plugin on Fusion: it takes away the
     frames, margins and layout spacing Qt keeps around bars and menus (in main
     windows; dialogs keep theirs), sets 16px icons, and table rows of 30 and
     columns of 150. A stylesheet can't reach these.
@@ -83,17 +83,17 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   dialog is libfm-qt's (PCManFM-Qt's own, so styled like any Qt window).
   Qt apps reach it through qt6ct (`standard_dialogs=xdgdesktopportal`), GTK 3
   apps and Electron through `GTK_USE_PORTAL`, GTK 4 and Flatpaks by default;
-  `xdg-desktop-portal/labwc-portals.conf` routes it. GTK 3 apps that build
+  `config/xdg-desktop-portal/labwc-portals.conf` routes it. GTK 3 apps that build
   their own dialog rather than asking for a native one (wxWidgets, so KiCad)
   still show GTK's. The portal's systemd service sets
-  `QT_QPA_PLATFORMTHEME=lxqt`; `systemd/` overrides it with qt6ct, or the
+  `QT_QPA_PLATFORMTHEME=lxqt`; `config/systemd/` overrides it with qt6ct, or the
   dialog comes up in plain Fusion. The dialog is pared down in two places:
   `install.sh` writes `~/.config/lxqt/filedialog.conf` (list view, name,
-  size and date, 720x480), and `qt/style` takes away its side pane, toolbar
+  size and date, 720x480), and `src/style` takes away its side pane, toolbar
   (keeping its shortcuts), labels and margins, finding them by the names in
   libfm-qt's `filedialog.ui`; the file type row only shows with a choice of
   types.
-- `quickshell/Theme.qml` holds the geometry (module 30, inset 8, IBM Plex Sans
+- `config/quickshell/Theme.qml` holds the geometry (module 30, inset 8, IBM Plex Sans
   15px).
 - `theme/gtk-3.0/gtk.css` restyles Adwaita for the GTK 3 apps that remain
   (KiCad). Most of it is overriding Adwaita rules that are more specific than
@@ -122,7 +122,7 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   style, and tool buttons get 3px more than that; a border on a toolbar
   becomes a frame on every side. Hence heights pinned in the stylesheet, the
   toolbar's rule painted as a gradient, and frames, margins and layout spacing
-  taken away in `qt/style`.
+  taken away in `src/style`.
 - **Qt apps save their settings when they quit**, over anything written to
   their ini files meanwhile: close them before `dev/sync`.
 - **FeatherPad** keeps its syntax colours in `fp_light_syntax_colors.conf`:
@@ -150,7 +150,10 @@ Edit on the Mac in `~/Desktop/puter`, then:
 
 - `dev/sync`: copy to the VM, run `install.sh config`, reload labwc
   (Quickshell reloads itself).
-- `dev/shot`: screenshot to `dev/shot.png`; crop and measure with PIL.
+- `dev/shot`: screenshot to `dev/shots/shot.png`.
+- `dev/grid`: check a screenshot against the grid (every window's edges,
+  from its own corner); `dev/tour`: open every app and dialog and check each,
+  into `dev/shots/tour/`. A step is an app and the keys that open a window.
 - `dev/click X Y`, `dev/run CMD`: click and launch on the VM's desktop.
 - `dev/screen`: use the desktop live in Screen Sharing; `dev/screen stop`.
 

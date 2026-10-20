@@ -2,16 +2,16 @@
 """Writes every colour and icon in puter from the palette named in theme/palette
 (a file in theme/palettes/: roles, then the palette's colours).
 
-  quickshell/Colors.qml      the interface roles, for the shell
-  theme/labwc/themerc        title bars, menus, the window switcher
-  theme/labwc/*.svg          the window buttons
-  theme/icons/               places and file icons
-  theme/gtk-3.0/colors.css   the roles, for GTK 3 apps
-  qt6ct/qss/puter.qss        the Qt stylesheet, from theme/qt/puter.qss
-  qt6ct/colors/puter.conf    the Qt palette
-  featherpad/                the text editor's syntax colours
-  theme/kicad/puter.json     KiCad's board, schematic and 3D colours
-  qterminal/puter.colorscheme  the terminal
+  config/quickshell/Colors.qml   the interface roles, for the shell
+  theme/labwc/themerc            title bars, menus, the window switcher
+  theme/labwc/*.svg              the window buttons
+  theme/icons/                   places and file icons
+  theme/gtk-3.0/colors.css       the roles, for GTK 3 apps
+  theme/qt6ct/puter.qss          the Qt stylesheet, from theme/qt/puter.qss
+  theme/qt6ct/puter.conf         the Qt palette
+  theme/featherpad/              the text editor's syntax colours
+  theme/kicad/puter.json         KiCad's board, schematic and 3D colours
+  theme/qterminal/puter.colorscheme  the terminal
 
 Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
 sit on whole pixels so they are sharp; diagonals and curves are smooth. Run it after
@@ -47,7 +47,7 @@ C = read_palette()
 
 # The shell.
 SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
-(repo / "quickshell" / "Colors.qml").write_text(
+(repo / "config" / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"
     "Singleton {\n"
@@ -281,8 +281,8 @@ for d in dirs:
 import re
 qss = (theme / "qt" / "puter.qss").read_text().split("*/", 1)[1].lstrip("\n")
 qss = re.sub(r"@([a-z0-9-]+)", lambda m: C.get(m.group(1), m.group(0)), qss)
-(repo / "qt6ct" / "qss").mkdir(parents=True, exist_ok=True)
-(repo / "qt6ct" / "qss" / "puter.qss").write_text(
+(theme / "qt6ct").mkdir(exist_ok=True)
+(theme / "qt6ct" / "puter.qss").write_text(
     "/* Written by theme/make from theme/qt/puter.qss and theme/palette;\n"
     "   edit those, not this. */\n" + qss
 )
@@ -293,8 +293,8 @@ def qt_palette(text, muted_text):
         "paper", "paper", "paper", "ink", muted_text, "accent"))
 # FeatherPad's syntax colours: its own file, eleven keys that must each be a
 # different colour (a repeat makes it throw the file away).
-(repo / "featherpad").mkdir(exist_ok=True)
-(repo / "featherpad" / "fp_light_syntax_colors.conf").write_text(
+(theme / "featherpad").mkdir(exist_ok=True)
+(theme / "featherpad" / "fp_light_syntax_colors.conf").write_text(
     "[General]\n" + "".join(f"{key}={C[role]}\n" for key, role in (
         ("function", "code-function"), ("BuiltinFunction", "code-builtin"),
         ("comment", "code-comment"), ("quote", "code-string"), ("type", "code-type"),
@@ -302,8 +302,7 @@ def qt_palette(text, muted_text):
         ("xmlElement", "code-tag"), ("cssValue", "code-value"), ("other", "code-other"),
     ))
 )
-(repo / "qt6ct" / "colors").mkdir(parents=True, exist_ok=True)
-(repo / "qt6ct" / "colors" / "puter.conf").write_text(
+(theme / "qt6ct" / "puter.conf").write_text(
     "# Written by theme/make from theme/palette; edit those, not this.\n[ColorScheme]\n"
     f"active_colors={qt_palette('ink', 'muted-ink')}\n"
     f"inactive_colors={qt_palette('ink', 'muted-ink')}\n"
@@ -325,8 +324,8 @@ scheme = ["# Written by theme/make from theme/palette; edit those, not this.",
 for i in range(8):
     scheme += [f"[Color{i}]", f"Color={rgb3(f'ansi{i}')}", "",
                f"[Color{i}Intense]", f"Color={rgb3(f'ansi{i + 8}')}", ""]
-(repo / "qterminal").mkdir(exist_ok=True)
-(repo / "qterminal" / "puter.colorscheme").write_text("\n".join(scheme))
+(theme / "qterminal").mkdir(exist_ok=True)
+(theme / "qterminal" / "puter.colorscheme").write_text("\n".join(scheme))
 
 
 

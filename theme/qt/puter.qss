@@ -4,7 +4,7 @@
    fills them in and writes qt6ct/qss/puter.qss. Edit this, not that.
 
    The grid: every bar, row, button and field is one 30px module, text one
-   8px inset in. The puter widget style (qt/style) takes away the frames and
+   8px inset in. The puter widget style (src/style) takes away the frames and
    margins Qt keeps around bars and menus, which a stylesheet can't reach;
    the heights here pin each styled widget to its module (Qt adds pixels of
    its own to styled widgets, so padding alone doesn't land them). Square corners, no shadows, a 1px outline around
@@ -192,7 +192,7 @@ QComboBox QAbstractItemView {
     outline: none;
 }
 
-/* The file dialog (laid out by qt/style): the file name, the file type and
+/* The file dialog (laid out by src/style): the file name, the file type and
    the buttons are cells of the strip under the list, parted by light rules
    rather than each outlined. */
 Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
@@ -266,6 +266,11 @@ QAbstractItemView {
     selection-color: @accent-ink;
     gridline-color: @rule;
     outline: none;
+}
+/* What fills a main window (a picture, a text, a page) has no frame of its
+   own: the menu bar's rule above it and the window's outline are its edges. */
+QMainWindow QAbstractScrollArea {
+    border: none;
 }
 QTreeView::item, QListView::item {
     border: none;

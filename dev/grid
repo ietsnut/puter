@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""Check a screenshot of the VM's desktop against the grid.
+
+    dev/grid              take a screenshot (dev/shot) and check it
+    dev/grid shot.png     check a screenshot already taken
+
+Finds every window by its 1px outline and 30px title bar, and measures from
+its own corner (floating windows aren't placed on the grid; snapped ones are).
+Inside each, every straight edge, a colour change at least 24px long so text
+and icons don't count, must sit on the grid: an edge between two areas on a
+module line, a 1px line (a rule or an outline) on a module's first or last
+pixel. The window itself must be whole modules wide and tall.
+
+Prints what's off, by how much, and writes dev/shots/grid.png: the screenshot with
+each edge that's off marked in red. Exits 1 if anything is off.
+"""
+import pathlib
+import subprocess
+import sys
+
+import numpy as np
+from PIL import Image, ImageDraw
+
+MODULE = 30
+TITLE = 30
+RUN = 24        # shortest edge that counts
+CONTRAST = 8    # smallest change of colour that counts, per channel
+OUTLINE = (0, 0, 0)
+
+root = pathlib.Path(__file__).resolve().parent.parent
+
+
+def runs(mask, least):
+    """Runs of True in a 1-D mask at least `least` long, as (start, end) inclusive."""
+    padded = np.concatenate(([False], mask, [False]))
+    change = np.flatnonzero(padded[1:] != padded[:-1])
+    return [(a, b - 1) for a, b in zip(change[::2], change[1::2]) if b - a >= least]
+
+
+def windows(img):
+    """Windows as (left, top, right, bottom), their outline lines inclusive."""
+    outline = np.all(img == OUTLINE, axis=2)
+    h, w = outline.shape
+    sides = {}
+    for x in range(w):
+        for top, bottom in runs(outline[:, x], 3 * MODULE):
+            sides.setdefault((top, bottom), []).append(x)
+    found = []
+    for (top, bottom), xs in sides.items():
+        for i, left in enumerate(xs):
+            for right in xs[i + 1:]:
+                if right - left < 4 * MODULE:
+                    continue
+                if not (outline[top, left:right + 1].all() and outline[bottom, left:right + 1].all()):
+                    continue
+                bar = img[top + 1:top + 1 + TITLE, left + 1]
+                if not (bar == bar[0]).all() or tuple(bar[0]) == OUTLINE:
+                    continue
+                found.append((left, top, right, bottom))
+    return found
+
+
+def edges(img, x0, y0, x1, y1, hidden):
+    """Edges inside the area x0..x1, y0..y1 (inclusive) that are off the grid,
+    measured from (x0, y0 - TITLE). Returns (axis, position, offset, start, end)."""
+    off = []
+    area = img[y0:y1 + 1, x0:x1 + 1].astype(int)
+    keep = ~hidden[y0:y1 + 1, x0:x1 + 1]
+    for axis in ("row", "column"):
+        a = area if axis == "row" else area.transpose(1, 0, 2)
+        k = keep if axis == "row" else keep.T
+        origin = TITLE if axis == "row" else 0  # the title bar is the first module
+        change = np.abs(a[1:] - a[:-1]).max(axis=2) > CONTRAST
+        change &= k[1:] & k[:-1]
+        for i in range(change.shape[0]):
+            for start, end in runs(change[i], RUN):
+                at = i + 1  # the first pixel of what's below or right of the edge
+                pos = (at + origin) % MODULE
+                # A 1px line: the colour changes again one pixel on (or the
+                # window's outline follows), whatever lies either side.
+                last = at == a.shape[0] - 1
+                line = last or (at < change.shape[0] and change[at, start:end + 1].mean() > 0.9)
+                if line and not last:
+                    change[at, start:end + 1] = False  # its far side is the same line
+                ok = pos in (0, MODULE - 1) if line else pos == 0
+                if not ok:
+                    off.append((axis, at, pos, start, end, line))
+    return off
+
+
+def main():
+    if len(sys.argv) > 1:
+        shot = pathlib.Path(sys.argv[1])
+    else:
+        shot = root / "dev" / "shots" / "shot.png"
+        subprocess.run([root / "dev" / "shot", shot], check=True, stdout=subprocess.DEVNULL)
+    image = Image.open(shot).convert("RGB")
+    img = np.asarray(image)
+    marks = ImageDraw.Draw(image)
+    found = windows(img)
+    if not found:
+        print("no windows found")
+        return 0
+
+    bad = 0
+    for n, (left, top, right, bottom) in enumerate(found):
+        # Windows inside this one are in front of it: leave their area out.
+        hidden = np.zeros(img.shape[:2], bool)
+        for other in found:
+            l, t, r, b = other
+            if other != found[n] and left <= l and r <= right and top <= t and b <= bottom:
+                hidden[t:b + 1, l:r + 1] = True
+        x0, y0, x1, y1 = left + 1, top + 1 + TITLE, right - 1, bottom - 1
+        width, height = x1 - x0 + 1, y1 - top
+        print(f"window at {left + 1},{top + 1}: {width} x {height}"
+              f" ({width / MODULE:g} x {height / MODULE:g} modules)")
+        problems = []
+        if width % MODULE or height % MODULE:
+            problems.append(f"  size isn't whole modules")
+        for axis, at, pos, start, end, line in edges(img, x0, y0, x1, y1, hidden):
+            what = "line" if line else "edge"
+            if axis == "row":
+                y, xa, xb = y0 + at, x0 + start, x0 + end
+                problems.append(f"  {what} at y={y} (+{y - top - 1}, {pos} into a module), x {xa}-{xb}")
+                marks.rectangle([xa, y - 1, xb, y], outline=(255, 0, 0))
+            else:
+                x, ya, yb = x0 + at, y0 + start, y0 + end
+                problems.append(f"  {what} at x={x} (+{x - left - 1}, {pos} into a module), y {ya}-{yb}")
+                marks.rectangle([x - 1, ya, x, yb], outline=(255, 0, 0))
+        if problems:
+            bad += len(problems)
+            print("\n".join(problems))
+        else:
+            print("  on the grid")
+    out = root / "dev" / "shots" / "grid.png"
+    image.save(out)
+    print(out)
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

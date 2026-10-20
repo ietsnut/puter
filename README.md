@@ -10,16 +10,11 @@ white and gray with IBM Plex, with icons in clean 2px vector strokes.
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, builds, configs, login screen |
 | `packages.txt` | everything it installs from the Arch repos |
-| `packages/` | recipes it builds: labwc with `snap.patch` (windows meet on one line), JLCONE from JLCPCB's .deb |
-| `qt/` | puter's own Qt code: `style/` (the widget style every Qt app uses) and `sheet/` (the table editor) |
-| `labwc/` | the compositor: window behaviour, keys, snapping, the desktop menu |
-| `quickshell/` | the shell in QML: desk, bottom bar, search, settings; `Theme.qml` holds every size |
-| `theme/palettes/mulholland` | the palette, assigning its colours to every role; `theme/make` writes every app's colours and icons from it |
-| `theme/` | labwc's title bars and buttons, the Qt stylesheet (`qt/puter.qss`), the GTK 3 theme (KiCad), the line icons, KiCad's colours |
-| `qt6ct/`, `featherpad/`, `qterminal/` | the Qt stylesheet and palette, FeatherPad's and QTerminal's colours (all written by `theme/make`) |
-| `fontconfig/`, `gtk-3.0/`, `mimeapps.list` | text smoothing, GTK settings, and which app opens what |
-| `xdg-desktop-portal/`, `systemd/` | which portal answers what: file dialogs from LXQt's (libfm-qt's dialog) for every app, in puter's Qt style |
-| `dev/` | work from the Mac: `sync`, `shot`, `click`, `run`, `screen`; `dev/devbox/` is the dev VM's setup |
+| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, settings; `Theme.qml` holds every size), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
+| `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
+| `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses) and `sheet/` (the table editor) |
+| `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), JLCONE from JLCPCB's .deb |
+| `dev/` | work from the Mac: `sync`, `shot`, `grid`, `tour`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
 ## Installing
 
@@ -43,9 +38,10 @@ run `theme/make`, then `dev/sync`.
 
 The desktop runs in an Arch VM on the devbox (`ssh archvm`). Edit here, then
 `dev/sync` copies the checkout to `~/puter` on the VM, runs `install.sh config`
-and reloads, and
-`dev/shot` saves a screenshot to `dev/shot.png`. `dev/screen` opens the VM's
-desktop live in Screen Sharing (`dev/screen stop` closes the tunnel). `dev/run qterminal` opens a
+and reloads. `dev/shot` saves a screenshot to `dev/shots/shot.png`;
+`dev/grid` checks one against the grid, and `dev/tour` opens every app and
+dialog and checks each. `dev/screen` opens the VM's desktop live in Screen
+Sharing (`dev/screen stop` closes the tunnel), `dev/run qterminal` opens a
 window on it and `dev/click X Y` clicks at a point in screenshot pixels.
 
 The VM has no GPU, and wlroots crashes on OpenGL apps' native Wayland frames
