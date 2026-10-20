@@ -1,10 +1,23 @@
 import Quickshell
+import Quickshell.Io
 
 ShellRoot {
     Desk {}
 
-    // The search square opens fuzzel, or closes it if it is already open.
     Bar {
-        onSearch: Quickshell.execDetached(["sh", "-c", "pkill -x fuzzel || fuzzel"])
+        onSearch: searchPanel.toggle()
+    }
+
+    SearchPanel {
+        id: searchPanel
+    }
+
+    // Super+Space: `qs ipc call search toggle`.
+    IpcHandler {
+        target: "search"
+
+        function toggle(): void {
+            searchPanel.toggle();
+        }
     }
 }

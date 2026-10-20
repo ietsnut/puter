@@ -26,7 +26,7 @@
   <keyboard>
     <default />
     <keybind key="W-Return"><action name="Execute" command="ghostty" /></keybind>
-    <keybind key="W-space"><action name="Execute" command="fuzzel" /></keybind>
+    <keybind key="W-space"><action name="Execute" command="qs ipc call search toggle" /></keybind>
     <keybind key="W-Escape"><action name="ShowMenu" menu="root-menu" /></keybind>
     <keybind key="W-q"><action name="Close" /></keybind>
     <keybind key="W-f"><action name="ToggleMaximize" /></keybind>
