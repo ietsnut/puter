@@ -4,6 +4,7 @@ import Quickshell.Wayland
 
 // The desk behind every window: one plain colour, with a dot at every module
 // corner in desk-dot (the same colour as the desk in palettes without dots).
+// The dots are one module's image, tiled: no full-screen picture to keep.
 PanelWindow {
     anchors {
         top: true
@@ -15,19 +16,18 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Background
     color: Theme.desk
 
-    Canvas {
+    // A 2px dot on the corner, the pixel either side of the line, so one
+    // module's tile is a pixel in each corner.
+    Image {
         anchors.fill: parent
         visible: Theme.deskDot !== Theme.desk
-        onWidthChanged: requestPaint()
-        onHeightChanged: requestPaint()
-        onPaint: {
-            const ctx = getContext("2d");
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = Theme.deskDot;
-            // A 2px dot on each corner: the pixel either side of the line.
-            for (let x = Theme.module; x < width; x += Theme.module)
-                for (let y = Theme.module; y < height; y += Theme.module)
-                    ctx.fillRect(x - 1, y - 1, 2, 2);
-        }
+        fillMode: Image.Tile
+        // Tiles start at the screen's corner (they're centred otherwise).
+        horizontalAlignment: Image.AlignLeft
+        verticalAlignment: Image.AlignTop
+        smooth: false
+        source: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='30' height='30'>"
+            + ["0 0", "29 0", "0 29", "29 29"].map(p => `<rect x='${p.split(" ")[0]}' y='${p.split(" ")[1]}' width='1' height='1' fill='${Theme.deskDot}'/>`).join("")
+            + "</svg>"
     }
 }

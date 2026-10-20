@@ -175,9 +175,17 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   hover is drawn into those images.
 - **Without a GPU** (only in the VM), wlroots crashes on native-Wayland OpenGL
   apps: see `dev/devbox/README.md` for the workarounds.
-- **Memory** (VM, PSS): labwc ~30-80 MB, Quickshell ~80-100 MB with the
-  software renderer (335 MB through OpenGL without a GPU), Qt Widgets apps
-  about 20-40 MB each, where the GTK 4 ones were 100-230 MB.
+- **At rest** (`dev/idle`, VM, 21 October): every process 0.0% CPU over a
+  minute, with nothing open and with every app open (the system 0.01-0.02%
+  busy). Memory (PSS) with nothing open, about 213 MB in all: Quickshell
+  116, labwc 38, the portals 21, PipeWire and WirePlumber 16, gvfs 14
+  (PCManFM's trash and drives), the accessibility bus 3. Every app open adds
+  about 410 MB: qutebrowser about 350 with its web processes, each Qt app
+  14-18. Quickshell is about 120 MB however it's tuned (malloc arenas, the
+  QML interpreter): its heap and Qt. The desk's dots are a tiled module
+  image, not a full-screen canvas; the GTK portal is gone (it only served
+  desktop settings, asked for at login, 16 MB); the activity chart samples
+  only while settings is open.
 
 ## Working on it
 
@@ -186,6 +194,8 @@ Edit on the Mac in `~/Desktop/puter`, then:
 - `dev/sync`: copy to the VM, run `install.sh config`, reload labwc
   (Quickshell reloads itself).
 - `dev/shot`: screenshot to `dev/shots/shot.png`.
+- `dev/idle`: CPU and memory per process at rest, with nothing open and with
+  every app open.
 - `dev/grid`: check a screenshot against the grid (every window's edges,
   from its own corner); `dev/tour`: open every app and dialog and check each,
   into `dev/shots/tour/`. A step is an app and the keys that open a window.
