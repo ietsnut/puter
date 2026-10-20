@@ -383,12 +383,6 @@ entry, toolbar entry {
   border-width: 0;
 }
 
-/* GtkToolbar adds a pixel of its own below its tallest item that no CSS
-   height reaches, so it gives that pixel back to stay one module tall. */
-toolbar, .toolbar, .primary-toolbar {
-  margin-bottom: -1px;
-}
-
 .sidebar, placessidebar, .sidebar scrolledwindow, .sidebar viewport {
   padding: 0;
   margin: 0;
@@ -415,12 +409,6 @@ toolbar toolbutton > button, toolbar .image-button {
   min-height: 30px;
 }
 
-/* Adwaita's own rule for that spacing, matched exactly so this one wins. */
-toolbar > *:not(.toggle):not(.popup) > *,
-toolbar > *:not(.toggle):not(.popup) > * > button {
-  margin: 0;
-}
-
 /* Adwaita shades buttons and entries in every state with shadows, gradients
    and a 1px white highlight, through rules more specific than the ones above.
    These selectors outrank them, so nothing is drawn but flat fills. */
@@ -435,4 +423,20 @@ entry:not(.puter-a):not(.puter-b):backdrop {
   -gtk-icon-shadow: none;
   outline: none;
   border-color: transparent;
+}
+
+/* Flat buttons (toolbar buttons are flat) keep a 1px border in Adwaita that
+   makes them 31px wide; they are one module like every other button. */
+button.flat:not(.puter-a):not(.puter-b), button.flat:not(.puter-a):not(.puter-b):hover,
+button.flat:not(.puter-a):not(.puter-b):active, button.flat:not(.puter-a):not(.puter-b):checked,
+button.flat:not(.puter-a):not(.puter-b):backdrop, button.flat:not(.puter-a):not(.puter-b):disabled {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Adwaita spaces toolbar items with a 1px right and bottom margin (its rule,
+   matched exactly so this one wins); they sit flush, one module apart. */
+toolbar:not(.inline-toolbar):not(.osd) > *:not(.toggle):not(.popup) > * {
+  margin: 0;
 }

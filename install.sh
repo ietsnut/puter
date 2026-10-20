@@ -20,6 +20,18 @@ packages() {
     (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm otf-geist-[0-9]*.pkg.tar.zst)
     rm -rf "$build"
   fi
+
+  # Thunar, patched so its path field sits on the grid (packages/thunar).
+  # Rebuilt whenever the installed version isn't the recipe's.
+  local want have
+  want="$(source "$repo/packages/thunar/PKGBUILD" && echo "$pkgver-$pkgrel")"
+  have="$(pacman -Q thunar 2>/dev/null | cut -d' ' -f2)"
+  if [[ $have != "$want" ]]; then
+    build="$(mktemp -d)"
+    cp "$repo/packages/thunar/PKGBUILD" "$build/"
+    (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm thunar-[0-9]*.pkg.tar.zst)
+    rm -rf "$build"
+  fi
 }
 
 # Runs a command on the session bus, starting a private one when there is no

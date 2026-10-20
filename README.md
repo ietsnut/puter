@@ -8,6 +8,7 @@ icons in clean 2px vector strokes.
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, Geist, configs, login screen |
 | `packages.txt` | everything it installs from the Arch repos |
+| `packages/thunar/` | Arch's Thunar recipe with its path field's margins removed, so its toolbar sits on the grid; when Arch updates Thunar, copy their PKGBUILD in again and keep the `prepare()` change |
 | `labwc/` | the compositor: window behaviour, keys, snapping, the desktop menu |
 | `quickshell/` | the shell in QML: desk, bottom bar, search; `Theme.qml` holds every size |
 | `theme/colors` | the palette (Apollo) and its roles; `theme/make` writes every app's colours and icons from it |
