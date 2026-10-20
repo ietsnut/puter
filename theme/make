@@ -138,14 +138,20 @@ BUTTONS = {
         '<line x1="9" y1="9" x2="21" y2="21"/><line x1="21" y1="9" x2="9" y2="21"/></g>'
     ),
 }
+def button(body, ink, fill=None):
+    square = f'<rect width="30" height="30" fill="{fill}"/>' if fill else ""
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">'
+            f'{square}<g fill="{ink}">{body.format(ink=ink)}</g></svg>\n')
+
+
+# Each button as it sits on a focused or unfocused title bar, and under the
+# pointer: the whole square filled and the glyph turned over, red for close.
+# (labwc draws these hover images in place of its own hover colour.)
 for name, body in BUTTONS.items():
+    hover, hover_ink = (C["close-hover"], C["close-hover-ink"]) if name == "close" else (C["button-hover"], C["button-hover-ink"])
     for state, ink in (("active", C["accent-ink"]), ("inactive", C["muted-ink"])):
-        svg = (
-            '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">'
-            f'<g fill="{ink}">{body.format(ink=ink)}</g></svg>\n'
-        )
-        for variant in (name, f"{name}_hover"):
-            (theme / "labwc" / f"{variant}-{state}.svg").write_text(svg)
+        (theme / "labwc" / f"{name}-{state}.svg").write_text(button(body, ink))
+        (theme / "labwc" / f"{name}_hover-{state}.svg").write_text(button(body, hover_ink, hover))
 
 
 # Icons. Each is drawn per size on its own box, with lines on whole pixels so

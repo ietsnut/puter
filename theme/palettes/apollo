@@ -10,6 +10,12 @@ accent-ink  green0   # text and icons on the accent
 muted       gray7    # unfocused title bars and tabs
 muted-ink   gray4    # text and icons on muted
 
+# Window buttons under the pointer: the square filled, the glyph turned over.
+button-hover      green0
+button-hover-ink  gray9
+close-hover       red3
+close-hover-ink   gray9
+
 # Syntax highlighting in the text editor, on paper.
 code-comment   gray5
 code-keyword   purple2

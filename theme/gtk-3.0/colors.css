@@ -6,6 +6,10 @@
 @define-color accent_ink #1d2b53;
 @define-color muted #c2c3c7;
 @define-color muted_ink #5f574f;
+@define-color button_hover #1d2b53;
+@define-color button_hover_ink #fff1e8;
+@define-color close_hover #ff004d;
+@define-color close_hover_ink #fff1e8;
 @define-color code_comment #5f574f;
 @define-color code_keyword #7e2553;
 @define-color code_string #008751;

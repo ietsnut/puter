@@ -11,6 +11,12 @@ accent-ink    dark-blue
 muted         light-grey
 muted-ink     dark-grey
 
+# Window buttons under the pointer: the square filled, the glyph turned over.
+button-hover      dark-blue
+button-hover-ink  white
+close-hover       red
+close-hover-ink   white
+
 # Syntax highlighting in the text editor, on paper.
 code-comment   dark-grey
 code-keyword   dark-purple
