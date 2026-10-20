@@ -1,5 +1,7 @@
 # puter
 
+> How it's built and why: `NOTES.md`. What's left: `NEXT.md`. The dev VM: `dev/devbox/README.md`.
+
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
 search, on a 30px module, square and flat, with
 icons in clean 2px vector strokes.
@@ -15,7 +17,7 @@ icons in clean 2px vector strokes.
 | `theme/` | labwc's title bars and buttons, the GTK theme, the line icons, KiCad's colours |
 | `ghostty/`, `fontconfig/`, `gtk-3.0/` | terminal, text smoothing, GTK settings |
 | `imv/`, `mpv/`, `mimeapps.list` | photo and video viewers, and which app opens what |
-| `dev/` | work from the Mac: `sync`, `shot`, `click`, `run`, `screen` |
+| `dev/` | work from the Mac: `sync`, `shot`, `click`, `run`, `screen`; `dev/devbox/` is the dev VM's setup |
 
 ## Installing
 
