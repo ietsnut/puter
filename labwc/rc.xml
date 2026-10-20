@@ -36,6 +36,11 @@
 
   <desktops number="1" />
 
+  <!-- imv asks to draw its own frame and draws none; it gets puter's. -->
+  <windowRules>
+    <windowRule identifier="imv" serverDecoration="yes" />
+  </windowRules>
+
   <keyboard>
     <default />
     <keybind key="W-Return"><action name="Execute" command="ghostty" /></keybind>

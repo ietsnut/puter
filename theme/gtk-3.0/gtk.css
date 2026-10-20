@@ -447,3 +447,63 @@ entry image.left {
   padding: 0;
   min-width: 0;
 }
+
+/* Tabs (Mousepad, Thunar): one module tall, flat, the open tab in the accent.
+   Adwaita underlines the open tab with a blue shadow through rules more
+   specific than the ones above; these outrank them. */
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) {
+  background-color: @paper;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+notebook:not(.puter-a) > header:not(.puter-a) > tabs:not(.puter-a) {
+  margin: 0;
+  padding: 0;
+}
+
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b),
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):hover,
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):backdrop {
+  background-color: @paper;
+  color: @muted_ink;
+  box-shadow: none;
+  border: none;
+  outline: none;
+  min-height: 30px;
+  padding: 0 0 0 8px;
+  margin: 0;
+}
+
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):checked,
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):checked:backdrop {
+  background-color: @accent;
+  color: @accent_ink;
+  box-shadow: none;
+}
+
+notebook > header > tabs > tab label {
+  color: inherit;
+}
+
+notebook > header > tabs > tab button {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  margin: 0;
+}
+
+notebook:not(.puter-a), notebook.frame:not(.puter-a), notebook:not(.puter-a):backdrop {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Mousepad packs its tabs with 2px of padding above and below in code; its
+   notebook takes them back so the tabs start right under the menu bar. */
+window.mousepad notebook:not(.puter-a) {
+  margin-top: -2px;
+  margin-bottom: -2px;
+}

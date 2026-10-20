@@ -6,3 +6,9 @@
 @define-color accent_ink #19332d;
 @define-color muted #a8b5b2;
 @define-color muted_ink #394a50;
+@define-color code_comment #577277;
+@define-color code_keyword #7a367b;
+@define-color code_string #468232;
+@define-color code_number #884b2b;
+@define-color code_type #3c5e8b;
+@define-color code_constant #a53030;

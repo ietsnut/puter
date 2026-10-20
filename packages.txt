@@ -14,6 +14,9 @@ xdg-desktop-portal-gtk
 ghostty
 thunar
 gvfs
+mousepad
+imv
+mpv
 chromium
 
 # Fonts

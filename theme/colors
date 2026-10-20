@@ -10,6 +10,14 @@ accent-ink  green0   # text and icons on the accent
 muted       gray7    # unfocused title bars and tabs
 muted-ink   gray4    # text and icons on muted
 
+# Syntax highlighting in the text editor, on paper.
+code-comment   gray5
+code-keyword   purple2
+code-string    green2
+code-number    orange2
+code-type      blue2
+code-constant  red3
+
 [apollo]
 blue0   #172038
 blue1   #253a5e

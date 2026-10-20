@@ -6,6 +6,8 @@
   theme/labwc/*.svg          the window buttons
   theme/icons/               places and file icons
   theme/gtk-3.0/colors.css   the roles, for GTK apps
+  theme/gtksourceview/puter.xml  syntax colours for the text editor
+  imv/config, mpv/mpv.conf   the photo and video viewers
   ghostty/colors             the terminal
 
 Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
@@ -227,6 +229,75 @@ for d in dirs:
 )
 
 
+# The text editor: a GtkSourceView scheme from the roles. Code and Markdown
+# both draw from these few styles.
+def style(name, fg=None, bg=None, bold=False, italic=False, underline=False):
+    attrs = f'name="{name}"'
+    attrs += f' foreground="{fg}"' if fg else ""
+    attrs += f' background="{bg}"' if bg else ""
+    attrs += ' bold="true"' if bold else ""
+    attrs += ' italic="true"' if italic else ""
+    attrs += ' underline="single"' if underline else ""
+    return f"  <style {attrs}/>\n"
+
+
+styles = [
+    style("text", C["ink"], C["paper"]),
+    style("selection", C["accent-ink"], C["accent"]),
+    style("selection-unfocused", C["accent-ink"], C["accent"]),
+    style("cursor", C["ink"]),
+    style("current-line", bg=C["paper"]),
+    style("line-numbers", C["muted-ink"], C["paper"]),
+    style("current-line-number", C["ink"], C["paper"]),
+    style("bracket-match", C["accent-ink"], C["accent"]),
+    style("search-match", C["accent-ink"], C["accent"]),
+    style("right-margin", C["muted"]),
+    style("draw-spaces", C["muted"]),
+    style("def:comment", C["code-comment"], italic=True),
+    style("def:shebang", C["code-comment"]),
+    style("def:doc-comment-element", C["code-comment"], bold=True),
+    style("def:keyword", C["code-keyword"]),
+    style("def:statement", C["code-keyword"]),
+    style("def:builtin", C["code-keyword"]),
+    style("def:preprocessor", C["code-keyword"]),
+    style("def:string", C["code-string"]),
+    style("def:character", C["code-string"]),
+    style("def:special-char", C["code-constant"]),
+    style("def:number", C["code-number"]),
+    style("def:floating-point", C["code-number"]),
+    style("def:decimal", C["code-number"]),
+    style("def:base-n-integer", C["code-number"]),
+    style("def:boolean", C["code-constant"]),
+    style("def:constant", C["code-constant"]),
+    style("def:special-constant", C["code-constant"]),
+    style("def:type", C["code-type"]),
+    style("def:function", C["code-type"]),
+    style("def:identifier", C["ink"]),
+    style("def:error", C["code-constant"], underline=True),
+    style("def:note", C["code-comment"], bold=True),
+    style("def:net-address", C["code-type"], underline=True),
+    # Markdown.
+    style("def:heading", C["ink"], bold=True),
+    style("def:emphasis", italic=True),
+    style("def:strong-emphasis", bold=True),
+    style("def:link-text", C["code-type"]),
+    style("def:link-destination", C["code-comment"], underline=True),
+    style("def:inline-code", C["code-string"]),
+    style("def:preformatted-section", C["code-string"]),
+    style("def:list-marker", C["code-keyword"], bold=True),
+    style("def:blockquote", C["code-comment"]),
+]
+(theme / "gtksourceview").mkdir(exist_ok=True)
+(theme / "gtksourceview" / "puter.xml").write_text(
+    '<?xml version="1.0" encoding="UTF-8"?>\n'
+    "<!-- Written by theme/make from theme/colors; edit those, not this. -->\n"
+    '<style-scheme id="puter" name="puter" version="1.0">\n'
+    "  <description>puter's palette, for code and Markdown</description>\n"
+    + "".join(styles)
+    + "</style-scheme>\n"
+)
+
+
 # The terminal: paper and ink, the accent for selections, and Apollo for the
 # sixteen ANSI colours.
 A = APOLLO
@@ -238,3 +309,23 @@ ansi = ["gray2", "red3", "green2", "orange3", "blue2", "purple2", "blue3", "gray
     f"selection-background = {C['accent']}\nselection-foreground = {C['accent-ink']}\n"
     + "".join(f"palette = {i}={A[n]}\n" for i, n in enumerate(ansi))
 )
+
+
+# The viewers: photos on paper, videos on ink, no interface of their own.
+(repo / "imv" / "config").write_text(f"""# Written by theme/make from theme/colors; edit those, not this.
+[options]
+background = {C['paper'].lstrip('#')}
+overlay = false
+overlay_font = Geist:15
+title_text = $imv_current_file
+""")
+(repo / "mpv" / "mpv.conf").write_text(f"""# Written by theme/make from theme/colors; edit those, not this.
+background-color={C['ink']}
+osd-font=Geist
+osd-font-size=30
+osd-color={C['paper']}
+osd-back-color={C['ink']}
+osd-border-size=0
+osd-shadow-offset=0
+keep-open=yes
+""")

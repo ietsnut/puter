@@ -24,6 +24,7 @@ packages() {
   # Thunar, patched so its path field sits on the grid (packages/thunar).
   # Rebuilt whenever the installed version isn't the recipe's.
   local want have
+  # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
   want="$(source "$repo/packages/thunar/PKGBUILD" && echo "$pkgver-$pkgrel")"
   have="$(pacman -Q thunar 2>/dev/null | cut -d' ' -f2)"
   if [[ $have != "$want" ]]; then
@@ -47,6 +48,16 @@ settings() {
   gsettings set org.gnome.desktop.interface font-name "Geist 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
+
+  # Mousepad: puter's colours, Geist Mono, line numbers, spaces for tabs.
+  local m=org.xfce.mousepad.preferences.view
+  gsettings set $m color-scheme puter
+  gsettings set $m use-default-monospace-font false
+  gsettings set $m font-name "GeistMono Nerd Font 11"
+  gsettings set $m show-line-numbers true
+  gsettings set $m highlight-current-line false
+  gsettings set $m insert-spaces true
+  gsettings set $m tab-width 4
 
   # Thunar.
   local t=(xfconf-query -c thunar -n -p)
@@ -72,7 +83,7 @@ config() {
   # Each config folder is linked into ~/.config, so editing the repo edits the
   # live desktop. Anything already there is moved aside first.
   mkdir -p "$HOME/.config"
-  for dir in labwc quickshell ghostty fontconfig gtk-3.0; do
+  for dir in labwc quickshell ghostty fontconfig gtk-3.0 imv mpv; do
     target="$HOME/.config/$dir"
     if [[ -e $target && ! -L $target ]]; then
       mv "$target" "$target.bak.$(date +%s)"
@@ -85,6 +96,11 @@ config() {
   mkdir -p "$HOME/.local/share/themes" "$HOME/.local/share/icons"
   ln -sfn "$repo/theme" "$HOME/.local/share/themes/puter"
   ln -sfn "$repo/theme/icons" "$HOME/.local/share/icons/puter"
+  mkdir -p "$HOME/.local/share/gtksourceview-4/styles"
+  ln -sfn "$repo/theme/gtksourceview/puter.xml" "$HOME/.local/share/gtksourceview-4/styles/puter.xml"
+
+  # Which app opens what.
+  ln -sfn "$repo/mimeapps.list" "$HOME/.config/mimeapps.list"
 
   on_bus bash -c "$(declare -f settings); settings"
 }
