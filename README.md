@@ -26,5 +26,7 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 ## Keys
 
-Super+Return terminal, Super+Escape menu (or right-click the desktop),
-Super+Q close, Super+F maximise, Alt+Tab switch windows.
+Super+Return terminal, Super+Space search, Super+Escape menu (or right-click
+the desktop), Super+Q close, Super+F maximise, Alt+Tab switch windows.
+Super+Left/Right snap a window to half the screen and Super+Up maximises;
+dragging a title bar to an edge does the same, and corners give quarters.

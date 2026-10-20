@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!-- labwc stacks windows, so everything floats. Colours are in themerc-override. -->
+<!-- labwc stacks windows, so everything floats. Colours are in the puter theme (theme/labwc). -->
 <labwc_config>
 
   <!-- New windows step down and right from the top left, one module at a time. -->
@@ -21,6 +21,19 @@
     <font place="OnScreenDisplay"><name>Geist</name><size>11</size></font>
   </theme>
 
+  <!-- Windows-style snapping: drag a title bar to the left or right edge for
+       half the screen, to the top to maximise; corners give quarters. The
+       halves are 32 x 35 modules, so a snapped window stays on the grid. -->
+  <snapping>
+    <range inner="10" outer="10" />
+    <cornerRange>60</cornerRange>
+    <overlay enabled="yes">
+      <delay inner="300" outer="300" />
+    </overlay>
+    <topMaximize>yes</topMaximize>
+    <notifyClient>always</notifyClient>
+  </snapping>
+
   <desktops number="1" />
 
   <keyboard>
@@ -30,6 +43,11 @@
     <keybind key="W-Escape"><action name="ShowMenu" menu="root-menu" /></keybind>
     <keybind key="W-q"><action name="Close" /></keybind>
     <keybind key="W-f"><action name="ToggleMaximize" /></keybind>
+    <!-- Super+arrows snap to a half; a second press the other way makes a quarter. -->
+    <keybind key="W-Left"><action name="SnapToEdge" direction="left" combine="yes" /></keybind>
+    <keybind key="W-Right"><action name="SnapToEdge" direction="right" combine="yes" /></keybind>
+    <keybind key="W-Up"><action name="SnapToEdge" direction="up" combine="yes" /></keybind>
+    <keybind key="W-Down"><action name="SnapToEdge" direction="down" combine="yes" /></keybind>
   </keyboard>
 
   <mouse>

@@ -1,6 +1,7 @@
 # Windows in three colours: a black one-module title bar, its text and buttons
-# white when focused and gray when not, white bodies, square and flat. The colours are quickshell/Theme.qml's;
-# the buttons are the SVGs beside this file, written by ../make-buttons.
+# white when focused and gray when not, white bodies, square and flat. The
+# colours are quickshell/Theme.qml's; the buttons are the SVGs beside this
+# file, written by ../make-buttons.
 border.width: 0
 window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
@@ -40,3 +41,13 @@ osd.border.width: 0
 osd.label.text.color: #ffffff
 osd.window-switcher.style-classic.item.active.border.width: 0
 osd.window-switcher.style-classic.item.active.bg.color: #808080
+
+# Where a dragged window will snap: a plain 2px black outline, no fill.
+snapping.overlay.region.bg.enabled: no
+snapping.overlay.edge.bg.enabled: no
+snapping.overlay.region.border.enabled: yes
+snapping.overlay.edge.border.enabled: yes
+snapping.overlay.region.border.width: 2
+snapping.overlay.edge.border.width: 2
+snapping.overlay.region.border.color: #000000
+snapping.overlay.edge.border.color: #000000
