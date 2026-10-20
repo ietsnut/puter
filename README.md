@@ -15,7 +15,7 @@ icons in clean 2px vector strokes.
 | `theme/` | labwc's title bars and buttons, the GTK theme, the line icons, KiCad's colours |
 | `ghostty/`, `fontconfig/`, `gtk-3.0/` | terminal, text smoothing, GTK settings |
 | `imv/`, `mpv/`, `mimeapps.list` | photo and video viewers, and which app opens what |
-| `dev/` | work from the Mac: `sync`, `shot`, `click`, `run` |
+| `dev/` | work from the Mac: `sync`, `shot`, `click`, `run`, `screen` |
 
 ## Installing
 
@@ -40,7 +40,8 @@ run `theme/make`, then `dev/sync`.
 The desktop runs in an Arch VM on the devbox (`ssh archvm`). Edit here, then
 `dev/sync` copies the checkout to `~/puter` on the VM, runs `install.sh config`
 and reloads, and
-`dev/shot` saves a screenshot to `dev/shot.png`. `dev/run ghostty` opens a
+`dev/shot` saves a screenshot to `dev/shot.png`. `dev/screen` opens the VM's
+desktop live in Screen Sharing (`dev/screen stop` closes the tunnel). `dev/run ghostty` opens a
 window on it and `dev/click X Y` clicks at a point in screenshot pixels.
 
 The VM has no GPU, and wlroots crashes on OpenGL apps' native Wayland frames
