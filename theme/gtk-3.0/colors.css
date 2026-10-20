@@ -1,13 +1,13 @@
 /* Written by theme/make from theme/palette; edit those, not this. */
 @define-color desk #231f20;
 @define-color desk_dot #4a4446;
-@define-color bar #060606;
-@define-color bar_ink #ffffff;
-@define-color bar_edge #060606;
+@define-color bar #958d79;
+@define-color bar_ink #060606;
+@define-color bar_edge #958d79;
 @define-color search #e4722c;
 @define-color search_ink #060606;
-@define-color tab #060606;
-@define-color tab_ink #d6d1cb;
+@define-color tab #958d79;
+@define-color tab_ink #060606;
 @define-color tab_active #ffffff;
 @define-color tab_active_ink #060606;
 @define-color paper #ffffff;
@@ -18,8 +18,8 @@
 @define-color muted_ink #6b6459;
 @define-color outline #060606;
 @define-color rule #d6d1cb;
-@define-color title #060606;
-@define-color title_ink #ffffff;
+@define-color title #958d79;
+@define-color title_ink #060606;
 @define-color hover #d6d1cb;
 @define-color hover_ink #060606;
 @define-color button_hover #4a4446;

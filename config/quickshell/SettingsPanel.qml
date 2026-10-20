@@ -4,8 +4,8 @@ import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 
-// Settings: the network, volume, the computer's activity and power, one
-// module per row and fourteen modules wide, standing on the bar in the right
+// Settings: the network, volume and the computer's activity, one module per
+// row and fourteen modules wide, standing on the bar in the right
 // corner above its button. Levels are dot matrices (DotMatrix.qml).
 PanelWindow {
     id: panel
@@ -274,38 +274,6 @@ PanelWindow {
             }
         }
 
-        // Power.
-        Row {
-            Chip {
-                text: "Log out"
-                fill: Theme.foreground
-                ink: Theme.background
-                hoverable: true
-                hoverFill: Theme.primary
-                hoverInk: Theme.primaryForeground
-                onClicked: Quickshell.execDetached(["labwc", "--exit"])
-            }
-
-            Chip {
-                text: "Restart"
-                fill: Theme.foreground
-                ink: Theme.background
-                hoverable: true
-                hoverFill: Theme.primary
-                hoverInk: Theme.primaryForeground
-                onClicked: Quickshell.execDetached(["systemctl", "reboot"])
-            }
-
-            Chip {
-                text: "Shut down"
-                fill: Theme.foreground
-                ink: Theme.background
-                hoverable: true
-                hoverFill: Theme.primary
-                hoverInk: Theme.primaryForeground
-                onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
-            }
-        }
     }
 
     Outline {}

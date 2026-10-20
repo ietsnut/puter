@@ -55,7 +55,7 @@ PCManFM-Qt for files, FeatherPad for text and code (syntax colours from the
 palette), LXImage-Qt for photos, mpv for video, QTerminal for the terminal,
 Falkon for the web, Sheet (puter's own) for tables, JLCONE for PCB orders.
 The square left of the clock opens settings: network and Wi-Fi, volume in ten
-steps, and power.
+steps, and the computer's activity; Restart and Shut down are in the bar's right corner.
 
 ## Keys
 

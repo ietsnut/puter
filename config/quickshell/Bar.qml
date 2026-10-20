@@ -4,7 +4,8 @@ import Quickshell.Wayland
 
 // The bottom bar, on the bottom edge: a strip one module tall with the search
 // square standing two modules tall in the left corner, open windows right after it,
-// and the date and time in the right corner with the settings square beside.
+// then the settings square, the date and time, and restart and shut down in
+// the right corner.
 PanelWindow {
     id: bar
 
@@ -93,11 +94,34 @@ PanelWindow {
 
     Chip {
         id: time
-        anchors.right: parent.right
+        anchors.right: restart.left
         y: Theme.module
         text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
         fill: Theme.bar
         ink: Theme.barForeground
+    }
+
+    // Power, in the corner.
+    Chip {
+        id: restart
+        anchors.right: shutDown.left
+        y: Theme.module
+        text: "Restart"
+        fill: Theme.bar
+        ink: Theme.barForeground
+        hoverable: true
+        onClicked: Quickshell.execDetached(["systemctl", "reboot"])
+    }
+
+    Chip {
+        id: shutDown
+        anchors.right: parent.right
+        y: Theme.module
+        text: "Shut down"
+        fill: Theme.bar
+        ink: Theme.barForeground
+        hoverable: true
+        onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
     }
 
     SystemClock {

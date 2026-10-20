@@ -1,5 +1,5 @@
 # Stack: after Koto's identity for Stack Overflow (2026) and Butterfly's
-# Pond. A charcoal desk dotted on the grid, paper windows under black title
+# Pond. A charcoal desk dotted on the grid, paper windows under stone title
 # bars, and a few strong colours that mark rather than fill: every app has
 # its own, shown as a square on its title bar and taskbar tab. Set in Stack
 # Sans, Koto's typeface for it (theme/fonts, SIL OFL).
@@ -9,13 +9,13 @@
 # The interface.
 desk          charcoal
 desk-dot      charcoal-light  # a dot at every module corner on the desk
-bar           ink             # the taskbar strip and the clock
-bar-ink       paper
-bar-edge      ink             # a line along the bar's top: the bar's colour, so none
+bar           stone           # the taskbar strip and the clock
+bar-ink       ink
+bar-edge      stone           # a line along the bar's top: the bar's colour, so none
 search        orange          # the search square in the bar's corner
 search-ink    ink
-tab           ink             # a window's tab on the taskbar
-tab-ink       sand
+tab           stone           # a window's tab on the taskbar
+tab-ink       ink
 tab-active    paper           # the focused window's tab
 tab-active-ink  ink
 paper         paper
@@ -26,8 +26,8 @@ muted         bone            # headers, the bar's other tabs
 muted-ink     stone-dark
 outline       ink             # the thin edge around windows, menus and popups
 rule          sand            # the lighter lines inside: table grids, dividers
-title         ink             # title bars, and a window's tab when focused
-title-ink     paper
+title         stone           # title bars, and the open tab inside apps
+title-ink     ink
 
 # What's under the pointer inside apps: buttons, tabs, the scroll bar.
 hover         sand
@@ -145,9 +145,9 @@ lximage-qt            periwinkle
 falkon                yellow
 x-office-spreadsheet  sky
 jlcone                peach
-kicad                 stone
-pcbnew                stone
-eeschema              stone
+kicad                 plum
+pcbnew                plum
+eeschema              plum
 mpv                   pink
 # The file dialog every app gets (LXQt's portal, by its app ID, as it has
 # no desktop file of that name): the files colour.
