@@ -436,9 +436,3 @@ entry:not(.puter-a):not(.puter-b):backdrop {
   outline: none;
   border-color: transparent;
 }
-
-/* GtkToolbar leaves a pixel after each item; each item gives it back, so the
-   buttons sit flush, one module apart. */
-toolbar > toolbutton, toolbar > toolitem {
-  margin-right: -1px;
-}

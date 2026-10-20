@@ -50,6 +50,8 @@ settings() {
   # Toolbar icons from puter's icon theme as drawn, not GTK's symbolic ones,
   # which GTK fills in solid.
   "${t[@]}" /misc-symbolic-icons-in-toolbar -t bool -s false
+  # The toolbar: back, home, the path field and search.
+  "${t[@]}" /last-toolbar-items -t string -s "menu:0,back:1,forward:0,open-parent:0,open-home:1,new-tab:0,new-window:0,toggle-split-view:0,undo:0,redo:0,zoom-out:0,zoom-in:0,zoom-reset:0,view-as-icons:0,view-as-detailed-list:0,view-as-compact-list:0,view-switcher:0,location-bar:1,reload:0,search:1"
 }
 
 config() {
