@@ -440,3 +440,10 @@ button.flat:not(.puter-a):not(.puter-b):backdrop, button.flat:not(.puter-a):not(
 toolbar:not(.inline-toolbar):not(.osd) > *:not(.toggle):not(.popup) > * {
   margin: 0;
 }
+
+/* A field's leading icon takes no room when there is none to show. */
+entry image.left {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}

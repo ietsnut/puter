@@ -147,26 +147,29 @@ for name, body in BUTTONS.items():
             (theme / "labwc" / f"{variant}-{state}.svg").write_text(svg)
 
 
-# Icons, in two sets. Toolbar actions use the window buttons' 10 x 10 box, so
-# a toolbar reads like a title bar. Files and places are drawn on the whole
-# 16 x 16 grid, which leaves room inside their outlines. Lines sit on whole
-# pixels so a 2px stroke is sharp; at 64px (icon view) the drawing is four
-# times larger and the stroke stays 2px. Anything not drawn here comes from
-# Adwaita.
-GLYPHS = {
-    # name: (context, box, path)
-    "folder": ("places", 16, "M2 4H6L7 5H14V13H2Z"),
-    "user-home": ("places", 16, "M2 8L8 2L14 8M4 7V14H12V7"),
-    "drive-harddisk": ("devices", 16, "M2 5H14V11H2Z"),
-    "text-x-generic": ("mimetypes", 16, "M3 2H9L13 6V14H3ZM9 2V6H13"),
-    "go-previous": ("actions", 10, "M7 1L3 5L7 9"),
-    "go-next": ("actions", 10, "M3 1L7 5L3 9"),
-    "go-up": ("actions", 10, "M1 7L5 3L9 7"),
-    "go-down": ("actions", 10, "M1 3L5 7L9 3"),
-    "go-home": ("actions", 10, "M1 5L5 1L9 5M2 4V9H8V4"),
+# Icons. Each is drawn per size on its own box, with lines on whole pixels so
+# a 2px stroke is sharp; curves and diagonals are smooth. Toolbar actions sit
+# in a 14px box (24px icons, in 30px buttons); files and places fill a 20px box
+# at 24px (list rows) and a 16px box at 16px. At 64px (icon view) the 16px
+# drawing is four times larger and the stroke stays 2px. Anything not drawn
+# here comes from Adwaita.
+FILES = {
+    # name: (context, 16px path in a 16 box, 24px path in a 20 box)
+    "folder": ("places", "M2 4H6L7 5H14V13H2Z", "M1 4H8L10 6H19V17H1Z"),
+    "user-home": ("places", "M2 8L8 2L14 8M4 7V14H12V7", "M1 10L10 1L19 10M4 8V19H16V8"),
+    "drive-harddisk": ("devices", "M2 5H14V11H2Z", "M1 6H19V14H1ZM14 10H16"),
+    "text-x-generic": ("mimetypes", "M3 2H9L13 6V14H3ZM9 2V6H13", "M3 1H12L17 6V19H3ZM12 1V6H17"),
+}
+ACTIONS = {
+    # name: path in a 14 box
+    "go-previous": "M9 1L3 7L9 13",
+    "go-next": "M5 1L11 7L5 13",
+    "go-up": "M1 10L7 4L13 10",
+    "go-down": "M1 4L7 10L13 4",
+    "go-home": "M1 7L7 1L13 7M3 5V13H11V5",
     # The magnifier, as on the search square: a lens and a handle clipped
     # square at the box's corner.
-    "edit-find": ("actions", 10, "M7 4A3 3 0 1 1 1 4A3 3 0 1 1 7 4ZM6 6L11 11"),
+    "edit-find": "M11 6A5 5 0 1 1 1 6A5 5 0 1 1 11 6ZM9.5 9.5L15 15",
 }
 ALIASES = {
     "inode-directory": "folder", "folder-open": "folder", "user-desktop": "folder",
@@ -174,11 +177,9 @@ ALIASES = {
     "unknown": "text-x-generic", "application-octet-stream": "text-x-generic",
     "system-search": "edit-find",
 }
-SIZES = (16, 24, 64)
 
 
-def icon(size, box, path):
-    scale = 4 if size == 64 and box == 16 else 1
+def icon(size, box, path, scale=1):
     offset = (size - box * scale) // 2
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
             f'<clipPath id="box"><rect x="{offset}" y="{offset}" width="{box * scale}" height="{box * scale}"/></clipPath>'
@@ -186,19 +187,29 @@ def icon(size, box, path):
             f'fill="none" stroke="{C["ink"]}" stroke-width="2" vector-effect="non-scaling-stroke"/></g></svg>\n')
 
 
+DRAWN = {}  # (size, context, name): svg
+for name, (context, small, large) in FILES.items():
+    DRAWN[16, context, name] = icon(16, 16, small)
+    DRAWN[24, context, name] = icon(24, 20, large)
+    DRAWN[64, context, name] = icon(64, 16, small, scale=4)
+for name, path in ACTIONS.items():
+    DRAWN[16, "actions", name] = icon(16, 14, path)
+    DRAWN[24, "actions", name] = icon(24, 14, path)
+SIZES = (16, 24, 64)
+
+
 icons = theme / "icons"
 for old in icons.glob("[0-9]*x[0-9]*"):
     for f in sorted(old.rglob("*"), reverse=True):
         f.unlink() if f.is_file() else f.rmdir()
     old.rmdir()
-contexts = sorted({context for context, _, _ in GLYPHS.values()})
-for name, (context, box, path) in GLYPHS.items():
-    for size in SIZES:
-        folder = icons / f"{size}x{size}" / context
-        folder.mkdir(parents=True, exist_ok=True)
-        for n in [name] + [a for a, t in ALIASES.items() if t == name]:
-            (folder / f"{n}.svg").write_text(icon(size, box, path))
-dirs = [f"{s}x{s}/{c}" for s in SIZES for c in contexts]
+contexts = sorted({context for _, context, _ in DRAWN})
+for (size, context, name), svg in DRAWN.items():
+    folder = icons / f"{size}x{size}" / context
+    folder.mkdir(parents=True, exist_ok=True)
+    for n in [name] + [a for a, t in ALIASES.items() if t == name]:
+        (folder / f"{n}.svg").write_text(svg)
+dirs = sorted({f"{size}x{size}/{context}" for size, context, _ in DRAWN})
 index = ["[Icon Theme]", "Name=puter", "Comment=2px line icons", "Inherits=Adwaita,hicolor",
          "Directories=" + ",".join(dirs), ""]
 for d in dirs:

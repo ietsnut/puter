@@ -59,6 +59,8 @@ settings() {
   "${t[@]}" /last-separator-position -t int -s 180
   "${t[@]}" /shortcuts-icon-size -t string -s THUNAR_ICON_SIZE_16
   "${t[@]}" /tree-icon-size -t string -s THUNAR_ICON_SIZE_16
+  # 24px icons in the list, the size they are drawn for.
+  "${t[@]}" /last-details-view-zoom-level -t string -s THUNAR_ZOOM_LEVEL_38_PERCENT
   # Toolbar icons from puter's icon theme as drawn, not GTK's symbolic ones,
   # which GTK fills in solid.
   "${t[@]}" /misc-symbolic-icons-in-toolbar -t bool -s false

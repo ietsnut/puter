@@ -2,7 +2,7 @@
 Name=puter
 Comment=2px line icons
 Inherits=Adwaita,hicolor
-Directories=16x16/actions,16x16/devices,16x16/mimetypes,16x16/places,24x24/actions,24x24/devices,24x24/mimetypes,24x24/places,64x64/actions,64x64/devices,64x64/mimetypes,64x64/places
+Directories=16x16/actions,16x16/devices,16x16/mimetypes,16x16/places,24x24/actions,24x24/devices,24x24/mimetypes,24x24/places,64x64/devices,64x64/mimetypes,64x64/places
 
 [16x16/actions]
 Size=16
@@ -43,13 +43,6 @@ Type=Fixed
 Size=24
 Context=Places
 Type=Fixed
-
-[64x64/actions]
-Size=64
-Context=Actions
-Type=Scalable
-MinSize=25
-MaxSize=256
 
 [64x64/devices]
 Size=64

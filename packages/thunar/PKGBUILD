@@ -10,7 +10,7 @@
 
 pkgname=thunar
 pkgver=4.20.10
-pkgrel=1.1
+pkgrel=1.2
 pkgdesc="Modern, fast and easy-to-use file manager for Xfce"
 arch=('x86_64')
 url="https://docs.xfce.org/xfce/thunar/start"
@@ -34,6 +34,10 @@ prepare() {
   # the last toolbar button. Fails if Thunar ever moves the line.
   grep -q '^#define DEFAULT_LOCATION_BAR_MARGIN 5$' thunar/thunar-window.c
   sed -i 's/^#define DEFAULT_LOCATION_BAR_MARGIN 5$/#define DEFAULT_LOCATION_BAR_MARGIN 0/' thunar/thunar-window.c
+  # No icon in the path field, so its text starts one inset in like every
+  # other field. Fails if Thunar ever renames the function.
+  grep -q '^thunar_path_entry_update_icon (ThunarPathEntry \*path_entry)$' thunar/thunar-path-entry.c
+  sed -i '/^thunar_path_entry_update_icon (ThunarPathEntry \*path_entry)$/{n;s/^{$/{\n  gtk_entry_set_icon_from_icon_name (GTK_ENTRY (path_entry), GTK_ENTRY_ICON_PRIMARY, NULL);\n  return;/}' thunar/thunar-path-entry.c
   NOCONFIGURE=1 ./autogen.sh
 }
 
