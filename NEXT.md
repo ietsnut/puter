@@ -38,7 +38,8 @@ Where things stood at the end of the 20 October 2026 session.
   saves. It has no find, sort or filter yet.
 - **FeatherPad's line numbers** are off: it paints their gutter dark gray in
   code.
-- **Wi-Fi in settings** is untested: the VM has no Wi-Fi. Connecting only
+- **Wi-Fi in settings** is untested: the VM has no Wi-Fi (nor its new
+  signal dots). Connecting only
   works for open and already-saved networks; there's no password prompt yet.
 - **The power buttons** in settings haven't been pressed.
 - **The login screen step** of `install.sh` (greetd + tuigreet) is untested:

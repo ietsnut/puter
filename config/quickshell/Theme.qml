@@ -32,6 +32,7 @@ Singleton {
     readonly property color muted: Colors.muted
     readonly property color mutedForeground: Colors.mutedInk
     readonly property color outline: Colors.outline
+    readonly property color rule: Colors.rule
     readonly property color title: Colors.title
     readonly property color titleForeground: Colors.titleInk
     readonly property color hover: Colors.buttonHover
