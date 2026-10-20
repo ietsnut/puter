@@ -507,3 +507,27 @@ window.mousepad notebook:not(.puter-a) {
   margin-top: -2px;
   margin-bottom: -2px;
 }
+
+/* Close buttons on tabs draw the window buttons' cross (window-close in the
+   icon theme), in the tab's own text colour. */
+notebook > header > tabs > tab button image {
+  -gtk-icon-style: symbolic;
+  color: inherit;
+}
+
+/* Adwaita shrinks tab close buttons to 20px and dims them to 30%; here they
+   are a full module square in the tab's own text colour, like the window
+   buttons. */
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b),
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):hover,
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):backdrop {
+  min-width: 30px;
+  min-height: 30px;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+}
+
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):hover {
+  background-color: @paper;
+}

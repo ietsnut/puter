@@ -197,6 +197,30 @@ for name, (context, small, large) in FILES.items():
 for name, path in ACTIONS.items():
     DRAWN[16, "actions", name] = icon(16, 14, path)
     DRAWN[24, "actions", name] = icon(24, 14, path)
+# The close cross, as on the window buttons: two 2px diagonals corner to corner
+# in a 10 x 10 box, cut square on its edges. At 16px it sits in the middle of
+# a 30px button exactly where the window buttons' cross does. The symbolic
+# form is the same shape as filled bands, since GTK fills symbolic icons with
+# the text colour of whatever they sit on.
+def cross(size, symbolic):
+    o, b, h = (size - 10) // 2, 10, 2 ** 0.5
+    if symbolic:
+        band = lambda pts: "M" + "L".join(f"{x:.3f} {y:.3f}" for x, y in pts) + "Z"
+        a = [(o, o), (o + h, o), (o + b, o + b - h), (o + b, o + b), (o + b - h, o + b), (o, o + h)]
+        mirror = [(2 * o + b - x, y) for x, y in a]
+        body = f'<path d="{band(a)}{band(mirror)}" fill="#000000"/>'
+    else:
+        body = (f'<clipPath id="box"><rect x="{o}" y="{o}" width="{b}" height="{b}"/></clipPath>'
+                f'<g clip-path="url(#box)" stroke="{C["ink"]}" stroke-width="2">'
+                f'<line x1="{o - 1}" y1="{o - 1}" x2="{o + b + 1}" y2="{o + b + 1}"/>'
+                f'<line x1="{o + b + 1}" y1="{o - 1}" x2="{o - 1}" y2="{o + b + 1}"/></g>')
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
+            f'viewBox="0 0 {size} {size}">{body}</svg>\n')
+
+
+for size in (16, 24):
+    DRAWN[size, "actions", "window-close"] = cross(size, False)
+    DRAWN[size, "actions", "window-close-symbolic"] = cross(size, True)
 SIZES = (16, 24, 64)
 
 
