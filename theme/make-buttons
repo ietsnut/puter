@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Writes labwc's title bar buttons into theme/labwc/ as SVGs on the pixel grid.
+
+A button is one module (30 x 30). Each glyph sits in the 10 x 10 box from 10 to
+20 and is drawn with filled rectangles on whole pixels, so every stroke is exactly
+2px and nothing is antialiased: no colour but the ink and the bar's. Diagonals
+are steps of 2 x 2 blocks.
+Colours are the ink of the title bar each button sits on: white on the black
+focused bar, black on the gray one (quickshell/Theme.qml).
+
+It also writes quickshell/desk.png, the desk's dither: a 2 x 2 checker of gray
+and white, tiled by quickshell/Desk.qml.
+"""
+from pathlib import Path
+
+INK = {"active": "#ffffff", "inactive": "#000000"}
+
+def rects(*boxes):
+    return "".join(f'<rect x="{x}" y="{y}" width="{w}" height="{h}"/>' for x, y, w, h in boxes)
+
+def blocks(*rows):
+    """Pixel art in 2 x 2 blocks from the glyph box's corner: '#' is ink."""
+    return rects(*((10 + 2 * x, 10 + 2 * y, 2, 2) for y, row in enumerate(rows) for x, c in enumerate(row) if c == "#"))
+
+GLYPHS = {
+    # The window menu: three bars. It also gives the title its inset, since
+    # labwc has no padding for the title text alone.
+    "menu": rects((10, 10, 10, 2), (10, 14, 10, 2), (10, 18, 10, 2)),
+    # A bar along the bottom of the box.
+    "iconify": rects((10, 18, 10, 2)),
+    # A square outline.
+    "max": rects((10, 10, 10, 2), (10, 18, 10, 2), (10, 12, 2, 6), (18, 12, 2, 6)),
+    # Restore: a smaller square, with the top and right edges of one behind it.
+    "max_toggled": rects(
+        (10, 12, 8, 2), (10, 18, 8, 2), (10, 14, 2, 4), (16, 14, 2, 4),
+        (12, 10, 8, 2), (18, 12, 2, 6),
+    ),
+    # The cross, in 2 x 2 blocks so its diagonals are as sharp as the bars:
+    # five blocks corner to corner each way.
+    "close": blocks(
+        "#...#",
+        ".#.#.",
+        "..#..",
+        ".#.#.",
+        "#...#",
+    ),
+}
+
+out = Path(__file__).parent / "labwc"
+for name, body in GLYPHS.items():
+    for state, ink in INK.items():
+        svg = (
+            '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">'
+            f'<g fill="{ink}" shape-rendering="crispEdges">{body.format(ink=ink)}</g></svg>\n'
+        )
+        for variant in (name, f"{name}_hover"):
+            (out / f"{variant}-{state}.svg").write_text(svg)
+
+# The desk: gray and white on alternate pixels.
+import struct, zlib
+
+def png(rows):
+    raw = b"".join(b"\x00" + bytes(c for px in row for c in px) for row in rows)
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
+    head = struct.pack(">IIBBBBB", len(rows[0]), len(rows), 8, 2, 0, 0, 0)
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", head) + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b"")
+
+GRAY, WHITE = (0x80, 0x80, 0x80), (0xFF, 0xFF, 0xFF)
+(Path(__file__).parent.parent / "quickshell" / "desk.png").write_bytes(png([[GRAY, WHITE], [WHITE, GRAY]]))

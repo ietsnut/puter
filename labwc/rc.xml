@@ -9,8 +9,9 @@
   </placement>
 
   <theme>
+    <name>puter</name>
     <titlebar>
-      <layout>:iconify,max,close</layout>
+      <layout>menu:iconify,max,close</layout>
     </titlebar>
     <cornerRadius>0</cornerRadius>
     <dropShadows>no</dropShadows>

@@ -7,8 +7,26 @@ window-decoration = server
 confirm-close-surface = false
 cursor-style-blink = false
 
-background = efffe1
-foreground = 1b322d
-cursor-color = 1b322d
-selection-background = cef058
-selection-foreground = 2f4a00
+# Black, gray and white, as quickshell/Theme.qml: colours become black, bright
+# colours gray.
+background = ffffff
+foreground = 000000
+cursor-color = 000000
+selection-background = 000000
+selection-foreground = ffffff
+palette = 0=#000000
+palette = 1=#000000
+palette = 2=#000000
+palette = 3=#000000
+palette = 4=#000000
+palette = 5=#000000
+palette = 6=#000000
+palette = 7=#808080
+palette = 8=#808080
+palette = 9=#808080
+palette = 10=#808080
+palette = 11=#808080
+palette = 12=#808080
+palette = 13=#808080
+palette = 14=#808080
+palette = 15=#ffffff

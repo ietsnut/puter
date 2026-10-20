@@ -1,5 +1,13 @@
 import Quickshell
 
 ShellRoot {
-    Bar {}
+    Desk {}
+
+    Bar {
+        onSearch: searchPanel.toggle()
+    }
+
+    SearchPanel {
+        id: searchPanel
+    }
 }

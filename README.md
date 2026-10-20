@@ -1,13 +1,16 @@
 # puter
 
-My Arch desktop: labwc for floating windows, Quickshell for the bar and
-everything else on screen, in the Electronaut look (flat chips on a 30px
-module, a closed palette, no rounding or shadows).
+My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
+search, in three colours (black, gray, white; dithered where a fourth tone is
+needed) on a 30px module, square and flat. Icons are pixel art in 2 x 2 blocks,
+so every stroke is 2px and nothing but text is smoothed.
 
 | Folder | What it is |
 | --- | --- |
 | `labwc/` | the compositor: window behaviour, keys, title bars, the desktop menu |
-| `quickshell/` | the shell in QML; `Theme.qml` holds every size and colour |
+| `quickshell/` | the shell in QML: desk, bottom bar, search; `Theme.qml` holds every size and colour |
+| `theme/` | the labwc theme: title bars, and the window buttons `make-buttons` writes |
+| `fontconfig/` | text smoothed in grays only |
 | `ghostty/` | the terminal |
 | `install.sh` | links those folders into `~/.config` |
 | `dev/` | work from the Mac: `sync`, `shot`, `run` |

@@ -23,6 +23,7 @@ Rectangle {
         color: chip.ink
         elide: Text.ElideRight
         font.family: Theme.font
+        renderType: Text.CurveRendering
         font.pixelSize: Theme.textSize
     }
 
