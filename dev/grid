@@ -15,6 +15,7 @@ Prints what's off, by how much, and writes dev/shots/grid.png: the screenshot wi
 each edge that's off marked in red. Exits 1 if anything is off.
 """
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -25,9 +26,12 @@ MODULE = 30
 TITLE = 30
 RUN = 24        # shortest edge that counts
 CONTRAST = 8    # smallest change of colour that counts, per channel
-OUTLINE = (0, 0, 0)
-
 root = pathlib.Path(__file__).resolve().parent.parent
+
+# The palette's outline colour, from the shell's colours (theme/make writes
+# them), so windows are found whatever the palette.
+_outline = re.search(r'outline: "#(\w{6})"', (root / "config" / "quickshell" / "Colors.qml").read_text()).group(1)
+OUTLINE = tuple(int(_outline[i:i + 2], 16) for i in (0, 2, 4))
 
 
 def runs(mask, least):
@@ -53,8 +57,11 @@ def windows(img):
                     continue
                 if not (outline[top, left:right + 1].all() and outline[bottom, left:right + 1].all()):
                     continue
+                # A title bar: a module of one colour down its inside edge
+                # (which may be the outline's own, as in palettes with black
+                # title bars).
                 bar = img[top + 1:top + 1 + TITLE, left + 1]
-                if not (bar == bar[0]).all() or tuple(bar[0]) == OUTLINE:
+                if not (bar == bar[0]).all():
                     continue
                 found.append((left, top, right, bottom))
     return found
@@ -100,7 +107,7 @@ def main():
     found = windows(img)
     if not found:
         print("no windows found")
-        return 0
+        return 1
 
     bad = 0
     for n, (left, top, right, bottom) in enumerate(found):

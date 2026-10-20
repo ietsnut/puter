@@ -35,19 +35,21 @@ PanelWindow {
         y: Theme.module
         width: bar.width
         height: Theme.module
-        color: Theme.background
+        color: Theme.bar
     }
 
-    // The strip's top edge: a 1px line in the outline colour, drawn over the
-    // top pixel of the strip and its tabs so nothing moves off the grid. The
-    // search square is ink already, so the line starts beside it.
+    // The strip's top edge: a 1px line in bar-edge, drawn over the top pixel
+    // of the strip and its tabs so nothing moves off the grid, and left out
+    // where the palette gives it the bar's own colour (a dark bar needs none).
+    // The search square has its own edge, so the line starts beside it.
     Rectangle {
+        visible: Theme.barEdge !== Theme.bar
         x: searchButton.width
         y: Theme.module
         z: 1
         width: bar.width - x
         height: 1
-        color: Theme.outline
+        color: Theme.barEdge
     }
 
     SearchButton {
@@ -69,13 +71,15 @@ PanelWindow {
             Chip {
                 required property var modelData
                 text: modelData.title
-                icon: Quickshell.iconPath(DesktopEntries.heuristicLookup(modelData.appId)?.icon ?? "", true)
+                // The app's icon from its desktop file, or, without one, the icon
+                // named after the app (as labwc does for its title bar).
+                icon: Quickshell.iconPath(DesktopEntries.heuristicLookup(modelData.appId)?.icon ?? modelData.appId, true)
                 minModules: 3
                 maxModules: 8
                 hoverable: true
                 divider: true
-                fill: modelData.activated ? Theme.title : Theme.muted
-                ink: modelData.activated ? Theme.titleForeground : Theme.mutedForeground
+                fill: modelData.activated ? Theme.tabActive : Theme.tab
+                ink: modelData.activated ? Theme.tabActiveForeground : Theme.tabForeground
                 onClicked: modelData.activate()
             }
         }
@@ -92,8 +96,8 @@ PanelWindow {
         anchors.right: parent.right
         y: Theme.module
         text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
-        fill: Theme.background
-        ink: Theme.foreground
+        fill: Theme.bar
+        ink: Theme.barForeground
     }
 
     SystemClock {

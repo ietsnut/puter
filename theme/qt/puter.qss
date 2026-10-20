@@ -132,8 +132,8 @@ QToolButton[toolButtonStyle="3"], Fm--PathBar QToolButton {
     padding: 0 8px;
 }
 QToolButton:hover, QToolButton:pressed, QToolButton:checked {
-    background: @button-hover;
-    color: @button-hover-ink;
+    background: @hover;
+    color: @hover-ink;
 }
 QToolButton::menu-indicator {
     image: none;
@@ -144,6 +144,7 @@ QToolButton::menu-indicator {
    other toolbar button. */
 Fm--PathBar QToolButton:checked {
     background: @title;
+    color: @title-ink;
 }
 
 /* Buttons with words, as on the desk: paper with the 1px outline. */
@@ -242,7 +243,7 @@ QTabBar::tab:selected {
     color: @title-ink;
 }
 QTabBar::tab:hover:!selected {
-    background: @button-hover;
+    background: @hover;
 }
 QTabBar::close-button {
     subcontrol-position: right;
@@ -252,7 +253,7 @@ QTabBar::close-button {
     padding: 7px;
 }
 QTabBar::close-button:hover {
-    background: @button-hover;
+    background: @hover;
 }
 
 /* Lists, trees and tables: paper, rows one module, light rules, the row under
@@ -336,7 +337,7 @@ QScrollBar:horizontal {
     border-top: 1px solid @rule;
 }
 QScrollBar::handle {
-    background: @button-hover;
+    background: @hover;
     border: none;
     min-height: 30px;
     min-width: 30px;
@@ -386,5 +387,5 @@ QProgressBar {
     min-height: 20px;
 }
 QProgressBar::chunk {
-    background: @button-hover;
+    background: @hover;
 }

@@ -76,7 +76,7 @@ settings() {
   # GTK on Wayland reads its theme from gsettings rather than settings.ini.
   gsettings set org.gnome.desktop.interface gtk-theme puter
   gsettings set org.gnome.desktop.interface icon-theme puter
-  gsettings set org.gnome.desktop.interface font-name "IBM Plex Sans 11"
+  gsettings set org.gnome.desktop.interface font-name "puter-sans 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
 }
@@ -101,6 +101,12 @@ config() {
   if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then
     systemctl --user daemon-reload 2>/dev/null || true
   fi
+
+  # Fonts the repos don't have (theme/fonts: Stack Sans, SIL OFL), for the
+  # palettes that use them.
+  mkdir -p "$HOME/.local/share/fonts"
+  ln -sfn "$repo/theme/fonts" "$HOME/.local/share/fonts/puter"
+  fc-cache -f >/dev/null 2>&1 || true
 
   # The theme: labwc's title bars and window buttons, and GTK apps; and the
   # icon theme.
@@ -140,8 +146,8 @@ icon_theme=puter
 standard_dialogs=xdgdesktopportal
 
 [Fonts]
-general="IBM Plex Sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
-fixed="IBM Plex Mono,-1,14,5,400,0,0,0,0,0,0,0,0,0,0,1"
+general="puter-sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
+fixed="puter-mono,-1,14,5,400,0,0,0,0,0,0,0,0,0,0,1"
 
 [Interface]
 menus_have_icons=false
@@ -154,11 +160,11 @@ CONF
   # The stylesheet, with the icon theme's path filled in (Qt needs it whole).
   sed "s|@icons|$HOME/.local/share/icons/puter|g" "$repo/theme/qt6ct/puter.qss" > "$HOME/.config/qt6ct/puter.qss"
 
-  # FeatherPad: system icons, IBM Plex Mono, puter's syntax colours, the
+  # FeatherPad: system icons, puter-mono, puter's syntax colours, the
   # search bar only when searching, no toolbar, status bar or tab strip for a
   # single file; no line numbers, since it paints their gutter dark gray in
   # code.
-  ini "$HOME/.config/featherpad/fp.conf" text font '"IBM Plex Mono,10.5,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"'
+  ini "$HOME/.config/featherpad/fp.conf" text font '"puter-mono,10.5,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"'
   ini "$HOME/.config/featherpad/fp.conf" text lineNumbers false
   ini "$HOME/.config/featherpad/fp.conf" window sysIcons true
   ini "$HOME/.config/featherpad/fp.conf" window hideSearchbar true
@@ -201,14 +207,14 @@ CONF
   ini "$f" Web-URL-Settings homepage about:blank
   ini "$f" Web-URL-Settings newTabUrl about:blank
 
-  # QTerminal: puter's colours (theme/qterminal/, from theme/make), IBM Plex Mono,
+  # QTerminal: puter's colours (theme/qterminal/, from theme/make), puter-mono,
   # no margin (nor the 2px it keeps around a terminal to outline the focused
   # one of a split), the tab bar only with more than one tab.
   mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
   ln -sfn "$repo/theme/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
   local q="$HOME/.config/qterminal.org/qterminal.ini"
   ini "$q" General colorScheme puter
-  ini "$q" General fontFamily "IBM Plex Mono"
+  ini "$q" General fontFamily "puter-mono"
   ini "$q" General fontSize 11
   ini "$q" General TerminalMargin 0
   ini "$q" General highlightCurrentTerminal false

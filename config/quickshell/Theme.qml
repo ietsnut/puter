@@ -8,10 +8,21 @@ import Quickshell
 Singleton {
     readonly property int module: 30
     readonly property int inset: 8
-    readonly property string font: "IBM Plex Sans"
+    // The palette's fonts, through the names fontconfig gives them
+    // (config/fontconfig/conf.d, from theme/make).
+    readonly property string font: "puter-sans"
+    readonly property string headline: "puter-headline"
     readonly property int textSize: 15
 
     readonly property color desk: Colors.desk
+    readonly property color deskDot: Colors.deskDot
+    readonly property color bar: Colors.bar
+    readonly property color barForeground: Colors.barInk
+    readonly property color barEdge: Colors.barEdge
+    readonly property color tab: Colors.tab
+    readonly property color tabForeground: Colors.tabInk
+    readonly property color tabActive: Colors.tabActive
+    readonly property color tabActiveForeground: Colors.tabActiveInk
     readonly property color background: Colors.paper
     readonly property color foreground: Colors.ink
     readonly property color primary: Colors.accent

@@ -63,6 +63,19 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   colours (blue, coral, pink, from the website) are in the palette but no role
   uses them yet: hover and highlights are gray. A window looks the same
   focused or not; only its taskbar tab shows the focus.
+- `theme/palettes/stack` (20 October 2026), after Koto's Stack Overflow
+  identity and Butterfly's Pond: a charcoal desk with a dot at every module
+  corner, paper windows under black title bars, a black taskbar whose focused
+  tab is paper, lilac selection, and one colour per app, shown as a 14px
+  square one inset in on its title bar (labwc's `icon` button, which opens
+  the window menu) and its taskbar tab. Set in Stack Sans Text (code in IBM
+  Plex Mono, as Stack Sans has no monospace), from `theme/fonts` (SIL OFL).
+- A palette has roles, then `[colors]`, `[fonts]` (sans, mono, headline) and
+  `[apps]` (an icon name and its colour; an app without a desktop file of
+  its app ID, like the file dialog's portal, is listed by app ID). Every app
+  is set in `puter-sans` and `puter-mono`, fontconfig aliases `theme/make`
+  writes from `[fonts]` (`fc-match` reads a hyphen as a size: test with
+  `fc-match 'puter\-sans'`). The app squares are icons in the puter theme.
 - `theme/make` writes everything from it: `config/quickshell/Colors.qml`, labwc's
   `themerc` and window buttons (with hover images), the icon theme, the GTK 3
   colours (KiCad), the Qt stylesheet and palette (`theme/qt6ct/`), FeatherPad's

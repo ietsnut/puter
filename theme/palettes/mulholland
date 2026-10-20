@@ -6,6 +6,14 @@
 
 # The interface.
 desk          gray-20
+desk-dot      gray-20  # a dot at every module corner on the desk (here unseen)
+bar           white    # the taskbar strip and the clock
+bar-ink       gray-100
+bar-edge      black    # a 1px line along the bar's top
+tab           gray-10  # a window's tab on the taskbar
+tab-ink       gray-60
+tab-active    gray-20  # the focused window's tab
+tab-active-ink  gray-100
 paper         white
 ink           gray-100
 accent        gray-20  # highlights and selections (no colour yet)
@@ -16,6 +24,10 @@ outline       black    # the thin edge around windows, menus and popups
 rule          gray-30  # the lighter lines inside: table grids, dividers
 title         gray-20  # a focused title bar, and its window's tab
 title-ink     gray-100
+
+# What's under the pointer inside apps: buttons, tabs, the scroll bar.
+hover         gray-30
+hover-ink     gray-100
 
 # Window buttons under the pointer: the square filled, the glyph turned over.
 button-hover      gray-30
@@ -114,6 +126,26 @@ sch-hidden        gray-30
 3d-copper         yellow
 3d-mask           green
 3d-silk           white
+
+[fonts]
+sans      IBM Plex Sans
+mono      IBM Plex Mono
+headline  IBM Plex Sans
+
+# Each app's square, by its icon name: here all in ink.
+[apps]
+featherpad            gray-100
+pcmanfm-qt            gray-100
+utilities-terminal    gray-100
+lximage-qt            gray-100
+falkon                gray-100
+x-office-spreadsheet  gray-100
+jlcone                gray-100
+kicad                 gray-100
+pcbnew                gray-100
+eeschema              gray-100
+mpv                   gray-100
+xdg-desktop-portal-lxqt  gray-100
 
 [colors]
 black        #000000

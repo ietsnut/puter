@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Writes every colour and icon in puter from the palette named in theme/palette
-(a file in theme/palettes/: roles, then the palette's colours).
+(a file in theme/palettes/: roles, then the palette's colours, fonts and the
+colour of each app).
 
   config/quickshell/Colors.qml   the interface roles, for the shell
+  config/fontconfig/conf.d/      puter-sans and puter-mono, the fonts every
+                                 app is set in, as the palette's fonts
   theme/labwc/themerc            title bars, menus, the window switcher
   theme/labwc/*.svg              the window buttons
-  theme/icons/                   places and file icons
+  theme/icons/                   places and file icons, and each app's
+                                 square in its colour
   theme/gtk-3.0/colors.css       the roles, for GTK 3 apps
   theme/qt6ct/puter.qss          the Qt stylesheet, from theme/qt/puter.qss
   theme/qt6ct/puter.conf         the Qt palette
@@ -24,9 +28,11 @@ repo = theme.parent
 
 
 def read_palette():
-    """Role -> hex, from theme/palettes/<name>: role lines, then [colors]."""
+    """From theme/palettes/<name>: role lines, then [colors], [fonts] (a
+    family name, spaces and all) and [apps] (an app's icon name and its
+    colour). Returns role -> hex, font -> family, icon -> hex."""
     name = (theme / "palette").read_text().strip()
-    roles, colors, section = {}, {}, None
+    sections, section = {None: {}, "colors": {}, "fonts": {}, "apps": {}}, None
     for line in (theme / "palettes" / name).read_text().splitlines():
         if line.lstrip().startswith("#"):
             continue
@@ -37,16 +43,18 @@ def read_palette():
         if line.startswith("["):
             section = line.strip("[]")
             continue
-        key, value = line.split()[:2]
-        (colors if section == "colors" else roles)[key] = value
-    return {role: colors.get(value, value) for role, value in roles.items()}
+        key, value = line.split(None, 1)
+        sections[section][key] = value if section == "fonts" else value.split()[0]
+    colors = sections["colors"]
+    resolve = lambda table: {key: colors.get(value, value) for key, value in table.items()}
+    return resolve(sections[None]), sections["fonts"], resolve(sections["apps"])
 
 
-C = read_palette()
+C, FONTS, APPS = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
+SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
 (repo / "config" / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"
@@ -56,6 +64,18 @@ SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-i
         for role in SHELL_ROLES
     )
     + "}\n"
+)
+
+
+# The fonts: every app is set in puter-sans (and code in puter-mono), names
+# fontconfig turns into the palette's fonts, so a palette brings its type.
+(repo / "config" / "fontconfig" / "conf.d").mkdir(exist_ok=True)
+(repo / "config" / "fontconfig" / "conf.d" / "10-puter-fonts.conf").write_text(
+    '<?xml version="1.0"?>\n<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">\n'
+    "<!-- Written by theme/make from theme/palette; edit those, not this. -->\n<fontconfig>\n"
+    + "".join(f'  <alias binding="same"><family>puter-{name}</family>'
+              f"<prefer><family>{family}</family></prefer></alias>\n" for name, family in FONTS.items())
+    + "</fontconfig>\n"
 )
 
 
@@ -229,6 +249,20 @@ def cross(size, symbolic):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
             f'viewBox="0 0 {size} {size}">{body}</svg>\n')
 
+
+# Apps: a solid square in the app's colour, the size of a glyph's box (10px at
+# 16, 14px at 24), so a title bar, a taskbar tab and search show which app is
+# which by colour.
+def square(size, side, color):
+    o = (size - side) // 2
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
+            f'<rect x="{o}" y="{o}" width="{side}" height="{side}" fill="{color}"/></svg>\n')
+
+
+for name, color in APPS.items():
+    DRAWN[16, "apps", name] = square(16, 10, color)
+    DRAWN[24, "apps", name] = square(24, 14, color)
+    DRAWN[64, "apps", name] = square(64, 40, color)
 
 for size in (16, 24):
     DRAWN[size, "actions", "window-close"] = cross(size, False)

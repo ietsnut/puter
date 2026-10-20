@@ -6,8 +6,8 @@
 
 QToolTip {
     background: #ffffff;
-    color: #161616;
-    border: 1px solid #000000;
+    color: #060606;
+    border: 1px solid #060606;
     padding: 0 7px;
     min-height: 28px;
     max-height: 28px;
@@ -17,9 +17,9 @@ QToolTip {
    foot inside its module. */
 QMenuBar {
     background: #ffffff;
-    color: #161616;
+    color: #060606;
     border: none;
-    border-bottom: 1px solid #c6c6c6;
+    border-bottom: 1px solid #d6d1cb;
     padding: 0;
     spacing: 0;
 }
@@ -27,16 +27,16 @@ QMenuBar::item {
     background: transparent;
 }
 QMenuBar::item:selected, QMenuBar::item:pressed {
-    background: #e0e0e0;
-    color: #161616;
+    background: #e0a9df;
+    color: #060606;
 }
 
 /* Menus: paper with the outline, an item per module, a light rule between
    sections. */
 QMenu {
     background: #ffffff;
-    color: #161616;
-    border: 1px solid #000000;
+    color: #060606;
+    border: 1px solid #060606;
     padding: 0;
     margin: 0;
 }
@@ -44,15 +44,15 @@ QMenu::item {
     background: transparent;
 }
 QMenu::item:selected {
-    background: #e0e0e0;
-    color: #161616;
+    background: #e0a9df;
+    color: #060606;
 }
 QMenu::item:disabled {
-    color: #6f6f6f;
+    color: #6b6459;
 }
 QMenu::separator {
     height: 1px;
-    background: #c6c6c6;
+    background: #d6d1cb;
     margin: 0;
 }
 QMenu::icon {
@@ -89,7 +89,7 @@ QToolBar {
     /* The rule along the foot is painted, not a border: a border on a toolbar
        becomes a frame on every side and pushes it off the module. */
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-        stop: 0 #ffffff, stop: 0.966 #ffffff, stop: 0.967 #c6c6c6, stop: 1 #c6c6c6);
+        stop: 0 #ffffff, stop: 0.966 #ffffff, stop: 0.967 #d6d1cb, stop: 1 #d6d1cb);
     border: none;
     padding: 0;
     margin: 0;
@@ -106,7 +106,7 @@ QToolBar::handle, QToolBar::separator {
    with words 30 tall, their words one inset in. */
 QToolButton {
     background: transparent;
-    color: #161616;
+    color: #060606;
     border: none;
     padding: 0;
     margin: 0;
@@ -122,8 +122,8 @@ QToolButton[toolButtonStyle="3"], Fm--PathBar QToolButton {
     padding: 0 8px;
 }
 QToolButton:hover, QToolButton:pressed, QToolButton:checked {
-    background: #c6c6c6;
-    color: #161616;
+    background: #d6d1cb;
+    color: #060606;
 }
 QToolButton::menu-indicator {
     image: none;
@@ -133,39 +133,40 @@ QToolButton::menu-indicator {
 /* PCManFM-Qt's path bar: its folder buttons are a module tall like any
    other toolbar button. */
 Fm--PathBar QToolButton:checked {
-    background: #e0e0e0;
+    background: #060606;
+    color: #ffffff;
 }
 
 /* Buttons with words, as on the desk: paper with the 1px outline. */
 QPushButton {
     background: #ffffff;
-    color: #161616;
-    border: 1px solid #000000;
+    color: #060606;
+    border: 1px solid #060606;
     padding: 0 8px;
     min-height: 28px;
     max-height: 28px;
     min-width: 60px;
 }
 QPushButton:hover, QPushButton:pressed, QPushButton:checked {
-    background: #e0e0e0;
-    color: #161616;
+    background: #e0a9df;
+    color: #060606;
 }
 QPushButton:disabled {
-    color: #6f6f6f;
-    border-color: #c6c6c6;
+    color: #6b6459;
+    border-color: #d6d1cb;
 }
 QPushButton:default {
-    border: 1px solid #000000;
+    border: 1px solid #060606;
 }
 
 /* Fields: paper with the 1px outline, one module tall, text one inset in. */
 QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
     background: #ffffff;
-    color: #161616;
-    border: 1px solid #000000;
+    color: #060606;
+    border: 1px solid #060606;
     padding: 4px 7px;
-    selection-background-color: #e0e0e0;
-    selection-color: #161616;
+    selection-background-color: #e0a9df;
+    selection-color: #060606;
 }
 QComboBox::drop-down, QSpinBox::up-button, QSpinBox::down-button,
 QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
@@ -175,10 +176,10 @@ QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
 }
 QComboBox QAbstractItemView {
     background: #ffffff;
-    color: #161616;
-    border: 1px solid #000000;
-    selection-background-color: #e0e0e0;
-    selection-color: #161616;
+    color: #060606;
+    border: 1px solid #060606;
+    selection-background-color: #e0a9df;
+    selection-color: #060606;
     outline: none;
 }
 
@@ -187,7 +188,7 @@ QComboBox QAbstractItemView {
    rather than each outlined. */
 Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
     border: none;
-    border-top: 1px solid #c6c6c6;
+    border-top: 1px solid #d6d1cb;
     padding: 0 8px;
     min-height: 29px;
     max-height: 29px;
@@ -195,13 +196,13 @@ Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
 Fm--FileDialog QDialogButtonBox QPushButton,
 Fm--FileDialog QDialogButtonBox QPushButton:default {
     border: none;
-    border-top: 1px solid #c6c6c6;
-    border-left: 1px solid #c6c6c6;
+    border-top: 1px solid #d6d1cb;
+    border-left: 1px solid #d6d1cb;
     min-height: 29px;
     max-height: 29px;
 }
 Fm--FileDialog QDialogButtonBox QPushButton:disabled {
-    border-color: #c6c6c6;
+    border-color: #d6d1cb;
 }
 
 QCheckBox, QRadioButton {
@@ -212,7 +213,7 @@ QCheckBox, QRadioButton {
    in the title gray. */
 QTabWidget::pane {
     border: none;
-    border-top: 1px solid #c6c6c6;
+    border-top: 1px solid #d6d1cb;
     top: -1px;
 }
 QTabBar {
@@ -220,19 +221,19 @@ QTabBar {
 }
 QTabBar::tab {
     background: #ffffff;
-    color: #161616;
+    color: #060606;
     border: none;
-    border-right: 1px solid #000000;
+    border-right: 1px solid #060606;
     padding: 0 8px;
     margin: 0;
     height: 30px;
 }
 QTabBar::tab:selected {
-    background: #e0e0e0;
-    color: #161616;
+    background: #060606;
+    color: #ffffff;
 }
 QTabBar::tab:hover:!selected {
-    background: #c6c6c6;
+    background: #d6d1cb;
 }
 QTabBar::close-button {
     subcontrol-position: right;
@@ -242,7 +243,7 @@ QTabBar::close-button {
     padding: 7px;
 }
 QTabBar::close-button:hover {
-    background: #c6c6c6;
+    background: #d6d1cb;
 }
 
 /* Lists, trees and tables: paper, rows one module, light rules, the row under
@@ -250,11 +251,11 @@ QTabBar::close-button:hover {
 QAbstractItemView {
     background: #ffffff;
     alternate-background-color: #ffffff;
-    color: #161616;
+    color: #060606;
     border: none;
-    selection-background-color: #e0e0e0;
-    selection-color: #161616;
-    gridline-color: #c6c6c6;
+    selection-background-color: #e0a9df;
+    selection-color: #060606;
+    gridline-color: #d6d1cb;
     outline: none;
 }
 /* What fills a main window (a picture, a text, a page) has no frame of its
@@ -266,22 +267,22 @@ QTreeView::item, QListView::item {
     border: none;
 }
 QTreeView::item:hover, QListView::item:hover {
-    background: #f4f4f4;
+    background: #f1f0ec;
 }
 QTreeView::item:selected, QListView::item:selected {
-    background: #e0e0e0;
-    color: #161616;
+    background: #e0a9df;
+    color: #060606;
 }
 QHeaderView {
-    background: #f4f4f4;
+    background: #f1f0ec;
     border: none;
 }
 QHeaderView::section {
-    background: #f4f4f4;
-    color: #161616;
+    background: #f1f0ec;
+    color: #060606;
     border: none;
-    border-right: 1px solid #c6c6c6;
-    border-bottom: 1px solid #000000;
+    border-right: 1px solid #d6d1cb;
+    border-bottom: 1px solid #060606;
     padding: 0 8px;
     height: 29px;
 }
@@ -289,22 +290,22 @@ QHeaderView::section {
    rule under each, the table's outline beside them. */
 QHeaderView::section:vertical {
     padding: 0 8px;
-    border-right: 1px solid #000000;
-    border-bottom: 1px solid #c6c6c6;
-    color: #6f6f6f;
+    border-right: 1px solid #060606;
+    border-bottom: 1px solid #d6d1cb;
+    color: #6b6459;
 }
 QTableView QTableCornerButton::section {
-    background: #f4f4f4;
+    background: #f1f0ec;
     border: none;
-    border-right: 1px solid #c6c6c6;
-    border-bottom: 1px solid #000000;
+    border-right: 1px solid #d6d1cb;
+    border-bottom: 1px solid #060606;
 }
 
 /* The status bar: one module, a light rule along its top. */
 QStatusBar {
     background: #ffffff;
-    color: #161616;
-    border-top: 1px solid #c6c6c6;
+    color: #060606;
+    border-top: 1px solid #d6d1cb;
 }
 QStatusBar::item {
     border: none;
@@ -316,17 +317,17 @@ QScrollBar:vertical {
     width: 10px;
     margin: 0;
     border: none;
-    border-left: 1px solid #c6c6c6;
+    border-left: 1px solid #d6d1cb;
 }
 QScrollBar:horizontal {
     background: #ffffff;
     height: 10px;
     margin: 0;
     border: none;
-    border-top: 1px solid #c6c6c6;
+    border-top: 1px solid #d6d1cb;
 }
 QScrollBar::handle {
-    background: #c6c6c6;
+    background: #d6d1cb;
     border: none;
     min-height: 30px;
     min-width: 30px;
@@ -341,7 +342,7 @@ QScrollBar::add-page, QScrollBar::sub-page {
 }
 
 QSplitter::handle {
-    background: #c6c6c6;
+    background: #d6d1cb;
 }
 QSplitter::handle:horizontal {
     width: 1px;
@@ -354,13 +355,13 @@ QDockWidget {
     titlebar-close-icon: none;
 }
 QDockWidget::title {
-    background: #f4f4f4;
+    background: #f1f0ec;
     padding: 5px 8px 4px 8px;
-    border-bottom: 1px solid #c6c6c6;
+    border-bottom: 1px solid #d6d1cb;
 }
 
 QGroupBox {
-    border: 1px solid #c6c6c6;
+    border: 1px solid #d6d1cb;
     margin-top: 30px;
     padding: 0;
 }
@@ -370,11 +371,11 @@ QGroupBox::title {
 }
 
 QProgressBar {
-    background: #f4f4f4;
-    border: 1px solid #000000;
+    background: #f1f0ec;
+    border: 1px solid #060606;
     text-align: center;
     min-height: 20px;
 }
 QProgressBar::chunk {
-    background: #c6c6c6;
+    background: #d6d1cb;
 }

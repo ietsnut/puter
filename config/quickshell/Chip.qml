@@ -31,12 +31,14 @@ Rectangle {
     implicitHeight: Theme.module
     width: Math.max(minModules, Math.min(maxModules, modules)) * Theme.module
 
+    // At 24px, as labwc draws an app's icon on its title bar: an app's square
+    // (14px in its 24px icon) then lands one inset in, as on the title bar.
     IconImage {
         visible: chip.icon !== ""
         source: chip.icon
         x: (Theme.module - width) / 2
         y: (Theme.module - height) / 2
-        implicitSize: 16
+        implicitSize: 24
     }
 
     Text {

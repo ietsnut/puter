@@ -93,6 +93,8 @@ def main():
         shutil.copy(root / "dev" / "shots" / "grid.png", out / f"{step}-grid.png")
         report = [l for l in check.stdout.splitlines() if not l.endswith("grid.png")]
         off = sum(1 for l in report if l.startswith("  ") and l.strip() != "on the grid")
+        if check.returncode and not off:
+            off = 1  # nothing measured: no window found
         print(f"== {step}: {'on the grid' if check.returncode == 0 else f'{off} off'}")
         print("\n".join(report))
         summary.append((step, off))

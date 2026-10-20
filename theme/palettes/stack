@@ -1,0 +1,189 @@
+# Stack: after Koto's identity for Stack Overflow (2026) and Butterfly's
+# Pond. A charcoal desk dotted on the grid, paper windows under black title
+# bars, and a few strong colours that mark rather than fill: every app has
+# its own, shown as a square on its title bar and taskbar tab. Set in Stack
+# Sans, Koto's typeface for it (theme/fonts, SIL OFL).
+# Roles on the left, the palette's colours on the right. `theme/make` writes
+# every app's colours from the palette named in theme/palette.
+
+# The interface.
+desk          charcoal
+desk-dot      charcoal-light  # a dot at every module corner on the desk
+bar           ink             # the taskbar strip and the clock
+bar-ink       paper
+bar-edge      ink             # a line along the bar's top: the bar's colour, so none
+tab           ink             # a window's tab on the taskbar
+tab-ink       sand
+tab-active    paper           # the focused window's tab
+tab-active-ink  ink
+paper         paper
+ink           ink
+accent        lilac           # highlights and selections
+accent-ink    ink
+muted         bone            # headers, the bar's other tabs
+muted-ink     stone-dark
+outline       ink             # the thin edge around windows, menus and popups
+rule          sand            # the lighter lines inside: table grids, dividers
+title         ink             # title bars, and a window's tab when focused
+title-ink     paper
+
+# What's under the pointer inside apps: buttons, tabs, the scroll bar.
+hover         sand
+hover-ink     ink
+
+# Window buttons under the pointer: the square filled, the glyph turned over.
+button-hover      charcoal-light
+button-hover-ink  paper
+close-hover       orange
+close-hover-ink   ink
+
+# Syntax highlighting in the text editor, on paper.
+code-comment   stone-dark
+code-keyword   periwinkle-dark
+code-string    lime-dark
+code-number    orange
+code-type      ink
+code-constant  lilac-dark
+code-function  periwinkle-dark
+code-builtin   plum
+code-regex     red
+code-tag       purple
+code-value     cyan
+code-other     yellow-dark
+
+# The terminal's sixteen ANSI colours, on paper.
+ansi0   ink
+ansi1   red
+ansi2   green
+ansi3   yellow-dark
+ansi4   blue
+ansi5   magenta
+ansi6   cyan
+ansi7   sand
+ansi8   stone-dark
+ansi9   coral
+ansi10  green-light
+ansi11  yellow
+ansi12  blue-light
+ansi13  pink
+ansi14  cyan-light
+ansi15  white
+
+# KiCad boards.
+board-background  black
+board-text        white
+board-grid        stone-dark
+board-faint       sand
+copper-front      red
+copper-back       blue-light
+copper-inner-1    green-light
+copper-inner-2    yellow
+copper-inner-3    pink
+copper-inner-4    purple
+copper-inner-5    coral
+copper-inner-6    cyan-light
+silk-front        white
+silk-back         pink
+mask-front        green
+mask-back         blue-dark
+paste-front       sand
+paste-back        coral
+edge              yellow
+margin            pink
+courtyard-front   pink
+courtyard-back    blue-light
+fab-front         sand
+fab-back          blue-light
+user-drawings     sand
+user-comments     blue-light
+user-eco1         green-light
+user-eco2         yellow
+hole-pad          yellow
+hole-npth         blue-light
+hole-via          sand
+error             red
+warning           yellow
+board-worksheet   red
+
+# KiCad schematics, on paper.
+sch-grid          sand
+sch-wire          green
+sch-bus           blue-dark
+sch-outline       ink
+sch-body          bone
+sch-pin           ink
+sch-pin-name      blue-dark
+sch-pin-number    stone-dark
+sch-text          ink
+sch-fields        stone-dark
+sch-label-global  red
+sch-label-hier    coral-dark
+sch-sheet         ink
+sch-worksheet     ink
+sch-hidden        sand
+
+# KiCad's 3D view.
+3d-background     charcoal
+3d-board          yellow-dark
+3d-copper         yellow
+3d-mask           green
+3d-silk           white
+
+[fonts]
+sans      Stack Sans Text
+mono      IBM Plex Mono
+headline  Stack Sans Headline
+
+# Each app's square, by its icon name.
+[apps]
+featherpad            orange
+pcmanfm-qt            lilac
+utilities-terminal    lime
+lximage-qt            periwinkle
+falkon                yellow
+x-office-spreadsheet  sky
+jlcone                peach
+kicad                 stone
+pcbnew                stone
+eeschema              stone
+mpv                   pink
+# The file dialog every app gets (LXQt's portal, by its app ID, as it has
+# no desktop file of that name): the files colour.
+xdg-desktop-portal-lxqt  lilac
+
+[colors]
+ink              #060606
+charcoal         #231f20
+charcoal-light   #4a4446
+stone-dark       #6b6459
+stone            #958d79
+sand             #d6d1cb
+bone             #f1f0ec
+paper            #ffffff
+orange           #e4722c
+peach            #f0a27a
+yellow           #f2c14e
+lime             #9cb747
+lime-dark        #5f7a1e
+lilac            #e0a9df
+lilac-dark       #a2589f
+pink             #e88fb0
+periwinkle       #a9a7f9
+periwinkle-dark  #5552c4
+sky              #c9d1e2
+plum             #583127
+black            #000000
+white            #ffffff
+blue             #5552c4
+blue-dark        #3b38a0
+blue-light       #a9a7f9
+coral            #e4722c
+coral-dark       #b85926
+magenta          #a2589f
+red              #c8372d
+green            #5f7a1e
+green-light      #9cb747
+yellow-dark      #b28600
+cyan             #3e8fa8
+cyan-light       #8ccbdc
+purple           #7a52c4

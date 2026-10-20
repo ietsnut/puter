@@ -11,14 +11,16 @@
   <theme>
     <name>puter</name>
     <titlebar>
-      <layout>menu:iconify,max,close</layout>
+      <!-- The app's square (its icon, theme/make) first; it opens the window
+           menu, as the menu button did. -->
+      <layout>icon:iconify,max,close</layout>
     </titlebar>
     <cornerRadius>0</cornerRadius>
     <dropShadows>no</dropShadows>
-    <font place="ActiveWindow"><name>IBM Plex Sans</name><size>11</size></font>
-    <font place="InactiveWindow"><name>IBM Plex Sans</name><size>11</size></font>
-    <font place="MenuItem"><name>IBM Plex Sans</name><size>11</size></font>
-    <font place="OnScreenDisplay"><name>IBM Plex Sans</name><size>11</size></font>
+    <font place="ActiveWindow"><name>puter-sans</name><size>11</size></font>
+    <font place="InactiveWindow"><name>puter-sans</name><size>11</size></font>
+    <font place="MenuItem"><name>puter-sans</name><size>11</size></font>
+    <font place="OnScreenDisplay"><name>puter-sans</name><size>11</size></font>
   </theme>
 
   <!-- Windows-style snapping: drag a title bar to the left or right edge for
