@@ -5,8 +5,22 @@ ShellRoot {
     Desk {}
 
     Bar {
-        onSearch: searchPanel.toggle()
-        onSettings: settingsPanel.toggle()
+        onSearch: {
+            settingsPanel.visible = false;
+            searchPanel.toggle();
+        }
+        onSettings: {
+            searchPanel.visible = false;
+            settingsPanel.toggle();
+        }
+    }
+
+    Dismiss {
+        visible: searchPanel.visible || settingsPanel.visible
+        onClicked: {
+            searchPanel.visible = false;
+            settingsPanel.visible = false;
+        }
     }
 
     SearchPanel {
@@ -22,6 +36,7 @@ ShellRoot {
         target: "search"
 
         function toggle(): void {
+            settingsPanel.visible = false;
             searchPanel.toggle();
         }
     }
@@ -30,6 +45,7 @@ ShellRoot {
         target: "settings"
 
         function toggle(): void {
+            searchPanel.visible = false;
             settingsPanel.toggle();
         }
     }

@@ -1,29 +1,75 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 
 // Search: apps by name. It stands on the search square, flush with the left
 // edge, sixteen modules wide and one module per row, the best match nearest
-// the input. Every edge is on the grid. Type to filter, Up and Down to move, Return to open,
-// Escape to close.
+// the input; with nothing typed it lists the apps opened most recently. Every
+// edge is on the grid. Type to filter, point or use Up and Down to pick,
+// click or Return to open, Escape to close.
 PanelWindow {
     id: panel
 
     property string query: ""
     property int selected: 0
 
-    readonly property var results: DesktopEntries.applications.values
-        .filter(entry => !entry.noDisplay && entry.name.toLowerCase().includes(query.toLowerCase()))
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 10)
+    readonly property var apps: DesktopEntries.applications.values.filter(entry => !entry.noDisplay)
+    readonly property var recentApps: recent.ids.map(id => DesktopEntries.byId(id)).filter(entry => entry)
+    readonly property var results: query === "" && recentApps.length > 0 ? recentApps
+        : apps.filter(entry => entry.name.toLowerCase().includes(query.toLowerCase()))
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .slice(0, 10)
 
     function toggle() {
         visible = !visible;
     }
 
     function open(entry) {
+        remember(entry);
         entry.execute();
         visible = false;
+    }
+
+    // Most recent first, ten at most, kept on disk across restarts.
+    function remember(entry) {
+        if (!entry || !entry.id)
+            return;
+        recent.ids = [entry.id].concat(recent.ids.filter(id => id !== entry.id)).slice(0, 10);
+        store.writeAdapter();
+    }
+
+    FileView {
+        id: store
+        path: Quickshell.statePath("recent.json")
+        printErrors: false
+
+        JsonAdapter {
+            id: recent
+            property list<string> ids: []
+        }
+    }
+
+    // Apps opened any other way (a terminal, a file in Thunar) count as well:
+    // each new window is matched to its app.
+    Connections {
+        target: ToplevelManager.toplevels
+
+        function onObjectInsertedPost(object, index) {
+            appLookup.toplevel = object;
+            appLookup.restart();
+        }
+    }
+
+    // A new window may only name its app a moment after it appears.
+    Timer {
+        id: appLookup
+        property var toplevel: null
+        interval: 500
+        onTriggered: {
+            if (toplevel && toplevel.appId)
+                panel.remember(DesktopEntries.heuristicLookup(toplevel.appId));
+        }
     }
 
     visible: false
@@ -39,7 +85,9 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
+    // Every open starts afresh: no text, the most recent app selected.
     onVisibleChanged: {
+        input.clear();
         query = "";
         selected = 0;
         if (visible)
@@ -77,6 +125,8 @@ PanelWindow {
 
                 MouseArea {
                     anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: panel.selected = panel.results.length - 1 - index
                     onClicked: panel.open(modelData)
                 }
             }
@@ -109,7 +159,7 @@ PanelWindow {
 
                 Text {
                     visible: !input.text
-                    text: "Search"
+                    text: panel.recentApps.length > 0 ? "Search, or pick a recent app" : "Search"
                     color: Theme.muted
                     font: input.font
                 }
