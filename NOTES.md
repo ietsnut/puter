@@ -87,7 +87,12 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   their own dialog rather than asking for a native one (wxWidgets, so KiCad)
   still show GTK's. The portal's systemd service sets
   `QT_QPA_PLATFORMTHEME=lxqt`; `systemd/` overrides it with qt6ct, or the
-  dialog comes up in plain Fusion.
+  dialog comes up in plain Fusion. The dialog is pared down in two places:
+  `install.sh` writes `~/.config/lxqt/filedialog.conf` (list view, name,
+  size and date, 720x480), and `qt/style` takes away its side pane, toolbar
+  (keeping its shortcuts), labels and margins, finding them by the names in
+  libfm-qt's `filedialog.ui`; the file type row only shows with a choice of
+  types.
 - `quickshell/Theme.qml` holds the geometry (module 30, inset 8, IBM Plex Sans
   15px).
 - `theme/gtk-3.0/gtk.css` restyles Adwaita for the GTK 3 apps that remain

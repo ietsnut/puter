@@ -177,6 +177,17 @@ CONF
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SmallIconSize 16
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SidePaneIconSize 16
 
+  # The file dialog (libfm-qt's, every app's through the portal): the list
+  # view as in PCManFM-Qt, 16px icons, only name, size and date, no
+  # thumbnails or tooltips, 24 x 16 modules. qt/style lays out the rest.
+  local d="$HOME/.config/lxqt/filedialog.conf"
+  ini "$d" Sizes WindowSize "@Size(720 480)"
+  ini "$d" View Mode Detailed
+  ini "$d" View SmallIconSize 16
+  ini "$d" View HiddenColumns "1, 4, 5, 6, 7"
+  ini "$d" View ShowThumbnails false
+  ini "$d" View NoItemTooltip true
+
   # Falkon: back, forward, reload and the address field (which also searches)
   # and nothing else; the menu bar, as in every other app, instead of the
   # tools button; blank pages at start and in new tabs, no session restored.

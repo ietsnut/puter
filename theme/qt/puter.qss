@@ -192,6 +192,28 @@ QComboBox QAbstractItemView {
     outline: none;
 }
 
+/* The file dialog (laid out by qt/style): the file name, the file type and
+   the buttons are cells of the strip under the list, parted by light rules
+   rather than each outlined. */
+Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
+    border: none;
+    border-top: 1px solid @rule;
+    padding: 0 8px;
+    min-height: 29px;
+    max-height: 29px;
+}
+Fm--FileDialog QDialogButtonBox QPushButton,
+Fm--FileDialog QDialogButtonBox QPushButton:default {
+    border: none;
+    border-top: 1px solid @rule;
+    border-left: 1px solid @rule;
+    min-height: 29px;
+    max-height: 29px;
+}
+Fm--FileDialog QDialogButtonBox QPushButton:disabled {
+    border-color: @rule;
+}
+
 QCheckBox, QRadioButton {
     spacing: 8px;
 }

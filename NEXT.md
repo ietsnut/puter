@@ -13,11 +13,11 @@ Where things stood at the end of the 20 October 2026 session.
 ## Open edges
 
 - **The file dialog** (libfm-qt's, through LXQt's portal) is the same for
-  FeatherPad, Falkon and GTK 3 apps that ask for a native dialog, and takes
-  puter's style; JLCONE's (Electron) hasn't been opened yet. Not on the grid
-  yet: its side pane shows Breeze's colour icons (Trash, Computer,
-  Applications, Network, drives), the list shows Type and Created columns,
-  and its rows, path bar and buttons haven't been measured.
+  FeatherPad, Falkon and GTK 3 apps that ask for a native dialog, pared down
+  and measured onto the grid (path bar, list, one strip of name and
+  buttons). JLCONE's (Electron) hasn't been opened yet. Where it opens isn't
+  on the grid: labwc centres dialogs over their window, and floating windows
+  generally land wherever they're placed (FeatherPad's title bar at y=260).
 
 - **The Qt apps, measured and not.** PCManFM-Qt, FeatherPad and Sheet are
   measured onto the grid (bars, tabs, headers, rows). LXImage-Qt, Falkon and

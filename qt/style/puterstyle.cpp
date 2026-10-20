@@ -2,13 +2,20 @@
 // bar, menu item, toolbar button, push button, field, list row, header and
 // tab is one 30px module tall; toolbars and menu bars add no frame or margin
 // of their own; icons in bars and lists are 16px. Colours, outlines and rules
-// are the stylesheet's (theme/qt/puter.qss), not this.
+// are the stylesheet's (theme/qt/puter.qss), not this. libfm-qt's file
+// dialog, every app's through the portal, is pared down and laid on the grid.
 
 #include <QProxyStyle>
 #include <QStyleFactory>
 #include <QStylePlugin>
 #include <QStyleOption>
+#include <QComboBox>
 #include <QDialog>
+#include <QDialogButtonBox>
+#include <QEvent>
+#include <QLayout>
+#include <QPushButton>
+#include <QToolBar>
 #include <QWidget>
 
 namespace {
@@ -17,9 +24,69 @@ constexpr int Module = 30;
 constexpr int Inset = 8;
 constexpr int Icon = 16;
 
+// libfm-qt's file dialog as the path bar, the list, and under it one row of
+// the file name and its buttons (two, with the file type, when there's a
+// choice of types), all flush: no side pane (the path bar reaches every
+// folder), toolbar (its shortcuts stay: Alt+Left, Alt+Right, F5) or labels.
+// Its widgets are found by the names in libfm-qt's filedialog.ui.
+void pareFileDialog(QDialog *dialog)
+{
+    for (const char *name : {"lookInLabel", "sidePane", "fileNameLabel", "fileTypeLabel"})
+        if (auto *widget = dialog->findChild<QWidget *>(QLatin1String(name)))
+            widget->hide();
+    for (auto *toolbar : dialog->findChildren<QToolBar *>(Qt::FindDirectChildrenOnly)) {
+        dialog->addActions(toolbar->actions());
+        toolbar->hide();
+    }
+
+    auto *types = dialog->findChild<QComboBox *>(QStringLiteral("fileTypeCombo"));
+    const bool oneType = !types || types->count() <= 1;
+    if (types)
+        types->setVisible(!oneType);
+    if (auto *buttons = dialog->findChild<QDialogButtonBox *>(QStringLiteral("buttonBox"))) {
+        buttons->setOrientation(oneType ? Qt::Horizontal : Qt::Vertical);
+        // Only as wide as its buttons, so the file name takes the rest.
+        buttons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        buttons->layout()->setContentsMargins(0, 0, 0, 0);
+        buttons->layout()->setSpacing(0);
+        for (auto *button : buttons->buttons())
+            button->setFixedWidth(4 * Module);
+    }
+
+    for (const char *name : {"verticalLayout", "toolbarLayout", "gridLayout"})
+        if (auto *layout = dialog->findChild<QLayout *>(QLatin1String(name))) {
+            layout->setContentsMargins(0, 0, 0, 0);
+            layout->setSpacing(0);
+        }
+}
+
 class PuterStyle : public QProxyStyle {
 public:
     PuterStyle() : QProxyStyle(QStyleFactory::create(QStringLiteral("Fusion"))) {}
+
+    void polish(QWidget *widget) override
+    {
+        QProxyStyle::polish(widget);
+        if (widget->inherits("Fm::FileDialog"))
+            widget->installEventFilter(this);
+    }
+
+    void unpolish(QWidget *widget) override
+    {
+        if (widget->inherits("Fm::FileDialog"))
+            widget->removeEventFilter(this);
+        QProxyStyle::unpolish(widget);
+    }
+
+    // The file dialog is pared each time it's shown: its file types are only
+    // known by then.
+    bool eventFilter(QObject *object, QEvent *event) override
+    {
+        if (event->type() == QEvent::Show)
+            if (auto *dialog = qobject_cast<QDialog *>(object); dialog && dialog->inherits("Fm::FileDialog"))
+                pareFileDialog(dialog);
+        return QProxyStyle::eventFilter(object, event);
+    }
 
     int pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const override
     {
