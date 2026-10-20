@@ -1,0 +1,116 @@
+# PICO-8 (Lexaloffle, lospec.com/palette-list/pico-8): sixteen colours.
+# Roles on the left, the palette's colours on the right. `theme/make` writes
+# every app's colours from the palette named in theme/palette.
+
+# The interface.
+desk          lavender
+paper         white
+ink           dark-blue
+accent        yellow
+accent-ink    dark-blue
+muted         light-grey
+muted-ink     dark-grey
+
+# Syntax highlighting in the text editor, on paper.
+code-comment   dark-grey
+code-keyword   dark-purple
+code-string    dark-green
+code-number    brown
+code-type      dark-blue
+code-constant  red
+
+# The terminal's sixteen ANSI colours, on paper.
+ansi0   black
+ansi1   red
+ansi2   dark-green
+ansi3   brown
+ansi4   dark-blue
+ansi5   dark-purple
+ansi6   blue
+ansi7   light-grey
+ansi8   dark-grey
+ansi9   red
+ansi10  dark-green
+ansi11  orange
+ansi12  blue
+ansi13  pink
+ansi14  lavender
+ansi15  white
+
+# KiCad boards.
+board-background  black
+board-text        white
+board-grid        dark-grey
+board-faint       light-grey
+copper-front      red
+copper-back       blue
+copper-inner-1    green
+copper-inner-2    orange
+copper-inner-3    pink
+copper-inner-4    lavender
+copper-inner-5    peach
+copper-inner-6    yellow
+silk-front        white
+silk-back         pink
+mask-front        dark-purple
+mask-back         dark-blue
+paste-front       light-grey
+paste-back        peach
+edge              yellow
+margin            pink
+courtyard-front   pink
+courtyard-back    blue
+fab-front         light-grey
+fab-back          blue
+user-drawings     light-grey
+user-comments     blue
+user-eco1         green
+user-eco2         orange
+hole-pad          orange
+hole-npth         blue
+hole-via          light-grey
+error             red
+warning           orange
+board-worksheet   red
+
+# KiCad schematics, on paper.
+sch-grid          light-grey
+sch-wire          dark-green
+sch-bus           dark-blue
+sch-outline       dark-purple
+sch-body          peach
+sch-pin           dark-purple
+sch-pin-name      dark-blue
+sch-pin-number    brown
+sch-text          dark-blue
+sch-fields        lavender
+sch-label-global  red
+sch-label-hier    brown
+sch-sheet         dark-purple
+sch-worksheet     dark-purple
+sch-hidden        light-grey
+
+# KiCad's 3D view.
+3d-background     dark-blue
+3d-board          brown
+3d-copper         orange
+3d-mask           dark-green
+3d-silk           white
+
+[colors]
+black        #000000
+dark-blue    #1d2b53
+dark-purple  #7e2553
+dark-green   #008751
+brown        #ab5236
+dark-grey    #5f574f
+light-grey   #c2c3c7
+white        #fff1e8
+red          #ff004d
+orange       #ffa300
+yellow       #ffec27
+green        #00e436
+blue         #29adff
+lavender     #83769c
+pink         #ff77a8
+peach        #ffccaa

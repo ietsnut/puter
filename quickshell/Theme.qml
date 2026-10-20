@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 
 // The one geometry, and the colour roles from Colors.qml (written by
-// theme/make from theme/colors). Nothing in the shell states a size or colour
+// theme/make from the palette). Nothing in the shell states a size or colour
 // of its own.
 Singleton {
     readonly property int module: 30

@@ -1,4 +1,4 @@
-# Written by theme/make from theme/colors; edit those, not this.
+# Written by theme/make from theme/palette; edit those, not this.
 # A one-module title bar, accent when focused and muted when not, paper bodies,
 # square and flat. The buttons are the SVGs beside this file.
 border.width: 0
@@ -6,40 +6,40 @@ window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
 window.label.text.justify: left
 
-window.active.title.bg.color: #a8ca58
-window.inactive.title.bg.color: #a8b5b2
-window.active.label.text.color: #19332d
-window.inactive.label.text.color: #394a50
-window.active.border.color: #a8ca58
-window.inactive.border.color: #a8b5b2
+window.active.title.bg.color: #ffec27
+window.inactive.title.bg.color: #c2c3c7
+window.active.label.text.color: #1d2b53
+window.inactive.label.text.color: #5f574f
+window.active.border.color: #ffec27
+window.inactive.border.color: #c2c3c7
 
 window.button.width: 30
 window.button.height: 30
 window.button.spacing: 0
-window.button.hover.bg.color: #ebede9
+window.button.hover.bg.color: #fff1e8
 window.button.hover.bg.corner-radius: 0
 
 window.active.shadow.size: 0
 window.inactive.shadow.size: 0
 
 menu.border.width: 0
-menu.items.bg.color: #19332d
-menu.items.text.color: #ebede9
-menu.items.active.bg.color: #a8ca58
-menu.items.active.text.color: #19332d
+menu.items.bg.color: #1d2b53
+menu.items.text.color: #fff1e8
+menu.items.active.bg.color: #ffec27
+menu.items.active.text.color: #1d2b53
 menu.items.padding.x: 8
 menu.items.padding.y: 6
 menu.width.min: 180
 menu.separator.width: 2
 menu.separator.padding.width: 0
 menu.separator.padding.height: 0
-menu.separator.color: #ebede9
+menu.separator.color: #fff1e8
 
-osd.bg.color: #19332d
+osd.bg.color: #1d2b53
 osd.border.width: 0
-osd.label.text.color: #ebede9
+osd.label.text.color: #fff1e8
 osd.window-switcher.style-classic.item.active.border.width: 0
-osd.window-switcher.style-classic.item.active.bg.color: #a8ca58
+osd.window-switcher.style-classic.item.active.bg.color: #ffec27
 
 # Where a dragged window will snap: a plain 2px outline in ink, no fill.
 snapping.overlay.region.bg.enabled: no
@@ -48,5 +48,5 @@ snapping.overlay.region.border.enabled: yes
 snapping.overlay.edge.border.enabled: yes
 snapping.overlay.region.border.width: 2
 snapping.overlay.edge.border.width: 2
-snapping.overlay.region.border.color: #19332d
-snapping.overlay.edge.border.color: #19332d
+snapping.overlay.region.border.color: #1d2b53
+snapping.overlay.edge.border.color: #1d2b53

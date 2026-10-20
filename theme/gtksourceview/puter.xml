@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Written by theme/make from theme/colors; edit those, not this. -->
+<!-- Written by theme/make from theme/palette; edit those, not this. -->
 <style-scheme id="puter" name="puter" version="1.0">
   <description>puter's palette, for code and Markdown</description>
-  <style name="text" foreground="#19332d" background="#ebede9"/>
-  <style name="selection" foreground="#19332d" background="#a8ca58"/>
-  <style name="selection-unfocused" foreground="#19332d" background="#a8ca58"/>
-  <style name="cursor" foreground="#19332d"/>
-  <style name="current-line" background="#ebede9"/>
-  <style name="line-numbers" foreground="#394a50" background="#ebede9"/>
-  <style name="current-line-number" foreground="#19332d" background="#ebede9"/>
-  <style name="bracket-match" foreground="#19332d" background="#a8ca58"/>
-  <style name="search-match" foreground="#19332d" background="#a8ca58"/>
-  <style name="right-margin" foreground="#a8b5b2"/>
-  <style name="draw-spaces" foreground="#a8b5b2"/>
-  <style name="def:comment" foreground="#577277" italic="true"/>
-  <style name="def:shebang" foreground="#577277"/>
-  <style name="def:doc-comment-element" foreground="#577277" bold="true"/>
-  <style name="def:keyword" foreground="#7a367b"/>
-  <style name="def:statement" foreground="#7a367b"/>
-  <style name="def:builtin" foreground="#7a367b"/>
-  <style name="def:preprocessor" foreground="#7a367b"/>
-  <style name="def:string" foreground="#468232"/>
-  <style name="def:character" foreground="#468232"/>
-  <style name="def:special-char" foreground="#a53030"/>
-  <style name="def:number" foreground="#884b2b"/>
-  <style name="def:floating-point" foreground="#884b2b"/>
-  <style name="def:decimal" foreground="#884b2b"/>
-  <style name="def:base-n-integer" foreground="#884b2b"/>
-  <style name="def:boolean" foreground="#a53030"/>
-  <style name="def:constant" foreground="#a53030"/>
-  <style name="def:special-constant" foreground="#a53030"/>
-  <style name="def:type" foreground="#3c5e8b"/>
-  <style name="def:function" foreground="#3c5e8b"/>
-  <style name="def:identifier" foreground="#19332d"/>
-  <style name="def:error" foreground="#a53030" underline="single"/>
-  <style name="def:note" foreground="#577277" bold="true"/>
-  <style name="def:net-address" foreground="#3c5e8b" underline="single"/>
-  <style name="def:heading" foreground="#19332d" bold="true"/>
+  <style name="text" foreground="#1d2b53" background="#fff1e8"/>
+  <style name="selection" foreground="#1d2b53" background="#ffec27"/>
+  <style name="selection-unfocused" foreground="#1d2b53" background="#ffec27"/>
+  <style name="cursor" foreground="#1d2b53"/>
+  <style name="current-line" background="#fff1e8"/>
+  <style name="line-numbers" foreground="#5f574f" background="#fff1e8"/>
+  <style name="current-line-number" foreground="#1d2b53" background="#fff1e8"/>
+  <style name="bracket-match" foreground="#1d2b53" background="#ffec27"/>
+  <style name="search-match" foreground="#1d2b53" background="#ffec27"/>
+  <style name="right-margin" foreground="#c2c3c7"/>
+  <style name="draw-spaces" foreground="#c2c3c7"/>
+  <style name="def:comment" foreground="#5f574f" italic="true"/>
+  <style name="def:shebang" foreground="#5f574f"/>
+  <style name="def:doc-comment-element" foreground="#5f574f" bold="true"/>
+  <style name="def:keyword" foreground="#7e2553"/>
+  <style name="def:statement" foreground="#7e2553"/>
+  <style name="def:builtin" foreground="#7e2553"/>
+  <style name="def:preprocessor" foreground="#7e2553"/>
+  <style name="def:string" foreground="#008751"/>
+  <style name="def:character" foreground="#008751"/>
+  <style name="def:special-char" foreground="#ff004d"/>
+  <style name="def:number" foreground="#ab5236"/>
+  <style name="def:floating-point" foreground="#ab5236"/>
+  <style name="def:decimal" foreground="#ab5236"/>
+  <style name="def:base-n-integer" foreground="#ab5236"/>
+  <style name="def:boolean" foreground="#ff004d"/>
+  <style name="def:constant" foreground="#ff004d"/>
+  <style name="def:special-constant" foreground="#ff004d"/>
+  <style name="def:type" foreground="#1d2b53"/>
+  <style name="def:function" foreground="#1d2b53"/>
+  <style name="def:identifier" foreground="#1d2b53"/>
+  <style name="def:error" foreground="#ff004d" underline="single"/>
+  <style name="def:note" foreground="#5f574f" bold="true"/>
+  <style name="def:net-address" foreground="#1d2b53" underline="single"/>
+  <style name="def:heading" foreground="#1d2b53" bold="true"/>
   <style name="def:emphasis" italic="true"/>
   <style name="def:strong-emphasis" bold="true"/>
-  <style name="def:link-text" foreground="#3c5e8b"/>
-  <style name="def:link-destination" foreground="#577277" underline="single"/>
-  <style name="def:inline-code" foreground="#468232"/>
-  <style name="def:preformatted-section" foreground="#468232"/>
-  <style name="def:list-marker" foreground="#7a367b" bold="true"/>
-  <style name="def:blockquote" foreground="#577277"/>
+  <style name="def:link-text" foreground="#1d2b53"/>
+  <style name="def:link-destination" foreground="#5f574f" underline="single"/>
+  <style name="def:inline-code" foreground="#008751"/>
+  <style name="def:preformatted-section" foreground="#008751"/>
+  <style name="def:list-marker" foreground="#7e2553" bold="true"/>
+  <style name="def:blockquote" foreground="#5f574f"/>
 </style-scheme>

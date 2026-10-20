@@ -1,0 +1,145 @@
+# Apollo (AdamCYounis, lospec.com/palette-list/apollo): 46 colours in ramps.
+# Roles on the left, the palette's colours on the right. `theme/make` writes
+# every app's colours from the palette named in theme/palette.
+
+desk        blue5    # behind the windows
+paper       gray9    # windows, the bar, panels
+ink         green0   # text, the search square, inputs, menus
+accent      green4   # the focused title bar, the active tab, selections
+accent-ink  green0   # text and icons on the accent
+muted       gray7    # unfocused title bars and tabs
+muted-ink   gray4    # text and icons on muted
+
+# Syntax highlighting in the text editor, on paper.
+code-comment   gray5
+code-keyword   purple2
+code-string    green2
+code-number    orange2
+code-type      blue2
+code-constant  red3
+
+# The terminal's sixteen ANSI colours, on paper.
+ansi0   gray2
+ansi1   red3
+ansi2   green2
+ansi3   orange3
+ansi4   blue2
+ansi5   purple2
+ansi6   blue3
+ansi7   gray7
+ansi8   gray5
+ansi9   red4
+ansi10  green3
+ansi11  orange4
+ansi12  blue4
+ansi13  purple4
+ansi14  blue5
+ansi15  gray9
+
+# KiCad boards.
+board-background  gray1
+board-text        gray9
+board-grid        gray4
+board-faint       gray7
+copper-front      red4
+copper-back       blue4
+copper-inner-1    green4
+copper-inner-2    orange4
+copper-inner-3    purple4
+copper-inner-4    blue3
+copper-inner-5    brown4
+copper-inner-6    red5
+silk-front        gray9
+silk-back         purple5
+mask-front        purple3
+mask-back         blue2
+paste-front       gray7
+paste-back        blue5
+edge              orange5
+margin            purple5
+courtyard-front   purple4
+courtyard-back    blue4
+fab-front         gray6
+fab-back          blue3
+user-drawings     gray7
+user-comments     blue4
+user-eco1         green4
+user-eco2         orange4
+hole-pad          orange5
+hole-npth         blue5
+hole-via          gray8
+error             red4
+warning           orange4
+board-worksheet   red4
+
+# KiCad schematics, on paper.
+sch-grid          gray7
+sch-wire          green1
+sch-bus           blue1
+sch-outline       red3
+sch-body          orange5
+sch-pin           red3
+sch-pin-name      blue2
+sch-pin-number    red3
+sch-text          blue2
+sch-fields        purple2
+sch-label-global  red3
+sch-label-hier    orange2
+sch-sheet         purple2
+sch-worksheet     red3
+sch-hidden        gray6
+
+# KiCad's 3D view.
+3d-background     gray3
+3d-board          brown4
+3d-copper         orange4
+3d-mask           green1
+3d-silk           gray9
+
+[colors]
+blue0   #172038
+blue1   #253a5e
+blue2   #3c5e8b
+blue3   #4f8fba
+blue4   #73bed3
+blue5   #a4dddb
+green0  #19332d
+green1  #25562e
+green2  #468232
+green3  #75a743
+green4  #a8ca58
+green5  #d0da91
+brown0  #4d2b32
+brown1  #7a4841
+brown2  #ad7757
+brown3  #c09473
+brown4  #d7b594
+brown5  #e7d5b3
+orange0 #341c27
+orange1 #602c2c
+orange2 #884b2b
+orange3 #be772b
+orange4 #de9e41
+orange5 #e8c170
+red0    #241527
+red1    #411d31
+red2    #752438
+red3    #a53030
+red4    #cf573c
+red5    #da863e
+purple0 #1e1d39
+purple1 #402751
+purple2 #7a367b
+purple3 #a23e8c
+purple4 #c65197
+purple5 #df84a5
+gray0   #090a14
+gray1   #10141f
+gray2   #151d28
+gray3   #202e37
+gray4   #394a50
+gray5   #577277
+gray6   #819796
+gray7   #a8b5b2
+gray8   #c7cfcc
+gray9   #ebede9

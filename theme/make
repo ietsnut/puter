@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Writes every colour and icon in puter from theme/colors.
+"""Writes every colour and icon in puter from the palette named in theme/palette
+(a file in theme/palettes/: roles, then the palette's colours).
 
-  quickshell/Colors.qml      the roles, for the shell
+  quickshell/Colors.qml      the interface roles, for the shell
   theme/labwc/themerc        title bars, menus, the window switcher
   theme/labwc/*.svg          the window buttons
   theme/icons/               places and file icons
@@ -13,7 +14,7 @@
 
 Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
 sit on whole pixels so they are sharp; diagonals and curves are smooth. Run it after
-changing theme/colors, then dev/sync.
+changing a palette or theme/palette, then dev/sync.
 """
 from pathlib import Path
 
@@ -21,47 +22,44 @@ theme = Path(__file__).parent
 repo = theme.parent
 
 
-def read_apollo():
-    apollo, inside = {}, False
-    for line in (theme / "colors").read_text().splitlines():
-        if line.strip() == "[apollo]":
-            inside = True
-        elif inside and line.strip():
-            name, value = line.split()[:2]
-            apollo[name] = value
-    return apollo
+def read_palette():
+    """Role -> hex, from theme/palettes/<name>: role lines, then [colors]."""
+    name = (theme / "palette").read_text().strip()
+    roles, colors, section = {}, {}, None
+    for line in (theme / "palettes" / name).read_text().splitlines():
+        if line.lstrip().startswith("#"):
+            continue
+        # Hex colours start with "#", so only text after a space and "#" is a comment.
+        line = line.split(" #", 1)[0].strip() if section != "colors" else line.strip()
+        if not line:
+            continue
+        if line.startswith("["):
+            section = line.strip("[]")
+            continue
+        key, value = line.split()[:2]
+        (colors if section == "colors" else roles)[key] = value
+    return {role: colors.get(value, value) for role, value in roles.items()}
 
 
-def read_roles(apollo):
-    roles = {}
-    for line in (theme / "colors").read_text().splitlines():
-        if line.strip() == "[apollo]":
-            break
-        if line.strip() and not line.startswith("#"):
-            role, name = line.split()[:2]
-            roles[role] = apollo[name]
-    return roles
-
-
-APOLLO = read_apollo()
-C = read_roles(APOLLO)
+C = read_palette()
 
 
 # The shell.
+SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink")
 (repo / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
-    "// Written by theme/make from theme/colors; edit those, not this.\n"
+    "// Written by theme/make from theme/palette; edit those, not this.\n"
     "Singleton {\n"
     + "".join(
-        f'    readonly property color {"".join(w.capitalize() if i else w for i, w in enumerate(role.split("-")))}: "{value}"\n'
-        for role, value in C.items()
+        f'    readonly property color {"".join(w.capitalize() if i else w for i, w in enumerate(role.split("-")))}: "{C[role]}"\n'
+        for role in SHELL_ROLES
     )
     + "}\n"
 )
 
 
 # labwc: title bars and menus.
-(theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/colors; edit those, not this.
+(theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
 # A one-module title bar, accent when focused and muted when not, paper bodies,
 # square and flat. The buttons are the SVGs beside this file.
 border.width: 0
@@ -249,7 +247,7 @@ for d in dirs:
 
 # GTK apps.
 (theme / "gtk-3.0" / "colors.css").write_text(
-    "/* Written by theme/make from theme/colors; edit those, not this. */\n"
+    "/* Written by theme/make from theme/palette; edit those, not this. */\n"
     + "".join(f"@define-color {role.replace('-', '_')} {value};\n" for role, value in C.items())
 )
 
@@ -315,7 +313,7 @@ styles = [
 (theme / "gtksourceview").mkdir(exist_ok=True)
 (theme / "gtksourceview" / "puter.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
-    "<!-- Written by theme/make from theme/colors; edit those, not this. -->\n"
+    "<!-- Written by theme/make from theme/palette; edit those, not this. -->\n"
     '<style-scheme id="puter" name="puter" version="1.0">\n'
     "  <description>puter's palette, for code and Markdown</description>\n"
     + "".join(styles)
@@ -323,28 +321,25 @@ styles = [
 )
 
 
-# The terminal: paper and ink, the accent for selections, and Apollo for the
-# sixteen ANSI colours.
-A = APOLLO
-ansi = ["gray2", "red3", "green2", "orange3", "blue2", "purple2", "blue3", "gray7",
-        "gray5", "red4", "green3", "orange4", "blue4", "purple4", "blue5", "gray9"]
+# The terminal: paper and ink, the accent for selections, and the palette's
+# ANSI roles.
 (repo / "ghostty" / "colors").write_text(
-    "# Written by theme/make from theme/colors; edit those, not this.\n"
+    "# Written by theme/make from theme/palette; edit those, not this.\n"
     f"background = {C['paper']}\nforeground = {C['ink']}\ncursor-color = {C['ink']}\n"
     f"selection-background = {C['accent']}\nselection-foreground = {C['accent-ink']}\n"
-    + "".join(f"palette = {i}={A[n]}\n" for i, n in enumerate(ansi))
+    + "".join(f"palette = {i}={C[f'ansi{i}']}\n" for i in range(16))
 )
 
 
 # The viewers: photos on paper, videos on ink, no interface of their own.
-(repo / "imv" / "config").write_text(f"""# Written by theme/make from theme/colors; edit those, not this.
+(repo / "imv" / "config").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
 [options]
 background = {C['paper'].lstrip('#')}
 overlay = false
 overlay_font = Geist:15
 title_text = $imv_current_file
 """)
-(repo / "mpv" / "mpv.conf").write_text(f"""# Written by theme/make from theme/colors; edit those, not this.
+(repo / "mpv" / "mpv.conf").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
 background-color={C['ink']}
 osd-font=Geist
 osd-font-size=30
@@ -356,120 +351,119 @@ keep-open=yes
 """)
 
 
-# KiCad: boards, schematics and the 3D view on paper, every colour Apollo.
+# KiCad: boards, schematics and the 3D view from the palette's KiCad roles.
 # Masks and highlights are see-through, as KiCad's own themes draw them.
-def rgb(name, alpha=1.0):
-    hexa = APOLLO.get(name) or C[name]
+def rgb(role, alpha=1.0):
+    hexa = C[role]
     r, g, b = (int(hexa[i:i + 2], 16) for i in (1, 3, 5))
     return f"rgba({r}, {g}, {b}, {alpha})" if alpha < 1 else f"rgb({r}, {g}, {b})"
 
 
-inner = ["green2", "orange3", "purple3", "blue3", "brown2", "red4"]
 KICAD = {
     "meta": {"name": "puter", "version": 5},
     "board": {
-        "background": rgb("paper"),
-        "anchor": rgb("purple4"),
-        "aux_items": rgb("ink"),
-        "cursor": rgb("ink"),
-        "grid": rgb("gray6"),
-        "grid_axes": rgb("gray4"),
-        "page_limits": rgb("gray6"),
-        "worksheet": rgb("red2"),
-        "ratsnest": rgb("gray4", 0.8),
-        "locked_shadow": rgb("orange4", 0.5),
-        "conflicts_shadow": rgb("red4", 0.5),
-        "drc_error": rgb("red4", 0.8),
-        "drc_warning": rgb("orange4", 0.8),
-        "drc_exclusion": rgb("gray6", 0.8),
-        "pad_plated_hole": rgb("gray8"),
-        "plated_hole": rgb("blue4"),
-        "via_hole": rgb("gray8"),
-        "via_hole_walls": rgb("gray5"),
-        "track_net_names": rgb("paper", 0.9),
-        "pad_net_names": rgb("paper", 0.9),
-        "via_net_names": rgb("ink", 0.9),
-        "points": rgb("purple3"),
-        "copper": {"f": rgb("red3"), "b": rgb("blue2"),
-                   **{f"in{i}": rgb(inner[(i - 1) % len(inner)]) for i in range(1, 31)}},
-        "f_silks": rgb("ink"),
-        "b_silks": rgb("purple2"),
-        "f_mask": rgb("purple4", 0.4),
-        "b_mask": rgb("blue3", 0.4),
-        "f_paste": rgb("gray5", 0.9),
-        "b_paste": rgb("blue4", 0.9),
-        "f_adhes": rgb("purple3"),
-        "b_adhes": rgb("blue2"),
-        "edge_cuts": rgb("orange2"),
-        "margin": rgb("purple4"),
-        "f_crtyd": rgb("purple3"),
-        "b_crtyd": rgb("blue3"),
-        "f_fab": rgb("gray5"),
-        "b_fab": rgb("blue3"),
-        "dwgs_user": rgb("gray4"),
-        "cmts_user": rgb("blue2"),
-        "eco1_user": rgb("green3"),
-        "eco2_user": rgb("orange3"),
+        "background": rgb("board-background"),
+        "anchor": rgb("margin"),
+        "aux_items": rgb("board-text"),
+        "cursor": rgb("board-text"),
+        "grid": rgb("board-grid"),
+        "grid_axes": rgb("board-faint"),
+        "page_limits": rgb("board-grid"),
+        "worksheet": rgb("board-worksheet"),
+        "ratsnest": rgb("board-faint", 0.8),
+        "locked_shadow": rgb("warning", 0.5),
+        "conflicts_shadow": rgb("error", 0.5),
+        "drc_error": rgb("error", 0.8),
+        "drc_warning": rgb("warning", 0.8),
+        "drc_exclusion": rgb("board-faint", 0.8),
+        "pad_plated_hole": rgb("hole-pad"),
+        "plated_hole": rgb("hole-npth"),
+        "via_hole": rgb("hole-via"),
+        "via_hole_walls": rgb("board-grid"),
+        "track_net_names": rgb("board-text", 0.9),
+        "pad_net_names": rgb("board-text", 0.9),
+        "via_net_names": rgb("board-background", 0.9),
+        "points": rgb("margin"),
+        "copper": {"f": rgb("copper-front"), "b": rgb("copper-back"),
+                   **{f"in{i}": rgb(f"copper-inner-{(i - 1) % 6 + 1}") for i in range(1, 31)}},
+        "f_silks": rgb("silk-front"),
+        "b_silks": rgb("silk-back"),
+        "f_mask": rgb("mask-front", 0.2),
+        "b_mask": rgb("mask-back", 0.2),
+        "f_paste": rgb("paste-front", 0.8),
+        "b_paste": rgb("paste-back", 0.8),
+        "f_adhes": rgb("courtyard-front"),
+        "b_adhes": rgb("courtyard-back"),
+        "edge_cuts": rgb("edge"),
+        "margin": rgb("margin"),
+        "f_crtyd": rgb("courtyard-front"),
+        "b_crtyd": rgb("courtyard-back"),
+        "f_fab": rgb("fab-front"),
+        "b_fab": rgb("fab-back"),
+        "dwgs_user": rgb("user-drawings"),
+        "cmts_user": rgb("user-comments"),
+        "eco1_user": rgb("user-eco1"),
+        "eco2_user": rgb("user-eco2"),
     },
     "schematic": {
         "background": rgb("paper"),
-        "anchor": rgb("purple4"),
+        "anchor": rgb("sch-fields"),
         "aux_items": rgb("ink"),
         "cursor": rgb("ink"),
-        "grid": rgb("gray6"),
-        "grid_axes": rgb("gray4"),
-        "page_limits": rgb("gray6"),
-        "worksheet": rgb("red2"),
-        "hovered": rgb("blue4"),
-        "brightened": rgb("purple4"),
+        "grid": rgb("sch-grid"),
+        "grid_axes": rgb("muted-ink"),
+        "page_limits": rgb("sch-grid"),
+        "worksheet": rgb("sch-worksheet"),
+        "hovered": rgb("sch-bus"),
+        "brightened": rgb("sch-fields"),
         "shadow": rgb("accent", 0.6),
-        "wire": rgb("green2"),
-        "bus": rgb("blue2"),
-        "bus_junction": rgb("blue2"),
-        "junction": rgb("green2"),
-        "no_connect": rgb("blue2"),
-        "component_outline": rgb("red2"),
-        "component_body": rgb("brown5"),
-        "pin": rgb("red2"),
-        "pin_name": rgb("blue2"),
-        "pin_number": rgb("red2"),
-        "reference": rgb("blue2"),
-        "value": rgb("blue2"),
-        "fields": rgb("purple2"),
-        "hidden": rgb("gray6"),
+        "wire": rgb("sch-wire"),
+        "bus": rgb("sch-bus"),
+        "bus_junction": rgb("sch-bus"),
+        "junction": rgb("sch-wire"),
+        "no_connect": rgb("sch-bus"),
+        "component_outline": rgb("sch-outline"),
+        "component_body": rgb("sch-body"),
+        "pin": rgb("sch-pin"),
+        "pin_name": rgb("sch-pin-name"),
+        "pin_number": rgb("sch-pin-number"),
+        "reference": rgb("sch-text"),
+        "value": rgb("sch-text"),
+        "fields": rgb("sch-fields"),
+        "hidden": rgb("sch-hidden"),
         "label_local": rgb("ink"),
-        "label_global": rgb("red2"),
-        "label_hier": rgb("orange2"),
-        "netclass_flag": rgb("gray5"),
-        "note": rgb("blue2"),
-        "private_note": rgb("blue3"),
+        "label_global": rgb("sch-label-global"),
+        "label_hier": rgb("sch-label-hier"),
+        "netclass_flag": rgb("muted-ink"),
+        "note": rgb("sch-text"),
+        "private_note": rgb("sch-text"),
         "note_background": rgb("paper", 0.0),
-        "sheet": rgb("purple2"),
+        "sheet": rgb("sch-sheet"),
         "sheet_background": rgb("paper", 0.0),
-        "sheet_name": rgb("blue2"),
-        "sheet_filename": rgb("orange2"),
-        "sheet_fields": rgb("purple2"),
-        "sheet_label": rgb("orange2"),
-        "erc_error": rgb("red4", 0.8),
-        "erc_warning": rgb("orange4", 0.8),
-        "erc_exclusion": rgb("gray6", 0.8),
-        "dnp_marker": rgb("red3"),
-        "excluded_from_sim": rgb("gray5"),
-        "op_voltages": rgb("purple3"),
-        "op_currents": rgb("blue3"),
-        "rule_area": rgb("purple3"),
-        "drag_net_collision": rgb("red4"),
+        "sheet_name": rgb("sch-text"),
+        "sheet_filename": rgb("sch-label-hier"),
+        "sheet_fields": rgb("sch-sheet"),
+        "sheet_label": rgb("sch-label-hier"),
+        "erc_error": rgb("error", 0.8),
+        "erc_warning": rgb("warning", 0.8),
+        "erc_exclusion": rgb("sch-hidden", 0.8),
+        "dnp_marker": rgb("error"),
+        "excluded_from_sim": rgb("muted-ink"),
+        "op_voltages": rgb("sch-fields"),
+        "op_currents": rgb("sch-bus"),
+        "rule_area": rgb("sch-fields"),
+        "drag_net_collision": rgb("error"),
     },
     "3d_viewer": {
-        "background_top": rgb("gray9"),
-        "background_bottom": rgb("gray7"),
-        "board": rgb("brown4"),
-        "copper": rgb("orange4"),
-        "silkscreen_top": rgb("gray9"),
-        "silkscreen_bottom": rgb("gray9"),
-        "soldermask_top": rgb("green1", 0.85),
-        "soldermask_bottom": rgb("green1", 0.85),
-        "solderpaste": rgb("gray7"),
+        "background_top": rgb("3d-background"),
+        "background_bottom": rgb("board-background"),
+        "board": rgb("3d-board"),
+        "copper": rgb("3d-copper"),
+        "silkscreen_top": rgb("3d-silk"),
+        "silkscreen_bottom": rgb("3d-silk"),
+        "soldermask_top": rgb("3d-mask", 0.85),
+        "soldermask_bottom": rgb("3d-mask", 0.85),
+        "solderpaste": rgb("paste-front"),
     },
 }
 import json
