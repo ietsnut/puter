@@ -9,19 +9,18 @@ Where things stood at the end of the 20 October 2026 session.
   left on the strip, and the settings panel standing on the square, flush right
   (`margins.bottom: Theme.module * 2`). The bar's input `mask` needs the new
   square added, as the search square is.
-- **Mousepad's lines on the grid.** Lines are 20px (Geist Mono 11pt); they and
-  their line numbers should be 30. Neither Mousepad nor GTK 3 has a setting, so
-  patch it like Thunar: `packages/mousepad` from Arch's PKGBUILD
-  (`gitlab.archlinux.org/archlinux/packaging/packages/mousepad`, meson build),
-  with a `prepare()` that adds to `mousepad_view_init` in
-  `mousepad/mousepad-view.c`:
-  `gtk_text_view_set_pixels_above_lines (GTK_TEXT_VIEW (view), 5);` and
-  `gtk_text_view_set_pixels_below_lines (GTK_TEXT_VIEW (view), 5);`
-  then build it from `install.sh` the way Thunar is, and measure that line 1
-  sits at 90 to 120 under the tabs.
 
 ## Open edges
 
+- **The Qt apps, measured and not.** PCManFM-Qt, FeatherPad and Sheet are
+  measured onto the grid (bars, tabs, headers, rows). LXImage-Qt, Falkon and
+  QTerminal take the style but haven't been measured, and no dialog has been
+  looked at yet (Qt's own file dialog, preferences windows). Falkon's tab bar
+  is its own widget.
+- **Sheet** opens, edits, adds and removes rows and columns, undoes and
+  saves. It has no find, sort or filter yet.
+- **FeatherPad's line numbers** are off: it paints their gutter dark gray in
+  code.
 - **Wi-Fi in settings** is untested: the VM has no Wi-Fi. Connecting only
   works for open and already-saved networks; there's no password prompt yet.
 - **The power buttons** in settings haven't been pressed.
@@ -30,7 +29,7 @@ Where things stood at the end of the 20 October 2026 session.
 - **The search square overlaps windows**: windows stop at the strip (one
   module), so a snapped window's bottom-left 60x30 sits under the square.
   Making windows stop above the square would waste a row along the bottom.
-- **Mousepad and code lines** aside, KiCad, Chromium and other apps keep their
+- KiCad, JLCONE (Electron, its own web UI) and other apps keep their
   own toolbar layouts and icons; only their GTK parts follow the theme.
 - **Hover under scripted input**: right after `dev/click` on a taskbar tab,
   hover sometimes doesn't show until the pointer comes back from elsewhere.

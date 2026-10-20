@@ -1,0 +1,142 @@
+# Mulholland: black, white and grays, with a little blue, coral and pink. The
+# grays and accents are IBM Carbon's, as on Mulholland's website; the black
+# outlines are the dental desk's and its printed reports'.
+# Roles on the left, the palette's colours on the right. `theme/make` writes
+# every app's colours from the palette named in theme/palette.
+
+# The interface.
+desk          gray-20
+paper         white
+ink           gray-100
+accent        gray-20  # highlights and selections (no colour yet)
+accent-ink    gray-100
+muted         gray-10
+muted-ink     gray-60
+outline       black    # the thin edge around windows, menus and popups
+rule          gray-30  # the lighter lines inside: table grids, dividers
+title         gray-20  # a focused title bar, and its window's tab
+title-ink     gray-100
+
+# Window buttons under the pointer: the square filled, the glyph turned over.
+button-hover      gray-30
+button-hover-ink  gray-100
+close-hover       gray-30
+close-hover-ink   gray-100
+
+# Syntax highlighting in the text editor, on paper.
+code-comment   gray-60
+code-keyword   blue-dark
+code-string    green
+code-number    coral-dark
+code-type      gray-100
+code-constant  magenta
+code-function  blue
+code-builtin   magenta
+code-regex     red
+code-tag       purple
+code-value     cyan
+code-other     yellow-dark
+
+# The terminal's sixteen ANSI colours, on paper.
+ansi0   gray-100
+ansi1   red
+ansi2   green
+ansi3   yellow-dark
+ansi4   blue
+ansi5   magenta
+ansi6   cyan
+ansi7   gray-30
+ansi8   gray-60
+ansi9   coral
+ansi10  green-light
+ansi11  yellow
+ansi12  blue-light
+ansi13  pink
+ansi14  cyan-light
+ansi15  white
+
+# KiCad boards.
+board-background  black
+board-text        white
+board-grid        gray-70
+board-faint       gray-30
+copper-front      red
+copper-back       blue-light
+copper-inner-1    green-light
+copper-inner-2    yellow
+copper-inner-3    pink
+copper-inner-4    purple
+copper-inner-5    coral
+copper-inner-6    cyan-light
+silk-front        white
+silk-back         pink
+mask-front        green
+mask-back         blue-dark
+paste-front       gray-30
+paste-back        coral
+edge              yellow
+margin            pink
+courtyard-front   pink
+courtyard-back    blue-light
+fab-front         gray-30
+fab-back          blue-light
+user-drawings     gray-30
+user-comments     blue-light
+user-eco1         green-light
+user-eco2         yellow
+hole-pad          yellow
+hole-npth         blue-light
+hole-via          gray-30
+error             red
+warning           yellow
+board-worksheet   red
+
+# KiCad schematics, on paper.
+sch-grid          gray-30
+sch-wire          green
+sch-bus           blue-dark
+sch-outline       gray-100
+sch-body          gray-10
+sch-pin           gray-100
+sch-pin-name      blue-dark
+sch-pin-number    gray-70
+sch-text          gray-100
+sch-fields        gray-60
+sch-label-global  red
+sch-label-hier    coral-dark
+sch-sheet         gray-100
+sch-worksheet     gray-100
+sch-hidden        gray-30
+
+# KiCad's 3D view.
+3d-background     gray-90
+3d-board          yellow-dark
+3d-copper         yellow
+3d-mask           green
+3d-silk           white
+
+[colors]
+black        #000000
+gray-100     #161616
+gray-90      #262626
+gray-70      #525252
+gray-60      #6f6f6f
+gray-30      #c6c6c6
+gray-20      #e0e0e0
+gray-10      #f4f4f4
+white        #ffffff
+blue         #0f62fe
+blue-dark    #0043ce
+blue-light   #78a9ff
+coral        #f55d47
+coral-dark   #d74330
+pink         #ff2d95
+magenta      #d02670
+red          #da1e28
+green        #198038
+green-light  #42be65
+yellow       #f1c21b
+yellow-dark  #b28600
+cyan         #1192e8
+cyan-light   #33b1ff
+purple       #8a3ffc

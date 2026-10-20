@@ -5,7 +5,7 @@
 #   ./install.sh          everything: packages, fonts, configs, login screen
 #   ./install.sh config   only link the configs and apply settings (what
 #                         dev/sync runs after copying a change over)
-#   ./install.sh packages only install the packages and Geist
+#   ./install.sh packages only install the packages
 set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
@@ -13,26 +13,55 @@ packages() {
   mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
   sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
 
-  # Geist is only in the AUR; it is built straight with makepkg.
-  if ! pacman -Q otf-geist >/dev/null 2>&1; then
-    build="$(mktemp -d)"
-    git clone --depth 1 https://aur.archlinux.org/geist-font.git "$build"
-    (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm otf-geist-[0-9]*.pkg.tar.zst)
-    rm -rf "$build"
-  fi
+  # labwc, patched, and JLCONE (packages/). Each is
+  # rebuilt whenever the installed version isn't its recipe's.
+  local name want have
+  for name in labwc jlcone-bin; do
+    # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
+    want="$(source "$repo/packages/$name/PKGBUILD" && echo "$pkgver-$pkgrel")"
+    have="$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2)"
+    if [[ $have != "$want" ]]; then
+      build="$(mktemp -d)"
+      cp "$repo/packages/$name/"* "$build/"
+      (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm "$name"-[0-9]*.pkg.tar.zst)
+      rm -rf "$build"
+    fi
+  done
 
-  # Thunar, patched so its path field sits on the grid (packages/thunar).
-  # Rebuilt whenever the installed version isn't the recipe's.
-  local want have
-  # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
-  want="$(source "$repo/packages/thunar/PKGBUILD" && echo "$pkgver-$pkgrel")"
-  have="$(pacman -Q thunar 2>/dev/null | cut -d' ' -f2)"
-  if [[ $have != "$want" ]]; then
+  # puter's Qt widget style and its table editor, Sheet, built from qt/.
+  for part in style sheet; do
     build="$(mktemp -d)"
-    cp "$repo/packages/thunar/PKGBUILD" "$build/"
-    (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm thunar-[0-9]*.pkg.tar.zst)
+    cmake -S "$repo/qt/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+    cmake --build "$build"
+    sudo cmake --install "$build"
     rm -rf "$build"
-  fi
+  done
+}
+
+# Sets one key in an ini file (Qt's settings files), making the file and the
+# section if need be:  ini FILE SECTION KEY VALUE
+ini() {
+  mkdir -p "$(dirname "$1")"
+  python3 - "$@" <<'PY'
+import pathlib, sys
+path, section, key, value = pathlib.Path(sys.argv[1]), sys.argv[2], sys.argv[3], sys.argv[4]
+lines = path.read_text().splitlines() if path.exists() else []
+out, here, done = [], False, False
+for line in lines:
+    if line.startswith("["):
+        if here and not done:
+            out.append(f"{key}={value}")
+            done = True
+        here = line.strip() == f"[{section}]"
+    elif here and line.split("=", 1)[0] == key:
+        line, done = f"{key}={value}", True
+    out.append(line)
+if not done:
+    if not here:
+        out.append(f"[{section}]")
+    out.append(f"{key}={value}")
+path.write_text("\n".join(out) + "\n")
+PY
 }
 
 # Runs a command on the session bus, starting a private one when there is no
@@ -45,45 +74,16 @@ settings() {
   # GTK on Wayland reads its theme from gsettings rather than settings.ini.
   gsettings set org.gnome.desktop.interface gtk-theme puter
   gsettings set org.gnome.desktop.interface icon-theme puter
-  gsettings set org.gnome.desktop.interface font-name "Geist 11"
+  gsettings set org.gnome.desktop.interface font-name "IBM Plex Sans 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
-
-  # Mousepad: puter's colours, Geist Mono, line numbers, spaces for tabs.
-  local m=org.xfce.mousepad.preferences.view
-  gsettings set $m color-scheme puter
-  gsettings set $m use-default-monospace-font false
-  gsettings set $m font-name "GeistMono Nerd Font 11"
-  gsettings set $m show-line-numbers true
-  gsettings set $m highlight-current-line false
-  gsettings set $m insert-spaces true
-  gsettings set $m tab-width 4
-
-  # Thunar.
-  local t=(xfconf-query -c thunar -n -p)
-  # No side pane (F9 shows it): the Places pane pads its headings 4px more than
-  # its rows in code, and the tree pane's rows vary, so neither keeps to the
-  # grid. The list view does: one module per file.
-  "${t[@]}" /last-side-pane -t string -s void
-  "${t[@]}" /default-view -t string -s ThunarDetailsView
-  "${t[@]}" /last-view -t string -s ThunarDetailsView
-  "${t[@]}" /last-separator-position -t int -s 180
-  "${t[@]}" /shortcuts-icon-size -t string -s THUNAR_ICON_SIZE_16
-  "${t[@]}" /tree-icon-size -t string -s THUNAR_ICON_SIZE_16
-  # 24px icons in the list, the size they are drawn for.
-  "${t[@]}" /last-details-view-zoom-level -t string -s THUNAR_ZOOM_LEVEL_38_PERCENT
-  # Toolbar icons from puter's icon theme as drawn, not GTK's symbolic ones,
-  # which GTK fills in solid.
-  "${t[@]}" /misc-symbolic-icons-in-toolbar -t bool -s false
-  # The toolbar: back, home, the path field and search.
-  "${t[@]}" /last-toolbar-items -t string -s "menu:0,back:1,forward:0,open-parent:0,open-home:1,new-tab:0,new-window:0,toggle-split-view:0,undo:0,redo:0,zoom-out:0,zoom-in:0,zoom-reset:0,view-as-icons:0,view-as-detailed-list:0,view-as-compact-list:0,view-switcher:0,location-bar:1,reload:0,search:1"
 }
 
 config() {
   # Each config folder is linked into ~/.config, so editing the repo edits the
   # live desktop. Anything already there is moved aside first.
   mkdir -p "$HOME/.config"
-  for dir in labwc quickshell ghostty fontconfig gtk-3.0 imv mpv; do
+  for dir in labwc quickshell fontconfig gtk-3.0; do
     target="$HOME/.config/$dir"
     if [[ -e $target && ! -L $target ]]; then
       mv "$target" "$target.bak.$(date +%s)"
@@ -96,8 +96,6 @@ config() {
   mkdir -p "$HOME/.local/share/themes" "$HOME/.local/share/icons"
   ln -sfn "$repo/theme" "$HOME/.local/share/themes/puter"
   ln -sfn "$repo/theme/icons" "$HOME/.local/share/icons/puter"
-  mkdir -p "$HOME/.local/share/gtksourceview-4/styles"
-  ln -sfn "$repo/theme/gtksourceview/puter.xml" "$HOME/.local/share/gtksourceview-4/styles/puter.xml"
 
   # KiCad's colours: the theme, chosen in every editor. Copied rather than
   # linked, since KiCad saves its themes back to this folder.
@@ -115,6 +113,83 @@ for app in ("pcbnew", "eeschema", "fpedit", "symbol_editor", "gerbview"):
     path.write_text(json.dumps(settings, indent=2))
 PY
   fi
+
+  # Qt Widgets apps: puter's widget style (qt/style), palette, fonts and
+  # stylesheet,
+  # through qt6ct (QT_QPA_PLATFORMTHEME in labwc/environment). Written here
+  # rather than kept in the repo because qt6ct wants absolute paths.
+  mkdir -p "$HOME/.config/qt6ct"
+  cat > "$HOME/.config/qt6ct/qt6ct.conf" <<CONF
+[Appearance]
+style=puter
+custom_palette=true
+color_scheme_path=$repo/qt6ct/colors/puter.conf
+icon_theme=puter
+standard_dialogs=default
+
+[Fonts]
+general="IBM Plex Sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
+fixed="IBM Plex Mono,-1,14,5,400,0,0,0,0,0,0,0,0,0,0,1"
+
+[Interface]
+menus_have_icons=false
+show_shortcuts_in_context_menus=true
+toolbutton_style=0
+dialog_buttons_have_icons=0
+activate_item_on_single_click=0
+stylesheets=$HOME/.config/qt6ct/puter.qss
+CONF
+  # The stylesheet, with the icon theme's path filled in (Qt needs it whole).
+  sed "s|@icons|$HOME/.local/share/icons/puter|g" "$repo/qt6ct/qss/puter.qss" > "$HOME/.config/qt6ct/puter.qss"
+
+  # FeatherPad: system icons, IBM Plex Mono, puter's syntax colours, the
+  # search bar only when searching, no toolbar, status bar or tab strip for a
+  # single file; no line numbers, since it paints their gutter dark gray in
+  # code.
+  ini "$HOME/.config/featherpad/fp.conf" text font '"IBM Plex Mono,10.5,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"'
+  ini "$HOME/.config/featherpad/fp.conf" text lineNumbers false
+  ini "$HOME/.config/featherpad/fp.conf" window sysIcons true
+  ini "$HOME/.config/featherpad/fp.conf" window hideSearchbar true
+  ini "$HOME/.config/featherpad/fp.conf" window noToolbar true
+  ini "$HOME/.config/featherpad/fp.conf" window showStatusbar false
+  ini "$HOME/.config/featherpad/fp.conf" window hideSingleTab true
+  ln -sfn "$repo/featherpad/fp_light_syntax_colors.conf" "$HOME/.config/featherpad/fp_light_syntax_colors.conf"
+  # PCManFM-Qt: the list view with 16px icons, one module per file, showing
+  # only name, size and date; no side pane (Go has the places), no tab strip
+  # for a single folder, no close buttons on tabs.
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView Mode detailed
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView HiddenColumns "1, 4, 5, 6, 7, 8"
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window SidePaneVisible false
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window AlwaysShowTabs false
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window ShowTabClose false
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SmallIconSize 16
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SidePaneIconSize 16
+
+  # Falkon: back, forward, reload and the address field (which also searches)
+  # and nothing else; the menu bar, as in every other app, instead of the
+  # tools button; blank pages at start and in new tabs, no session restored.
+  local f="$HOME/.config/falkon/profiles/default/settings.ini"
+  ini "$f" NavigationBar Layout "button-backforward, button-reloadstop, locationbar"
+  ini "$f" NavigationBar ShowSearchBar false
+  ini "$f" Browser-View-Settings showMenubar true
+  ini "$f" Browser-View-Settings showStatusBar false
+  ini "$f" Browser-View-Settings showBookmarksToolbar false
+  ini "$f" Web-URL-Settings afterLaunch 0
+  ini "$f" Web-URL-Settings homepage about:blank
+  ini "$f" Web-URL-Settings newTabUrl about:blank
+
+  # QTerminal: puter's colours (qterminal/, from theme/make), IBM Plex Mono,
+  # no margin, the tab bar only with more than one tab.
+  mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
+  ln -sfn "$repo/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
+  local q="$HOME/.config/qterminal.org/qterminal.ini"
+  ini "$q" General colorScheme puter
+  ini "$q" General fontFamily "IBM Plex Mono"
+  ini "$q" General fontSize 11
+  ini "$q" General TerminalMargin 0
+  ini "$q" General HideTabBarWithOneTab true
+  ini "$q" General AskOnExit false
+  ini "$q" General MenuVisible true
 
   # Which app opens what.
   ln -sfn "$repo/mimeapps.list" "$HOME/.config/mimeapps.list"

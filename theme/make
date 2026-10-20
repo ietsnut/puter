@@ -6,11 +6,12 @@
   theme/labwc/themerc        title bars, menus, the window switcher
   theme/labwc/*.svg          the window buttons
   theme/icons/               places and file icons
-  theme/gtk-3.0/colors.css   the roles, for GTK apps
-  theme/gtksourceview/puter.xml  syntax colours for the text editor
-  imv/config, mpv/mpv.conf   the photo and video viewers
+  theme/gtk-3.0/colors.css   the roles, for GTK 3 apps
+  qt6ct/qss/puter.qss        the Qt stylesheet, from theme/qt/puter.qss
+  qt6ct/colors/puter.conf    the Qt palette
+  featherpad/                the text editor's syntax colours
   theme/kicad/puter.json     KiCad's board, schematic and 3D colours
-  ghostty/colors             the terminal
+  qterminal/puter.colorscheme  the terminal
 
 Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
 sit on whole pixels so they are sharp; diagonals and curves are smooth. Run it after
@@ -45,7 +46,7 @@ C = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "button-hover", "button-hover-ink")
+SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
 (repo / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"
@@ -60,19 +61,20 @@ SHELL_ROLES = ("desk", "paper", "ink", "accent", "accent-ink", "muted", "muted-i
 
 # labwc: title bars and menus.
 (theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
-# A one-module title bar, accent when focused and muted when not, paper bodies,
-# square and flat. The buttons are the SVGs beside this file.
-border.width: 0
+# A one-module title bar in the title colour, focused or not, paper bodies,
+# square and flat, with a 1px outline. The buttons are the SVGs beside this
+# file.
+border.width: 1
 window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
 window.label.text.justify: left
 
-window.active.title.bg.color: {C['accent']}
-window.inactive.title.bg.color: {C['muted']}
-window.active.label.text.color: {C['accent-ink']}
-window.inactive.label.text.color: {C['muted-ink']}
-window.active.border.color: {C['accent']}
-window.inactive.border.color: {C['muted']}
+window.active.title.bg.color: {C['title']}
+window.inactive.title.bg.color: {C['title']}
+window.active.label.text.color: {C['title-ink']}
+window.inactive.label.text.color: {C['title-ink']}
+window.active.border.color: {C['outline']}
+window.inactive.border.color: {C['outline']}
 
 window.button.width: 30
 window.button.height: 30
@@ -83,22 +85,24 @@ window.button.hover.bg.corner-radius: 0
 window.active.shadow.size: 0
 window.inactive.shadow.size: 0
 
-menu.border.width: 0
-menu.items.bg.color: {C['ink']}
-menu.items.text.color: {C['paper']}
+menu.border.width: 1
+menu.border.color: {C['outline']}
+menu.items.bg.color: {C['paper']}
+menu.items.text.color: {C['ink']}
 menu.items.active.bg.color: {C['accent']}
 menu.items.active.text.color: {C['accent-ink']}
 menu.items.padding.x: 8
 menu.items.padding.y: 6
 menu.width.min: 180
-menu.separator.width: 2
+menu.separator.width: 1
 menu.separator.padding.width: 0
 menu.separator.padding.height: 0
-menu.separator.color: {C['paper']}
+menu.separator.color: {C['rule']}
 
-osd.bg.color: {C['ink']}
-osd.border.width: 0
-osd.label.text.color: {C['paper']}
+osd.bg.color: {C['paper']}
+osd.border.width: 1
+osd.border.color: {C['outline']}
+osd.label.text.color: {C['ink']}
 osd.window-switcher.style-classic.item.active.border.width: 0
 osd.window-switcher.style-classic.item.active.bg.color: {C['accent']}
 
@@ -149,7 +153,7 @@ def button(body, ink, fill=None):
 # (labwc draws these hover images in place of its own hover colour.)
 for name, body in BUTTONS.items():
     hover, hover_ink = (C["close-hover"], C["close-hover-ink"]) if name == "close" else (C["button-hover"], C["button-hover-ink"])
-    for state, ink in (("active", C["accent-ink"]), ("inactive", C["muted-ink"])):
+    for state, ink in (("active", C["title-ink"]), ("inactive", C["title-ink"])):
         (theme / "labwc" / f"{name}-{state}.svg").write_text(button(body, ink))
         (theme / "labwc" / f"{name}_hover-{state}.svg").write_text(button(body, hover_ink, hover))
 
@@ -186,12 +190,14 @@ ALIASES = {
 }
 
 
+# No clip paths or non-scaling strokes: Qt's SVG renderer (SVG Tiny) draws a
+# clip path as a filled square. The 64px icons scale the path, not the
+# stroke, by drawing the path at 4x in its own coordinates.
 def icon(size, box, path, scale=1):
     offset = (size - box * scale) // 2
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
-            f'<clipPath id="box"><rect x="{offset}" y="{offset}" width="{box * scale}" height="{box * scale}"/></clipPath>'
-            f'<g clip-path="url(#box)"><path transform="translate({offset} {offset}) scale({scale})" d="{path}" '
-            f'fill="none" stroke="{C["ink"]}" stroke-width="2" vector-effect="non-scaling-stroke"/></g></svg>\n')
+            f'<g transform="translate({offset} {offset}) scale({scale})"><path d="{path}" '
+            f'fill="none" stroke="{C["ink"]}" stroke-width="{2 / scale:g}"/></g></svg>\n')
 
 
 DRAWN = {}  # (size, context, name): svg
@@ -215,10 +221,11 @@ def cross(size, symbolic):
         mirror = [(2 * o + b - x, y) for x, y in a]
         body = f'<path d="{band(a)}{band(mirror)}" fill="#000000"/>'
     else:
-        body = (f'<clipPath id="box"><rect x="{o}" y="{o}" width="{b}" height="{b}"/></clipPath>'
-                f'<g clip-path="url(#box)" stroke="{C["ink"]}" stroke-width="2">'
-                f'<line x1="{o - 1}" y1="{o - 1}" x2="{o + b + 1}" y2="{o + b + 1}"/>'
-                f'<line x1="{o + b + 1}" y1="{o - 1}" x2="{o - 1}" y2="{o + b + 1}"/></g>')
+        # The same bands, in ink (no clip path, which Qt draws as a square).
+        band = lambda pts: "M" + "L".join(f"{x:.3f} {y:.3f}" for x, y in pts) + "Z"
+        a = [(o, o), (o + h, o), (o + b, o + b - h), (o + b, o + b), (o + b - h, o + b), (o, o + h)]
+        mirror = [(2 * o + b - x, y) for x, y in a]
+        body = f'<path d="{band(a)}{band(mirror)}" fill="{C["ink"]}"/>'
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
             f'viewBox="0 0 {size} {size}">{body}</svg>\n')
 
@@ -226,6 +233,15 @@ def cross(size, symbolic):
 for size in (16, 24):
     DRAWN[size, "actions", "window-close"] = cross(size, False)
     DRAWN[size, "actions", "window-close-symbolic"] = cross(size, True)
+# The other window buttons, for apps that draw their own title bar (GTK 4):
+# the labwc glyphs, moved from their 30px button into the middle of a 16px
+# icon, so they land on the same pixels when GTK centres the icon in a 30px
+# button.
+for name, button_name in (("window-minimize", "iconify"), ("window-maximize", "max"),
+                          ("window-restore", "max_toggled"), ("open-menu", "menu")):
+    DRAWN[16, "actions", f"{name}-symbolic"] = (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'
+        f'<g transform="translate(-7 -7)" fill="#000000">{BUTTONS[button_name]}</g></svg>\n')
 SIZES = (16, 24, 64)
 
 
@@ -241,7 +257,7 @@ for (size, context, name), svg in DRAWN.items():
     for n in [name] + [a for a, t in ALIASES.items() if t == name]:
         (folder / f"{n}.svg").write_text(svg)
 dirs = sorted({f"{size}x{size}/{context}" for size, context, _ in DRAWN})
-index = ["[Icon Theme]", "Name=puter", "Comment=2px line icons", "Inherits=Adwaita,hicolor",
+index = ["[Icon Theme]", "Name=puter", "Comment=2px line icons", "Inherits=breeze,hicolor",
          "Directories=" + ",".join(dirs), ""]
 for d in dirs:
     size = int(d.split("x")[0])
@@ -257,104 +273,61 @@ for d in dirs:
     + "".join(f"@define-color {role.replace('-', '_')} {value};\n" for role, value in C.items())
 )
 
-
-# The text editor: a GtkSourceView scheme from the roles. Code and Markdown
-# both draw from these few styles.
-def style(name, fg=None, bg=None, bold=False, italic=False, underline=False):
-    attrs = f'name="{name}"'
-    attrs += f' foreground="{fg}"' if fg else ""
-    attrs += f' background="{bg}"' if bg else ""
-    attrs += ' bold="true"' if bold else ""
-    attrs += ' italic="true"' if italic else ""
-    attrs += ' underline="single"' if underline else ""
-    return f"  <style {attrs}/>\n"
-
-
-styles = [
-    style("text", C["ink"], C["paper"]),
-    style("selection", C["accent-ink"], C["accent"]),
-    style("selection-unfocused", C["accent-ink"], C["accent"]),
-    style("cursor", C["ink"]),
-    style("current-line", bg=C["paper"]),
-    style("line-numbers", C["muted-ink"], C["paper"]),
-    style("current-line-number", C["ink"], C["paper"]),
-    style("bracket-match", C["accent-ink"], C["accent"]),
-    style("search-match", C["accent-ink"], C["accent"]),
-    style("right-margin", C["muted"]),
-    style("draw-spaces", C["muted"]),
-    style("def:comment", C["code-comment"], italic=True),
-    style("def:shebang", C["code-comment"]),
-    style("def:doc-comment-element", C["code-comment"], bold=True),
-    style("def:keyword", C["code-keyword"]),
-    style("def:statement", C["code-keyword"]),
-    style("def:builtin", C["code-keyword"]),
-    style("def:preprocessor", C["code-keyword"]),
-    style("def:string", C["code-string"]),
-    style("def:character", C["code-string"]),
-    style("def:special-char", C["code-constant"]),
-    style("def:number", C["code-number"]),
-    style("def:floating-point", C["code-number"]),
-    style("def:decimal", C["code-number"]),
-    style("def:base-n-integer", C["code-number"]),
-    style("def:boolean", C["code-constant"]),
-    style("def:constant", C["code-constant"]),
-    style("def:special-constant", C["code-constant"]),
-    style("def:type", C["code-type"]),
-    style("def:function", C["code-type"]),
-    style("def:identifier", C["ink"]),
-    style("def:error", C["code-constant"], underline=True),
-    style("def:note", C["code-comment"], bold=True),
-    style("def:net-address", C["code-type"], underline=True),
-    # Markdown.
-    style("def:heading", C["ink"], bold=True),
-    style("def:emphasis", italic=True),
-    style("def:strong-emphasis", bold=True),
-    style("def:link-text", C["code-type"]),
-    style("def:link-destination", C["code-comment"], underline=True),
-    style("def:inline-code", C["code-string"]),
-    style("def:preformatted-section", C["code-string"]),
-    style("def:list-marker", C["code-keyword"], bold=True),
-    style("def:blockquote", C["code-comment"]),
-]
-(theme / "gtksourceview").mkdir(exist_ok=True)
-(theme / "gtksourceview" / "puter.xml").write_text(
-    '<?xml version="1.0" encoding="UTF-8"?>\n'
-    "<!-- Written by theme/make from theme/palette; edit those, not this. -->\n"
-    '<style-scheme id="puter" name="puter" version="1.0">\n'
-    "  <description>puter's palette, for code and Markdown</description>\n"
-    + "".join(styles)
-    + "</style-scheme>\n"
+# Qt Widgets apps: theme/qt/puter.qss with its @roles filled in, and a Qt
+# palette in qt6ct's colour scheme format, its roles in Qt's order: window
+# text, button, light, midlight, dark, mid, text, bright text, button text,
+# base, window, shadow, highlight, highlighted text, link, visited link,
+# alternate base, (none), tooltip base, tooltip text, placeholder, accent.
+import re
+qss = (theme / "qt" / "puter.qss").read_text().split("*/", 1)[1].lstrip("\n")
+qss = re.sub(r"@([a-z0-9-]+)", lambda m: C.get(m.group(1), m.group(0)), qss)
+(repo / "qt6ct" / "qss").mkdir(parents=True, exist_ok=True)
+(repo / "qt6ct" / "qss" / "puter.qss").write_text(
+    "/* Written by theme/make from theme/qt/puter.qss and theme/palette;\n"
+    "   edit those, not this. */\n" + qss
+)
+def qt_palette(text, muted_text):
+    return ", ".join(C[r] if r in C else r for r in (
+        text, "paper", "paper", "muted", "rule", "rule", text, "paper", text,
+        "paper", "paper", "outline", "accent", "accent-ink", "ink", "ink",
+        "paper", "paper", "paper", "ink", muted_text, "accent"))
+# FeatherPad's syntax colours: its own file, eleven keys that must each be a
+# different colour (a repeat makes it throw the file away).
+(repo / "featherpad").mkdir(exist_ok=True)
+(repo / "featherpad" / "fp_light_syntax_colors.conf").write_text(
+    "[General]\n" + "".join(f"{key}={C[role]}\n" for key, role in (
+        ("function", "code-function"), ("BuiltinFunction", "code-builtin"),
+        ("comment", "code-comment"), ("quote", "code-string"), ("type", "code-type"),
+        ("keyWord", "code-keyword"), ("number", "code-number"), ("regex", "code-regex"),
+        ("xmlElement", "code-tag"), ("cssValue", "code-value"), ("other", "code-other"),
+    ))
+)
+(repo / "qt6ct" / "colors").mkdir(parents=True, exist_ok=True)
+(repo / "qt6ct" / "colors" / "puter.conf").write_text(
+    "# Written by theme/make from theme/palette; edit those, not this.\n[ColorScheme]\n"
+    f"active_colors={qt_palette('ink', 'muted-ink')}\n"
+    f"inactive_colors={qt_palette('ink', 'muted-ink')}\n"
+    f"disabled_colors={qt_palette('muted-ink', 'muted-ink')}\n"
 )
 
 
-# The terminal: paper and ink, the accent for selections, and the palette's
-# ANSI roles.
-(repo / "ghostty" / "colors").write_text(
-    "# Written by theme/make from theme/palette; edit those, not this.\n"
-    f"background = {C['paper']}\nforeground = {C['ink']}\ncursor-color = {C['ink']}\n"
-    f"selection-background = {C['accent']}\nselection-foreground = {C['accent-ink']}\n"
-    + "".join(f"palette = {i}={C[f'ansi{i}']}\n" for i in range(16))
-)
+# The terminal (QTerminal): paper and ink and the palette's sixteen ANSI
+# roles, as a QTermWidget colour scheme.
+def rgb3(role):
+    h = C[role]
+    return ",".join(str(int(h[i:i + 2], 16)) for i in (1, 3, 5))
+scheme = ["# Written by theme/make from theme/palette; edit those, not this.",
+          "[General]", "Description=puter", "Opacity=1", "",
+          "[Background]", f"Color={rgb3('paper')}", "",
+          "[BackgroundIntense]", f"Color={rgb3('paper')}", "",
+          "[Foreground]", f"Color={rgb3('ink')}", "",
+          "[ForegroundIntense]", f"Color={rgb3('ink')}", "Bold=false", ""]
+for i in range(8):
+    scheme += [f"[Color{i}]", f"Color={rgb3(f'ansi{i}')}", "",
+               f"[Color{i}Intense]", f"Color={rgb3(f'ansi{i + 8}')}", ""]
+(repo / "qterminal").mkdir(exist_ok=True)
+(repo / "qterminal" / "puter.colorscheme").write_text("\n".join(scheme))
 
-
-# The viewers: photos on paper, videos on ink, no interface of their own.
-(repo / "imv" / "config").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
-[options]
-background = {C['paper'].lstrip('#')}
-overlay = false
-overlay_font = Geist:15
-title_text = $imv_current_file
-""")
-(repo / "mpv" / "mpv.conf").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
-background-color={C['ink']}
-osd-font=Geist
-osd-font-size=30
-osd-color={C['paper']}
-osd-back-color={C['ink']}
-osd-border-size=0
-osd-shadow-offset=0
-keep-open=yes
-""")
 
 
 # KiCad: boards, schematics and the 3D view from the palette's KiCad roles.

@@ -3,20 +3,21 @@
 > How it's built and why: `NOTES.md`. What's left: `NEXT.md`. The dev VM: `dev/devbox/README.md`.
 
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
-search, on a 30px module, square and flat, with
-icons in clean 2px vector strokes.
+search, and Qt Widgets apps, all on a 30px module, square and flat, in black,
+white and gray with IBM Plex, with icons in clean 2px vector strokes.
 
 | Path | What it is |
 | --- | --- |
-| `install.sh` | sets up a plain Arch install: packages, Geist, configs, login screen |
+| `install.sh` | sets up a plain Arch install: packages, builds, configs, login screen |
 | `packages.txt` | everything it installs from the Arch repos |
-| `packages/thunar/` | Arch's Thunar recipe with its path field's margins removed, so its toolbar sits on the grid; when Arch updates Thunar, copy their PKGBUILD in again and keep the `prepare()` change |
+| `packages/` | recipes it builds: labwc with `snap.patch` (windows meet on one line), JLCONE from JLCPCB's .deb |
+| `qt/` | puter's own Qt code: `style/` (the widget style every Qt app uses) and `sheet/` (the table editor) |
 | `labwc/` | the compositor: window behaviour, keys, snapping, the desktop menu |
 | `quickshell/` | the shell in QML: desk, bottom bar, search, settings; `Theme.qml` holds every size |
-| `theme/palettes/` | palettes (PICO-8, Apollo), each assigning its colours to every role; `theme/palette` names the one in use, and `theme/make` writes every app's colours and icons from it |
-| `theme/` | labwc's title bars and buttons, the GTK theme, the line icons, KiCad's colours |
-| `ghostty/`, `fontconfig/`, `gtk-3.0/` | terminal, text smoothing, GTK settings |
-| `imv/`, `mpv/`, `mimeapps.list` | photo and video viewers, and which app opens what |
+| `theme/palettes/mulholland` | the palette, assigning its colours to every role; `theme/make` writes every app's colours and icons from it |
+| `theme/` | labwc's title bars and buttons, the Qt stylesheet (`qt/puter.qss`), the GTK 3 theme (KiCad), the line icons, KiCad's colours |
+| `qt6ct/`, `featherpad/`, `qterminal/` | the Qt stylesheet and palette, FeatherPad's and QTerminal's colours (all written by `theme/make`) |
+| `fontconfig/`, `gtk-3.0/`, `mimeapps.list` | text smoothing, GTK settings, and which app opens what |
 | `dev/` | work from the Mac: `sync`, `shot`, `click`, `run`, `screen`; `dev/devbox/` is the dev VM's setup |
 
 ## Installing
@@ -43,7 +44,7 @@ The desktop runs in an Arch VM on the devbox (`ssh archvm`). Edit here, then
 `dev/sync` copies the checkout to `~/puter` on the VM, runs `install.sh config`
 and reloads, and
 `dev/shot` saves a screenshot to `dev/shot.png`. `dev/screen` opens the VM's
-desktop live in Screen Sharing (`dev/screen stop` closes the tunnel). `dev/run ghostty` opens a
+desktop live in Screen Sharing (`dev/screen stop` closes the tunnel). `dev/run qterminal` opens a
 window on it and `dev/click X Y` clicks at a point in screenshot pixels.
 
 The VM has no GPU, and wlroots crashes on OpenGL apps' native Wayland frames
@@ -51,8 +52,9 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 ## Apps
 
-Thunar for files, Mousepad for text and code (syntax colours from the palette),
-imv for photos, mpv for video, ghostty for the terminal, Chromium for the web.
+PCManFM-Qt for files, FeatherPad for text and code (syntax colours from the
+palette), LXImage-Qt for photos, mpv for video, QTerminal for the terminal,
+Falkon for the web, Sheet (puter's own) for tables, JLCONE for PCB orders.
 The square left of the clock opens settings: network and Wi-Fi, volume in ten
 steps, and power.
 

@@ -1,5 +1,8 @@
-# Everything puter installs from the Arch repos. Geist itself comes from the
-# AUR (install.sh builds it).
+# Everything puter installs from the Arch repos. The apps are Qt Widgets ones,
+# styled by puter's Qt style and stylesheet through qt6ct. Then labwc is
+# rebuilt with puter's patch, JLCONE (JLCPCB's ordering app) built from
+# JLCPCB's .deb (packages/), and puter's Qt style and table editor (qt/)
+# built from this repo (install.sh).
 
 # The desktop
 labwc
@@ -11,16 +14,16 @@ xdg-desktop-portal-wlr
 xdg-desktop-portal-gtk
 
 # Apps
-ghostty
-thunar
+qterminal
+pcmanfm-qt
 gvfs
-mousepad
-imv
+featherpad
+lximage-qt
 mpv
-chromium
+falkon
 
 # Fonts
-otf-geist-mono-nerd
+ttf-ibm-plex
 noto-fonts
 noto-fonts-emoji
 
@@ -33,6 +36,11 @@ wl-clipboard
 grim
 slurp
 
-# Building Geist from the AUR
+# Qt: the apps' settings, the icons they fall back on, and building
+qt6ct
+breeze-icons
+cmake
+
+# Building the patched packages
 git
 base-devel

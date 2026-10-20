@@ -227,4 +227,6 @@ PanelWindow {
             }
         }
     }
+
+    Outline {}
 }

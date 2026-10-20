@@ -3,8 +3,8 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// Search: apps by name. It stands on the search square, flush with the left
-// edge, sixteen modules wide and one module per row, the best match nearest
+// Search: apps by name. It stands on the strip, flush against the right side
+// of the search square, sixteen modules wide and one module per row, the best match nearest
 // the input; with nothing typed it lists the apps opened most recently. Every
 // edge is on the grid. Type to filter, point or use Up and Down to pick,
 // click or Return to open, Escape to close.
@@ -77,7 +77,8 @@ PanelWindow {
         bottom: true
         left: true
     }
-    margins.bottom: Theme.module * 2
+    margins.bottom: Theme.module
+    margins.left: Theme.module * 2
     implicitWidth: Theme.module * 16
     implicitHeight: Theme.module * (results.length + 1)
     exclusionMode: ExclusionMode.Ignore
@@ -166,4 +167,6 @@ PanelWindow {
             }
         }
     }
+
+    Outline {}
 }

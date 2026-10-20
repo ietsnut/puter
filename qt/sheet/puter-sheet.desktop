@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Sheet
+Comment=Edit tables: CSV and TSV files
+Exec=puter-sheet %f
+Icon=x-office-spreadsheet
+Terminal=false
+Categories=Office;Spreadsheet;Qt;
+MimeType=text/csv;text/tab-separated-values;
+StartupWMClass=puter-sheet

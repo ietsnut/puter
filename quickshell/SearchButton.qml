@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Shapes
 
-// A two-module square of ink with a magnifier in it. The glyph keeps to the
+// A two-module square of paper with a magnifier in ink and the 1px outline
+// inside its edges, like the desk's buttons; gray under the pointer. The glyph keeps to the
 // 20 x 20 box in the middle, drawn as the window buttons are: 2px vector
 // strokes, the handle clipped square where it meets the box's corner.
 Rectangle {
@@ -9,11 +10,11 @@ Rectangle {
 
     signal clicked
 
-    readonly property color ink: mouse.containsMouse ? Theme.mutedForeground : Theme.background
+    readonly property color ink: mouse.containsMouse ? Theme.hoverForeground : Theme.foreground
 
     width: Theme.module * 2
     height: Theme.module * 2
-    color: mouse.containsMouse ? Theme.muted : Theme.foreground
+    color: mouse.containsMouse ? Theme.hover : Theme.background
 
     Item {
         x: 20
@@ -61,6 +62,11 @@ Rectangle {
                 }
             }
         }
+    }
+
+    Outline {
+        edgeBottom: false
+        edgeLeft: false
     }
 
     MouseArea {

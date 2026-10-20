@@ -1,0 +1,33 @@
+diff --git a/src/view.c b/src/view.c
+index 21005f2..22e13fc 100644
+--- a/src/view.c
++++ b/src/view.c
+@@ -433,6 +433,28 @@ view_get_edge_snap_box(struct view *view, struct output *output,
+ 		dst.y += margin.top;
+ 		dst.width -= margin.left + margin.right;
+ 		dst.height -= margin.top + margin.bottom;
++
++		/*
++		 * puter: windows meet on one line. A snapped window reaches one
++		 * border further right and down, so its border lies on its
++		 * neighbour's, or under the panel's top line along the bottom;
++		 * against the screen's left and top edges it reaches one border
++		 * further out too, so that border is off the screen rather than
++		 * an inset line. Windows that draw their own frame (GTK 4) draw
++		 * the same 1px border inside themselves, so the theme's border
++		 * width serves for them as well.
++		 */
++		int border = rc.theme->border_width;
++		dst.width += border;
++		dst.height += border;
++		if (x1 == rc.gap) {
++			dst.x -= border;
++			dst.width += border;
++		}
++		if (y1 == rc.gap) {
++			dst.y -= border;
++			dst.height += border;
++		}
+ 	}
+ 
+ 	return dst;

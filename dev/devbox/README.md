@@ -27,6 +27,15 @@ ssh server ~/archvm/up.sh      # start the VM (about 40 s to the desktop)
 ssh server ~/archvm/down.sh    # stop it; or `ssh archvm sudo poweroff`
 ```
 
+To restart the desktop session (after installing a new labwc, say), clear
+greetd's once-per-boot marker first, or it shows the text login instead:
+`ssh archvm 'sudo rm -f /run/greetd.run && sudo systemctl restart greetd'`.
+
+Restart the shell the same way, not by starting `quickshell` over SSH: a
+shell started from SSH has no `DISPLAY`, so X11 apps it launches from search
+(JLCONE, an Electron app) start without a window and, being single-instance,
+swallow every later launch until killed (`pkill -x jlcone`).
+
 The Mac reaches the VM as `ssh archvm` (`~/.ssh/config`: 127.0.0.1:2222 via
 `ProxyJump server`, user `ietsnut`, key `~/.ssh/id_ed25519`).
 

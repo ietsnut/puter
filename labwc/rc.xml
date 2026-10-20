@@ -15,10 +15,10 @@
     </titlebar>
     <cornerRadius>0</cornerRadius>
     <dropShadows>no</dropShadows>
-    <font place="ActiveWindow"><name>Geist</name><size>11</size></font>
-    <font place="InactiveWindow"><name>Geist</name><size>11</size></font>
-    <font place="MenuItem"><name>Geist</name><size>11</size></font>
-    <font place="OnScreenDisplay"><name>Geist</name><size>11</size></font>
+    <font place="ActiveWindow"><name>IBM Plex Sans</name><size>11</size></font>
+    <font place="InactiveWindow"><name>IBM Plex Sans</name><size>11</size></font>
+    <font place="MenuItem"><name>IBM Plex Sans</name><size>11</size></font>
+    <font place="OnScreenDisplay"><name>IBM Plex Sans</name><size>11</size></font>
   </theme>
 
   <!-- Windows-style snapping: drag a title bar to the left or right edge for
@@ -36,14 +36,9 @@
 
   <desktops number="1" />
 
-  <!-- imv asks to draw its own frame and draws none; it gets puter's. -->
-  <windowRules>
-    <windowRule identifier="imv" serverDecoration="yes" />
-  </windowRules>
-
   <keyboard>
     <default />
-    <keybind key="W-Return"><action name="Execute" command="ghostty" /></keybind>
+    <keybind key="W-Return"><action name="Execute" command="qterminal" /></keybind>
     <keybind key="W-space"><action name="Execute" command="qs ipc call search toggle" /></keybind>
     <keybind key="W-Escape"><action name="ShowMenu" menu="root-menu" /></keybind>
     <keybind key="W-q"><action name="Close" /></keybind>

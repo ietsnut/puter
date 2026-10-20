@@ -1,0 +1,9 @@
+# The session's environment, read by labwc at login and so by everything
+# started from the desktop.
+
+# Qt Widgets apps take puter's style, palette, fonts and stylesheet from qt6ct.
+QT_QPA_PLATFORMTHEME=qt6ct
+# Quickshell (the bar, search, settings) draws with Qt's software renderer: the
+# shell is flat rectangles and text, and this uses a third of the memory of
+# drawing it through OpenGL.
+QT_QUICK_BACKEND=software

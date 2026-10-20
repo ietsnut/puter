@@ -1,5 +1,5 @@
 /* GTK 3 apps (Thunar, KiCad, Chromium's frame) in puter's look: Adwaita's
-   layout, redrawn in the palette's roles, square and flat, Geist at 15px, and
+   layout, redrawn in the palette's roles, square and flat, IBM Plex Sans at 15px, and
    every bar and row one module (30px) tall. The colours are colors.css,
    written by ../make from ../colors. */
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
@@ -14,7 +14,7 @@
 @define-color borders @muted;
 
 * {
-  font-family: "Geist";
+  font-family: "IBM Plex Sans";
   font-size: 15px;
   border-radius: 0;
   box-shadow: none;
@@ -31,18 +31,20 @@ window, .background, dialog, popover, popover.background {
 }
 
 /* Bars: menu bar, toolbars and status bars are each one module tall. */
+/* The menu bar: paper, a light rule along its foot drawn inside its module. */
 menubar {
-  background-color: @ink;
-  color: @paper;
+  background-color: @paper;
+  color: @ink;
   padding: 0;
   min-height: 30px;
   border: none;
+  box-shadow: inset 0 -1px @rule;
 }
 
 menubar > menuitem {
   min-height: 30px;
   padding: 0 8px;
-  color: @paper;
+  color: @ink;
 }
 
 menubar > menuitem:hover {
@@ -52,16 +54,16 @@ menubar > menuitem:hover {
 }
 
 menu, .menu, .context-menu {
-  background-color: @ink;
-  color: @paper;
+  background-color: @paper;
+  color: @ink;
   padding: 0;
-  border: none;
+  border: 1px solid @outline;
 }
 
 menu menuitem {
   min-height: 30px;
   padding: 0 8px;
-  color: @paper;
+  color: @ink;
 }
 
 menu menuitem:hover {
@@ -74,8 +76,8 @@ menu menuitem:disabled, menu menuitem:disabled label {
 }
 
 menu separator {
-  background-color: @paper;
-  min-height: 2px;
+  background-color: @rule;
+  min-height: 1px;
   margin: 0;
 }
 
@@ -137,36 +139,40 @@ button:disabled, button:disabled image {
   background-color: transparent;
 }
 
+/* Buttons with words, as on the desk: paper, a 1px outline drawn inside. */
 button.text-button {
   padding: 0 8px;
-  background-color: @ink;
-  color: @paper;
+  background-color: @paper;
+  color: @ink;
+  box-shadow: inset 0 0 0 1px @outline;
 }
 
 button.text-button:hover {
   background-color: @accent;
   color: @accent_ink;
+  box-shadow: inset 0 0 0 1px @outline;
 }
 
-/* Text entries are ink with paper text, like the search input. */
+/* Text entries, as on the desk: paper, a 1px outline drawn inside. */
 entry {
-  background-color: @ink;
+  background-color: @paper;
   background-image: none;
-  color: @paper;
-  caret-color: @paper;
+  color: @ink;
+  caret-color: @ink;
   border: none;
+  box-shadow: inset 0 0 0 1px @outline;
   min-height: 30px;
   padding: 0 8px;
   margin: 0;
 }
 
 entry image {
-  color: @paper;
+  color: @ink;
 }
 
 entry selection {
-  background-color: @paper;
-  color: @ink;
+  background-color: @accent;
+  color: @accent_ink;
 }
 
 /* Lists and the sidebar: rows one module tall, selection in the accent. */
@@ -204,7 +210,7 @@ treeview.view header button {
   color: @muted_ink;
   min-height: 30px;
   padding: 0 8px;
-  border: none;
+  border: 1px solid @outline;
 }
 
 iconview, .view {
@@ -241,20 +247,25 @@ scrollbar button {
 }
 
 tooltip, tooltip.background {
-  background-color: @ink;
-  color: @paper;
+  background-color: @paper;
+  color: @ink;
   padding: 0 8px;
   border: none;
 }
 
 tooltip * {
-  color: @paper;
+  color: @ink;
+}
+
+/* Popovers (dropdowns, pickers) get the same thin outline as menus. */
+popover.background {
+  border: 1px solid @outline;
 }
 
 headerbar, .titlebar {
-  background-color: @ink;
+  background-color: @title;
   background-image: none;
-  color: @paper;
+  color: @title_ink;
   min-height: 30px;
   padding: 0;
   border: none;
@@ -303,17 +314,33 @@ label:backdrop, button:backdrop, image:backdrop {
   color: inherit;
 }
 
+/* A header bar inside a window that has labwc's title bar is a plain bar
+   under it: paper, a light rule along its foot. (Mousepad and Thunar, patched,
+   give dialogs labwc's title bar.) */
+window:not(.csd) headerbar,
+window:not(.csd) headerbar:backdrop {
+  background-color: @paper;
+  color: @ink;
+  box-shadow: inset 0 -1px @rule;
+}
+
+/* A window looks the same whether it has the focus or not. */
+headerbar:backdrop, .titlebar:backdrop {
+  background-color: @title;
+  color: @title_ink;
+}
+
 menubar:backdrop {
-  background-color: @ink;
+  background-color: @paper;
 }
 
 menubar > menuitem:backdrop, menubar > menuitem:backdrop label {
-  color: @paper;
+  color: @ink;
 }
 
 entry:backdrop {
-  background-color: @ink;
-  color: @paper;
+  background-color: @paper;
+  color: @ink;
 }
 
 .view:selected:backdrop, iconview:selected:backdrop, list row:selected:backdrop,
@@ -350,10 +377,14 @@ paned > separator, paned.horizontal > separator {
   border-right: 2px solid @muted;
 }
 
-/* Tree rows (Thunar's list view): one module tall. A row of Geist at 15px is
-   26px; GTK adds its vertical separator once per row (CSS padding would be
-   added once per column), so that makes up the other 4px. */
+/* Tree rows (file dialogs, Thunar's list view): one module tall. A row of
+   IBM Plex Sans at 15px is 25px (26px in Thunar, whose cells pad by a pixel);
+   GTK adds its vertical separator once per row (CSS padding would be added
+   once per column), so that makes up the rest. */
 treeview.view {
+  -GtkTreeView-vertical-separator: 5;
+}
+.thunar treeview.view {
   -GtkTreeView-vertical-separator: 4;
 }
 
@@ -530,4 +561,27 @@ notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):backdrop 
 
 notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):hover {
   background-color: @paper;
+}
+
+/* Menu items start one inset in, as in GTK 4 apps. GTK 3 puts an item's icon
+   (16px and 6px of spacing) in front of its label, blank where the theme has
+   no such icon; menus have no icons here, so it is taken back out. */
+menu menuitem box > image {
+  -gtk-icon-transform: scale(0);
+  margin-right: -22px;
+}
+
+/* A dialog's buttons along its foot, as on the desk: paper with the 1px
+   outline drawn inside, one module tall, gray under the pointer. */
+.dialog-action-area button, .dialog-action-box button {
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+  background-color: @paper;
+  color: @ink;
+  box-shadow: inset 0 0 0 1px @outline;
+}
+.dialog-action-area button:hover, .dialog-action-box button:hover {
+  background-color: @accent;
+  color: @accent_ink;
 }

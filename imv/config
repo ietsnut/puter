@@ -1,6 +1,0 @@
-# Written by theme/make from theme/palette; edit those, not this.
-[options]
-background = fff1e8
-overlay = false
-overlay_font = Geist:15
-title_text = $imv_current_file

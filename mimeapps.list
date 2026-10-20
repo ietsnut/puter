@@ -1,27 +1,32 @@
-# Which app opens what: text in Mousepad, photos in imv, videos in mpv, folders
-# in Thunar.
+# Which app opens what: text in FeatherPad, tables in Sheet, photos in
+# LXImage-Qt, videos in mpv, folders in PCManFM-Qt, the web in Falkon.
 [Default Applications]
-inode/directory=thunar.desktop
-text/plain=org.xfce.mousepad.desktop
-text/markdown=org.xfce.mousepad.desktop
-text/x-python=org.xfce.mousepad.desktop
-text/x-csrc=org.xfce.mousepad.desktop
-text/x-chdr=org.xfce.mousepad.desktop
-text/x-c++src=org.xfce.mousepad.desktop
-text/x-shellscript=org.xfce.mousepad.desktop
-text/x-qml=org.xfce.mousepad.desktop
-application/json=org.xfce.mousepad.desktop
-application/xml=org.xfce.mousepad.desktop
-application/x-shellscript=org.xfce.mousepad.desktop
-image/png=imv.desktop
-image/jpeg=imv.desktop
-image/gif=imv.desktop
-image/webp=imv.desktop
-image/svg+xml=imv.desktop
-image/heif=imv.desktop
+inode/directory=pcmanfm-qt.desktop
+text/plain=featherpad.desktop
+text/markdown=featherpad.desktop
+text/x-python=featherpad.desktop
+text/x-csrc=featherpad.desktop
+text/x-chdr=featherpad.desktop
+text/x-c++src=featherpad.desktop
+text/x-shellscript=featherpad.desktop
+text/x-qml=featherpad.desktop
+application/json=featherpad.desktop
+application/xml=featherpad.desktop
+application/x-shellscript=featherpad.desktop
+image/png=lximage-qt.desktop
+image/jpeg=lximage-qt.desktop
+image/gif=lximage-qt.desktop
+image/webp=lximage-qt.desktop
+image/svg+xml=lximage-qt.desktop
+image/heif=lximage-qt.desktop
 video/mp4=mpv.desktop
 video/webm=mpv.desktop
 video/x-matroska=mpv.desktop
 video/quicktime=mpv.desktop
 audio/mpeg=mpv.desktop
 audio/flac=mpv.desktop
+text/csv=puter-sheet.desktop
+text/tab-separated-values=puter-sheet.desktop
+text/html=org.kde.falkon.desktop
+x-scheme-handler/http=org.kde.falkon.desktop
+x-scheme-handler/https=org.kde.falkon.desktop

@@ -1,45 +1,48 @@
 # Written by theme/make from theme/palette; edit those, not this.
-# A one-module title bar, accent when focused and muted when not, paper bodies,
-# square and flat. The buttons are the SVGs beside this file.
-border.width: 0
+# A one-module title bar in the title colour, focused or not, paper bodies,
+# square and flat, with a 1px outline. The buttons are the SVGs beside this
+# file.
+border.width: 1
 window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
 window.label.text.justify: left
 
-window.active.title.bg.color: #ffec27
-window.inactive.title.bg.color: #c2c3c7
-window.active.label.text.color: #1d2b53
-window.inactive.label.text.color: #5f574f
-window.active.border.color: #ffec27
-window.inactive.border.color: #c2c3c7
+window.active.title.bg.color: #e0e0e0
+window.inactive.title.bg.color: #e0e0e0
+window.active.label.text.color: #161616
+window.inactive.label.text.color: #161616
+window.active.border.color: #000000
+window.inactive.border.color: #000000
 
 window.button.width: 30
 window.button.height: 30
 window.button.spacing: 0
-window.button.hover.bg.color: #fff1e8
+window.button.hover.bg.color: #ffffff
 window.button.hover.bg.corner-radius: 0
 
 window.active.shadow.size: 0
 window.inactive.shadow.size: 0
 
-menu.border.width: 0
-menu.items.bg.color: #1d2b53
-menu.items.text.color: #fff1e8
-menu.items.active.bg.color: #ffec27
-menu.items.active.text.color: #1d2b53
+menu.border.width: 1
+menu.border.color: #000000
+menu.items.bg.color: #ffffff
+menu.items.text.color: #161616
+menu.items.active.bg.color: #e0e0e0
+menu.items.active.text.color: #161616
 menu.items.padding.x: 8
 menu.items.padding.y: 6
 menu.width.min: 180
-menu.separator.width: 2
+menu.separator.width: 1
 menu.separator.padding.width: 0
 menu.separator.padding.height: 0
-menu.separator.color: #fff1e8
+menu.separator.color: #c6c6c6
 
-osd.bg.color: #1d2b53
-osd.border.width: 0
-osd.label.text.color: #fff1e8
+osd.bg.color: #ffffff
+osd.border.width: 1
+osd.border.color: #000000
+osd.label.text.color: #161616
 osd.window-switcher.style-classic.item.active.border.width: 0
-osd.window-switcher.style-classic.item.active.bg.color: #ffec27
+osd.window-switcher.style-classic.item.active.bg.color: #e0e0e0
 
 # Where a dragged window will snap: a plain 2px outline in ink, no fill.
 snapping.overlay.region.bg.enabled: no
@@ -48,5 +51,5 @@ snapping.overlay.region.border.enabled: yes
 snapping.overlay.edge.border.enabled: yes
 snapping.overlay.region.border.width: 2
 snapping.overlay.edge.border.width: 2
-snapping.overlay.region.border.color: #1d2b53
-snapping.overlay.edge.border.color: #1d2b53
+snapping.overlay.region.border.color: #161616
+snapping.overlay.edge.border.color: #161616

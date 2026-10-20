@@ -8,7 +8,7 @@ import Quickshell
 Singleton {
     readonly property int module: 30
     readonly property int inset: 8
-    readonly property string font: "Geist"
+    readonly property string font: "IBM Plex Sans"
     readonly property int textSize: 15
 
     readonly property color desk: Colors.desk
@@ -18,6 +18,9 @@ Singleton {
     readonly property color primaryForeground: Colors.accentInk
     readonly property color muted: Colors.muted
     readonly property color mutedForeground: Colors.mutedInk
+    readonly property color outline: Colors.outline
+    readonly property color title: Colors.title
+    readonly property color titleForeground: Colors.titleInk
     readonly property color hover: Colors.buttonHover
     readonly property color hoverForeground: Colors.buttonHoverInk
 }

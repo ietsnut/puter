@@ -4,13 +4,17 @@ import Quickshell
 
 // Written by theme/make from theme/palette; edit those, not this.
 Singleton {
-    readonly property color desk: "#83769c"
-    readonly property color paper: "#fff1e8"
-    readonly property color ink: "#1d2b53"
-    readonly property color accent: "#ffec27"
-    readonly property color accentInk: "#1d2b53"
-    readonly property color muted: "#c2c3c7"
-    readonly property color mutedInk: "#5f574f"
-    readonly property color buttonHover: "#1d2b53"
-    readonly property color buttonHoverInk: "#fff1e8"
+    readonly property color desk: "#e0e0e0"
+    readonly property color paper: "#ffffff"
+    readonly property color ink: "#161616"
+    readonly property color accent: "#e0e0e0"
+    readonly property color accentInk: "#161616"
+    readonly property color muted: "#f4f4f4"
+    readonly property color mutedInk: "#6f6f6f"
+    readonly property color outline: "#000000"
+    readonly property color rule: "#c6c6c6"
+    readonly property color title: "#e0e0e0"
+    readonly property color titleInk: "#161616"
+    readonly property color buttonHover: "#c6c6c6"
+    readonly property color buttonHoverInk: "#161616"
 }
