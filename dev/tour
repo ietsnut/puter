@@ -36,11 +36,16 @@ STEPS = [
     ("qterminal-preferences", "qterminal", "qterminal", ["click 637 283", "Up", "Up", "Return"]),
     ("lximage", "lximage-qt", "lximage-qt", []),
     ("lximage-preferences", "lximage-qt", "lximage-qt", ["alt+e", "Up", "Return"]),
-    ("falkon", "falkon", "falkon", []),
-    ("falkon-preferences", "falkon", "falkon", ["alt+e", "e"]),
+    ("qutebrowser", "qutebrowser", "qutebrowser", []),
+    # A second tab brings the tab bar; o opens the address, with completion.
+    ("qutebrowser-tabs", "qutebrowser", "qutebrowser", ["ctrl+t"]),
+    ("qutebrowser-open", "qutebrowser", "qutebrowser", ["o"]),
     ("sheet", "puter-sheet", "puter-sheet", []),
 ]
 APPS = sorted({process for _, _, process, _ in STEPS})
+# Steps whose keys change the app's window rather than open one: checked
+# whole, not by what changed.
+IN_PLACE = {"qutebrowser-tabs", "qutebrowser-open"}
 NAMED = {"Return", "Escape", "Tab", "Down", "Up", "Left", "Right", "End", "Home", "BackSpace"}
 MODIFIERS = {"ctrl", "shift", "alt", "logo"}
 
@@ -66,10 +71,8 @@ def press(key):
 
 
 def close():
-    """Close every app, and the file dialogs, which the portal owns. Falkon
-    is quit rather than killed, or it starts with its crash page."""
-    vm("pgrep -x falkon >/dev/null && wtype -M ctrl q -m ctrl && sleep 2; "
-       + "; ".join(f"pkill -x {a}" for a in APPS)
+    """Close every app, and the file dialogs, which the portal owns."""
+    vm("; ".join(f"pkill -x {a}" for a in APPS)
        + "; systemctl --user restart xdg-desktop-portal-lxqt; true")
 
 
@@ -82,11 +85,12 @@ def main():
         close()
         time.sleep(1)
         subprocess.run([root / "dev" / "run", app], check=True)
-        time.sleep(8 if app == "falkon" else 4)
+        time.sleep(8 if app == "qutebrowser" else 4)
         # A dialog is checked on its own: what changed on screen once its keys
         # were pressed (it may open right over its app, sharing its outline).
         before = out / f"{step}-before.png"
-        if keys:
+        compare = keys and step not in IN_PLACE
+        if compare:
             subprocess.run([root / "dev" / "shot", before], check=True, stdout=subprocess.DEVNULL)
         for key in keys:
             press(key)
@@ -94,7 +98,7 @@ def main():
         time.sleep(2)
         shot = out / f"{step}.png"
         subprocess.run([root / "dev" / "shot", shot], check=True, stdout=subprocess.DEVNULL)
-        check = subprocess.run([root / "dev" / "grid", shot, *(["--before", before] if keys else [])],
+        check = subprocess.run([root / "dev" / "grid", shot, *(["--before", before] if compare else [])],
                                capture_output=True, text=True)
         shutil.copy(root / "dev" / "shots" / "grid.png", out / f"{step}-grid.png")
         report = [l for l in check.stdout.splitlines() if not l.endswith("grid.png")]

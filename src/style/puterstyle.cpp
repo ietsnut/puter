@@ -16,11 +16,14 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QBoxLayout>
 #include <QEvent>
+#include <QFrame>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMainWindow>
 #include <QPushButton>
 #include <QRadioButton>
@@ -74,10 +77,23 @@ void gridDialog(QDialog *dialog)
         layout->invalidate();
     }
     for (auto *widget : dialog->findChildren<QWidget *>()) {
-        // Lists beside a dialog's pages (its sections): whole modules wide.
+        // Lists beside a dialog's pages (its sections): whole modules wide,
+        // their icons 16px as in every list.
         if (auto *list = qobject_cast<QAbstractItemView *>(widget);
             list && list->maximumWidth() < QWIDGETSIZE_MAX) {
             list->setFixedWidth(modules(list->maximumWidth()));
+            list->setIconSize(QSize(Icon, Icon));
+            // A module a row, whatever size the app gave its items.
+            if (auto *items = qobject_cast<QListWidget *>(list))
+                for (int i = 0; i < items->count(); ++i)
+                    items->item(i)->setSizeHint(QSize(items->item(i)->sizeHint().width(), Module));
+            continue;
+        }
+        // Separator lines between sections: left out, as the headings part
+        // them (a line's few pixels would set all below it off the grid).
+        if (auto *frame = qobject_cast<QFrame *>(widget);
+            frame && (frame->frameShape() == QFrame::HLine || frame->frameShape() == QFrame::VLine)) {
+            frame->hide();
             continue;
         }
         if (!(qobject_cast<QLabel *>(widget) || qobject_cast<QPushButton *>(widget)
@@ -110,9 +126,21 @@ void gridDialog(QDialog *dialog)
                                           + area->verticalScrollBar()->sizeHint().width()
                                           + 2 * area->frameWidth()));
         }
-    for (auto *buttons : dialog->findChildren<QDialogButtonBox *>())
+    // Buttons side by side outside a button box, a module apart too.
+    for (auto *row : dialog->findChildren<QBoxLayout *>()) {
+        int buttons = 0;
+        for (int i = 0; i < row->count(); ++i)
+            if (qobject_cast<QPushButton *>(row->itemAt(i)->widget()))
+                ++buttons;
+        if (buttons > 1)
+            row->setSpacing(Module);
+    }
+    // The dialog's buttons a module apart, and a module below what's above.
+    for (auto *buttons : dialog->findChildren<QDialogButtonBox *>()) {
         if (buttons->layout())
             buttons->layout()->setSpacing(Module);
+        buttons->setContentsMargins(0, Module, 0, 0);
+    }
     if (dialog->layout())
         dialog->layout()->activate();
     roundSize(dialog);
@@ -141,6 +169,7 @@ void pareFileDialog(QDialog *dialog)
         buttons->setOrientation(oneType ? Qt::Horizontal : Qt::Vertical);
         // Only as wide as its buttons, so the file name takes the rest.
         buttons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        buttons->setContentsMargins(0, 0, 0, 0);
         buttons->layout()->setContentsMargins(0, 0, 0, 0);
         buttons->layout()->setSpacing(0);
         for (auto *button : buttons->buttons())
@@ -196,14 +225,14 @@ public:
                 snap(section);
         }
         if (qobject_cast<QDialog *>(widget) || qobject_cast<QMainWindow *>(widget)
-            || qobject_cast<QToolButton *>(widget))
+            || qobject_cast<QToolButton *>(widget) || widget->windowType() == Qt::Window)
             widget->installEventFilter(this);
     }
 
     void unpolish(QWidget *widget) override
     {
         if (qobject_cast<QDialog *>(widget) || qobject_cast<QMainWindow *>(widget)
-            || qobject_cast<QToolButton *>(widget))
+            || qobject_cast<QToolButton *>(widget) || widget->windowType() == Qt::Window)
             widget->removeEventFilter(this);
         QProxyStyle::unpolish(widget);
     }
@@ -222,6 +251,17 @@ public:
                 // showing them (LXImage-Qt's preferences).
                 QTimer::singleShot(0, dialog, [dialog] { roundSize(dialog); });
             } else if (auto *window = qobject_cast<QMainWindow *>(object); window && window->isWindow()) {
+                // Flush, part on part, whatever margins and spacing the app
+                // gave its bars (Falkon's navigation bar keeps 3px round it).
+                for (auto *layout : window->findChildren<QLayout *>()) {
+                    layout->setContentsMargins(0, 0, 0, 0);
+                    layout->setSpacing(0);
+                }
+                roundSize(window);
+            } else if (auto *window = qobject_cast<QWidget *>(object);
+                       window && window->windowType() == Qt::Window && !qobject_cast<QToolButton *>(object)) {
+                // Any other window of its own (qutebrowser's is a plain
+                // widget): whole modules too.
                 roundSize(window);
             } else if (auto *button = qobject_cast<QToolButton *>(object);
                        button && button->toolButtonStyle() != Qt::ToolButtonIconOnly) {

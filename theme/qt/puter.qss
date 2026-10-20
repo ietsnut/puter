@@ -1,4 +1,4 @@
-/* Qt Widgets apps (FeatherPad, PCManFM-Qt, LXImage-Qt, Falkon, QTerminal,
+/* Qt Widgets apps (FeatherPad, PCManFM-Qt, LXImage-Qt, QTerminal,
    puter's table editor) in puter's look, one stylesheet for all of them,
    applied by qt6ct. @role names a colour role from the palette; theme/make
    fills them in and writes qt6ct/qss/puter.qss. Edit this, not that.
@@ -284,9 +284,6 @@ QAbstractItemView {
 /* What fills a main window (a picture, a text, a page) has no frame of its
    own: the menu bar's rule above it and the window's outline are its edges. */
 QMainWindow QAbstractScrollArea {
-    border: none;
-}
-QTreeView::item, QListView::item {
     border: none;
 }
 QTreeView::item:hover, QListView::item:hover {

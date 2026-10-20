@@ -200,18 +200,12 @@ CONF
   ini "$d" View ShowThumbnails false
   ini "$d" View NoItemTooltip true
 
-  # Falkon: back, forward, reload and the address field (which also searches)
-  # and nothing else; the menu bar, as in every other app, instead of the
-  # tools button; blank pages at start and in new tabs, no session restored.
-  local f="$HOME/.config/falkon/profiles/default/settings.ini"
-  ini "$f" NavigationBar Layout "button-backforward, button-reloadstop, locationbar"
-  ini "$f" NavigationBar ShowSearchBar false
-  ini "$f" Browser-View-Settings showMenubar true
-  ini "$f" Browser-View-Settings showStatusBar false
-  ini "$f" Browser-View-Settings showBookmarksToolbar false
-  ini "$f" Web-URL-Settings afterLaunch 0
-  ini "$f" Web-URL-Settings homepage about:blank
-  ini "$f" Web-URL-Settings newTabUrl about:blank
+  # qutebrowser: its config (config/qutebrowser) and the palette's colours and
+  # fonts for it (theme/qutebrowser, from theme/make). Only these two files
+  # are linked: qutebrowser keeps its own state beside them.
+  mkdir -p "$HOME/.config/qutebrowser"
+  ln -sfn "$repo/config/qutebrowser/config.py" "$HOME/.config/qutebrowser/config.py"
+  ln -sfn "$repo/theme/qutebrowser/puter.py" "$HOME/.config/qutebrowser/puter.py"
 
   # QTerminal: puter's colours (theme/qterminal/, from theme/make), puter-mono,
   # no margin (nor the 2px it keeps around a terminal to outline the focused

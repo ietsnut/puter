@@ -37,7 +37,7 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | Tables | Sheet (`src/sheet`, puter's own) | No maintained small Qt table editor exists |
 | Photos | LXImage-Qt | |
 | Video | mpv | No interface of its own |
-| Web | Falkon | Qt Widgets chrome (styled like every other app) on Chromium's engine |
+| Web | qutebrowser | Chromium's engine with no chrome but a tab bar and a status bar, both drawn to its config (`config/qutebrowser`, colours from `theme/make`), and no preference dialogs |
 | PCB orders | JLCONE | JLCPCB's Electron app, from their .deb (`packages/jlcone-bin`, the AUR's recipe) |
 | Login | greetd + tuigreet | Text login that starts labwc |
 | Fonts | IBM Plex Sans, IBM Plex Mono | The dental desk's and its reports' font; `ttf-ibm-plex` from extra |
@@ -45,7 +45,8 @@ from what was learned rather than repeating it. `README.md` says what's where;
 Tried and dropped: Hyprland, niri and sway (tiling), KDE Plasma (heavy, its
 own look), Wayfire, waybar, fuzzel, swaybg, Docker previews on the Mac,
 dithering, pixel-art icons, the PICO-8 and Apollo palettes and Geist (replaced
-by the Mulholland look, 20 October 2026), Gnumeric, Apostrophe, Chromium.
+by the Mulholland look, 20 October 2026), Gnumeric, Apostrophe, Chromium, Falkon (21 October: its preferences, a big
+form of its own, can't be made tidy by the style).
 Then, the same day, every app for a Qt Widgets one: GTK 3 apps (Thunar,
 Mousepad) hard-code their spacing and needed patches; GTK 4 and libadwaita
 apps (Comma, Nautilus, GNOME Text Editor, Loupe, GNOME Web) each lay out their

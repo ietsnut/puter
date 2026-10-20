@@ -276,9 +276,6 @@ QAbstractItemView {
 QMainWindow QAbstractScrollArea {
     border: none;
 }
-QTreeView::item, QListView::item {
-    border: none;
-}
 QTreeView::item:hover, QListView::item:hover {
     background: #f1f0ec;
 }
