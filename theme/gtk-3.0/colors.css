@@ -4,6 +4,8 @@
 @define-color bar #060606;
 @define-color bar_ink #ffffff;
 @define-color bar_edge #060606;
+@define-color search #e4722c;
+@define-color search_ink #060606;
 @define-color tab #060606;
 @define-color tab_ink #d6d1cb;
 @define-color tab_active #ffffff;

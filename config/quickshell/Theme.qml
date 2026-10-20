@@ -19,6 +19,8 @@ Singleton {
     readonly property color bar: Colors.bar
     readonly property color barForeground: Colors.barInk
     readonly property color barEdge: Colors.barEdge
+    readonly property color search: Colors.search
+    readonly property color searchForeground: Colors.searchInk
     readonly property color tab: Colors.tab
     readonly property color tabForeground: Colors.tabInk
     readonly property color tabActive: Colors.tabActive

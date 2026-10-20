@@ -163,7 +163,8 @@ CONF
   # FeatherPad: system icons, puter-mono, puter's syntax colours, the
   # search bar only when searching, no toolbar, status bar or tab strip for a
   # single file; no line numbers, since it paints their gutter dark gray in
-  # code.
+  # code. Every app opens at 24 x 18 modules rather than at the size it last
+  # had (which is seldom on the grid).
   ini "$HOME/.config/featherpad/fp.conf" text font '"puter-mono,10.5,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"'
   ini "$HOME/.config/featherpad/fp.conf" text lineNumbers false
   ini "$HOME/.config/featherpad/fp.conf" window sysIcons true
@@ -171,10 +172,12 @@ CONF
   ini "$HOME/.config/featherpad/fp.conf" window noToolbar true
   ini "$HOME/.config/featherpad/fp.conf" window showStatusbar false
   ini "$HOME/.config/featherpad/fp.conf" window hideSingleTab true
+  ini "$HOME/.config/featherpad/fp.conf" window size none
+  ini "$HOME/.config/featherpad/fp.conf" window startSize "@Size(720 540)"
   ln -sfn "$repo/theme/featherpad/fp_light_syntax_colors.conf" "$HOME/.config/featherpad/fp_light_syntax_colors.conf"
   # PCManFM-Qt: the list view with 16px icons, one module per file, showing
   # only name, size and date; no side pane (Go has the places), no tab strip
-  # for a single folder, no close buttons on tabs.
+  # for a single folder, no close buttons on tabs; 24 x 18 modules.
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView Mode detailed
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView HiddenColumns "1, 4, 5, 6, 7, 8"
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window SidePaneVisible false
@@ -182,6 +185,9 @@ CONF
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window ShowTabClose false
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SmallIconSize 16
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SidePaneIconSize 16
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window RememberWindowSize false
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window FixedWidth 720
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window FixedHeight 540
 
   # The file dialog (libfm-qt's, every app's through the portal): the list
   # view as in PCManFM-Qt, 16px icons, only name, size and date, no
@@ -209,7 +215,7 @@ CONF
 
   # QTerminal: puter's colours (theme/qterminal/, from theme/make), puter-mono,
   # no margin (nor the 2px it keeps around a terminal to outline the focused
-  # one of a split), the tab bar only with more than one tab.
+  # one of a split), the tab bar only with more than one tab; 24 x 18 modules.
   mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
   ln -sfn "$repo/theme/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
   local q="$HOME/.config/qterminal.org/qterminal.ini"
@@ -218,6 +224,18 @@ CONF
   ini "$q" General fontSize 11
   ini "$q" General TerminalMargin 0
   ini "$q" General highlightCurrentTerminal false
+  # No scroll bar (it would leave the terminal 10px off the grid): the wheel
+  # and Shift+PageUp scroll back.
+  ini "$q" General ScrollbarPosition 0
+  ini "$q" General SaveSizeOnExit false
+  ini "$q" General SavePosOnExit false
+  ini "$q" MainWindow fixedSize "@Size(720 540)"
+
+  # LXImage-Qt: 24 x 18 modules, like every app.
+  local l="$HOME/.config/lximage-qt/settings.conf"
+  ini "$l" Window RememberWindowSize false
+  ini "$l" Window FixedWidth 720
+  ini "$l" Window FixedHeight 540
   ini "$q" General HideTabBarWithOneTab true
   ini "$q" General AskOnExit false
   ini "$q" General MenuVisible true

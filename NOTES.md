@@ -87,6 +87,21 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
     frames, margins and layout spacing Qt keeps around bars and menus (in main
     windows; dialogs keep theirs), sets 16px icons, and table rows of 30 and
     columns of 150. A stylesheet can't reach these.
+  - **Every dialog is laid on the grid by `src/style`** when it's shown
+    (and once more after, as some apps size theirs late): a module of
+    margin round it, nothing between its parts (apps' own Designer margins
+    and spacing are overridden, fixed spacers rounded up), buttons a module
+    apart, labels, buttons and fields at least their size rounded up to
+    whole modules (single-line ones exactly one module tall), side lists
+    and scroll areas whole modules wide, the dialog itself whole modules.
+    Main windows open whole modules wide and tall; text tool buttons (path
+    bars) and header columns round up too (a column rounds down where up
+    would overrun the view, and the last, stretched one takes the rest).
+    In dialogs, fields are ledger rows (a line under each), groups are a
+    heading with no box, labels and checkboxes start one inset in. Tabs
+    and scroll bars are sized by the style, not the stylesheet: tabs whole
+    modules wide with no dividers, scroll bars a one-module gutter with a
+    slim handle. Each app opens at 24 x 18 modules (`install.sh`).
   - `theme/qt/puter.qss` is the stylesheet: colours, outlines and rules, and
     the heights that pin each widget it styles to the 30px module. Qt sizes a
     widget from the stylesheet as soon as it gives it a border or background

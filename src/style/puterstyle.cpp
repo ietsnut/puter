@@ -2,20 +2,33 @@
 // bar, menu item, toolbar button, push button, field, list row, header and
 // tab is one 30px module tall; toolbars and menu bars add no frame or margin
 // of their own; icons in bars and lists are 16px. Colours, outlines and rules
-// are the stylesheet's (theme/qt/puter.qss), not this. libfm-qt's file
-// dialog, every app's through the portal, is pared down and laid on the grid.
+// are the stylesheet's (theme/qt/puter.qss), not this. Every dialog is laid
+// on the grid when it's shown, and libfm-qt's file dialog, every app's through
+// the portal, is pared down too.
 
 #include <QProxyStyle>
 #include <QStyleFactory>
 #include <QStylePlugin>
 #include <QStyleOption>
+#include <QAbstractItemView>
+#include <QAbstractSpinBox>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QEvent>
+#include <QHeaderView>
+#include <QLabel>
 #include <QLayout>
+#include <QLineEdit>
+#include <QMainWindow>
 #include <QPushButton>
+#include <QRadioButton>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QWidget>
 
 namespace {
@@ -23,6 +36,87 @@ namespace {
 constexpr int Module = 30;
 constexpr int Inset = 8;
 constexpr int Icon = 16;
+
+// A length rounded up to whole modules.
+int modules(int length)
+{
+    return (length + Module - 1) / Module * Module;
+}
+
+// A window whole modules wide and tall, rounding up whatever it would be (an
+// app's saved size, its layout's).
+void roundSize(QWidget *window)
+{
+    const QSize size = window->size().expandedTo(window->minimumSizeHint());
+    window->resize(modules(size.width()), modules(size.height()));
+}
+
+// Any dialog on the grid: its labels, buttons, fields and boxes at least
+// whole modules wide and tall (the stylesheet sizes most of them, from their
+// text, so this rounds what it gives up), buttons in a row a module apart,
+// and the dialog itself whole modules: a module around what's in it and
+// nothing between its parts. Apps often set their own margins and spacing
+// (Designer files do), so the layouts are set here, not only through the
+// layout metrics below; fixed spacers round up to whole modules.
+void gridDialog(QDialog *dialog)
+{
+    for (auto *layout : dialog->findChildren<QLayout *>()) {
+        const int margin = layout == dialog->layout() ? Module : 0;
+        layout->setContentsMargins(margin, margin, margin, margin);
+        layout->setSpacing(0);
+        for (int i = 0; i < layout->count(); ++i)
+            if (auto *spacer = layout->itemAt(i)->spacerItem()) {
+                const QSizePolicy policy = spacer->sizePolicy();
+                const QSize hint = spacer->sizeHint();
+                spacer->changeSize(modules(hint.width()), modules(hint.height()),
+                                   policy.horizontalPolicy(), policy.verticalPolicy());
+            }
+        layout->invalidate();
+    }
+    for (auto *widget : dialog->findChildren<QWidget *>()) {
+        // Lists beside a dialog's pages (its sections): whole modules wide.
+        if (auto *list = qobject_cast<QAbstractItemView *>(widget);
+            list && list->maximumWidth() < QWIDGETSIZE_MAX) {
+            list->setFixedWidth(modules(list->maximumWidth()));
+            continue;
+        }
+        if (!(qobject_cast<QLabel *>(widget) || qobject_cast<QPushButton *>(widget)
+              || qobject_cast<QCheckBox *>(widget) || qobject_cast<QRadioButton *>(widget)
+              || qobject_cast<QComboBox *>(widget) || qobject_cast<QLineEdit *>(widget)
+              || qobject_cast<QAbstractSpinBox *>(widget)))
+            continue;
+        // A line edit inside a combo or spin box is sized by its box.
+        if (qobject_cast<QLineEdit *>(widget) && widget->parentWidget()
+            && (qobject_cast<QComboBox *>(widget->parentWidget()) || qobject_cast<QAbstractSpinBox *>(widget->parentWidget())))
+            continue;
+        const QSize hint = widget->sizeHint();
+        if (!hint.isValid())
+            continue;
+        widget->setMinimumWidth(modules(hint.width()));
+        // A label may wrap onto more lines, so it rounds up; every other
+        // one is a single line, one module tall exactly (its hint may be a
+        // pixel or two over).
+        if (qobject_cast<QLabel *>(widget))
+            widget->setMinimumHeight(modules(hint.height()));
+        else
+            widget->setFixedHeight(Module);
+    }
+    // A scroll area as wide as what it holds and its scroll bar, so nothing
+    // scrolls sideways (the rounding above widens what it holds).
+    for (auto *area : dialog->findChildren<QScrollArea *>())
+        if (area->widget() && area->widgetResizable()) {
+            area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            area->setMinimumWidth(modules(area->widget()->minimumSizeHint().width()
+                                          + area->verticalScrollBar()->sizeHint().width()
+                                          + 2 * area->frameWidth()));
+        }
+    for (auto *buttons : dialog->findChildren<QDialogButtonBox *>())
+        if (buttons->layout())
+            buttons->layout()->setSpacing(Module);
+    if (dialog->layout())
+        dialog->layout()->activate();
+    roundSize(dialog);
+}
 
 // libfm-qt's file dialog as the path bar, the list, and under it one row of
 // the file name and its buttons (two, with the file type, when there's a
@@ -67,24 +161,75 @@ public:
     void polish(QWidget *widget) override
     {
         QProxyStyle::polish(widget);
-        if (widget->inherits("Fm::FileDialog"))
+        // Columns whole modules wide, whatever width an app or a drag gives
+        // them (the last one, stretched to the view's edge, takes the rest).
+        if (auto *header = qobject_cast<QHeaderView *>(widget)) {
+            // Only sections the app sizes: not hidden ones, nor those Qt sizes
+            // itself (stretched, fitted to their contents, the last one
+            // stretched to the edge), and never from inside its own resize.
+            auto snap = [header](int section) {
+                int last = header->count() - 1;  // the last visible one
+                while (last > 0 && header->isSectionHidden(header->logicalIndex(last)))
+                    --last;
+                if (header->property("puterSnapping").toBool() || header->isSectionHidden(section)
+                    || header->sectionResizeMode(section) == QHeaderView::Stretch
+                    || header->sectionResizeMode(section) == QHeaderView::ResizeToContents
+                    || (header->stretchLastSection() && header->visualIndex(section) == last))
+                    return;
+                const int width = header->sectionSize(section);
+                if (width % Module == 0)
+                    return;
+                // Up, unless the columns would then overrun the view: down.
+                int snapped = modules(width);
+                if (header->length() - width + snapped > header->viewport()->width() && width >= Module)
+                    snapped = width - width % Module;
+                header->setProperty("puterSnapping", true);
+                header->resizeSection(section, snapped);
+                header->setProperty("puterSnapping", false);
+            };
+            // Once per header (a lambda can't be a unique connection).
+            if (!header->property("puterSnap").toBool()) {
+                header->setProperty("puterSnap", true);
+                connect(header, &QHeaderView::sectionResized, header, [snap](int section, int, int) { snap(section); });
+            }
+            for (int section = 0; section < header->count(); ++section)
+                snap(section);
+        }
+        if (qobject_cast<QDialog *>(widget) || qobject_cast<QMainWindow *>(widget)
+            || qobject_cast<QToolButton *>(widget))
             widget->installEventFilter(this);
     }
 
     void unpolish(QWidget *widget) override
     {
-        if (widget->inherits("Fm::FileDialog"))
+        if (qobject_cast<QDialog *>(widget) || qobject_cast<QMainWindow *>(widget)
+            || qobject_cast<QToolButton *>(widget))
             widget->removeEventFilter(this);
         QProxyStyle::unpolish(widget);
     }
 
-    // The file dialog is pared each time it's shown: its file types are only
-    // known by then.
+    // Dialogs are laid on the grid each time they're shown: what's in them
+    // (the file dialog's file types, a message's text) is only known by then.
+    // Main windows open whole modules wide and tall.
     bool eventFilter(QObject *object, QEvent *event) override
     {
-        if (event->type() == QEvent::Show)
-            if (auto *dialog = qobject_cast<QDialog *>(object); dialog && dialog->inherits("Fm::FileDialog"))
-                pareFileDialog(dialog);
+        if (event->type() == QEvent::Show) {
+            if (auto *dialog = qobject_cast<QDialog *>(object)) {
+                gridDialog(dialog);
+                if (dialog->inherits("Fm::FileDialog"))
+                    pareFileDialog(dialog);
+                // And again once it's up: some apps size their dialogs after
+                // showing them (LXImage-Qt's preferences).
+                QTimer::singleShot(0, dialog, [dialog] { roundSize(dialog); });
+            } else if (auto *window = qobject_cast<QMainWindow *>(object); window && window->isWindow()) {
+                roundSize(window);
+            } else if (auto *button = qobject_cast<QToolButton *>(object);
+                       button && button->toolButtonStyle() != Qt::ToolButtonIconOnly) {
+                // A button with words (a path bar's folders): whole modules
+                // wide, as the stylesheet sizes it from its text.
+                button->setMinimumWidth(modules(button->sizeHint().width()));
+            }
+        }
         return QProxyStyle::eventFilter(object, event);
     }
 
@@ -104,17 +249,17 @@ public:
         case PM_MenuVMargin:
         case PM_MenuTearoffHeight:
             return 0;
-        // Main windows lay their parts out flush, bar on bar, so each stays on
-        // the grid; dialogs keep Fusion's spacing between their fields.
+        // Everything is laid out flush, part on part, so each stays on the
+        // grid; only a dialog keeps a module between its outline and what's
+        // in it (a main window's bars meet its outline).
         case PM_LayoutHorizontalSpacing:
         case PM_LayoutVerticalSpacing:
+            return 0;
         case PM_LayoutLeftMargin:
         case PM_LayoutTopMargin:
         case PM_LayoutRightMargin:
         case PM_LayoutBottomMargin:
-            if (widget && qobject_cast<const QDialog *>(widget->window()))
-                return QProxyStyle::pixelMetric(metric, option, widget);
-            return 0;
+            return widget && widget->isWindow() && qobject_cast<const QDialog *>(widget) ? Module : 0;
         case PM_ToolBarSeparatorExtent:
         case PM_MenuPanelWidth:
         case PM_DefaultFrameWidth:
@@ -131,7 +276,7 @@ public:
         case PM_HeaderDefaultSectionSizeHorizontal:
             return 5 * Module;
         case PM_ScrollBarExtent:
-            return 10;
+            return Module;
         case PM_TabBarTabHSpace:
             return 2 * Inset;
         case PM_TabBarTabVSpace:
@@ -164,11 +309,12 @@ public:
         case CT_LineEdit:
         case CT_ComboBox:
         case CT_SpinBox:
-        case CT_HeaderSection:
         case CT_ItemViewItem:
             return {size.width(), Module};
+        case CT_HeaderSection:
+            return {modules(size.width()), Module};
         case CT_TabBarTab:
-            return {size.width(), Module};
+            return {modules(size.width()), Module};
         default:
             return size;
         }

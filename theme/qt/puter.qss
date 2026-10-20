@@ -218,9 +218,27 @@ Fm--FileDialog QDialogButtonBox QPushButton:disabled {
 QCheckBox, QRadioButton {
     spacing: 8px;
 }
+/* Fields in dialogs: rows with a line under each, as in a ledger, rather
+   than outlined boxes, which double their outlines where they stack. */
+QDialog QLineEdit, QDialog QComboBox, QDialog QSpinBox, QDialog QDoubleSpinBox {
+    border: none;
+    border-bottom: 1px solid @outline;
+    padding: 0 8px;
+    min-height: 29px;
+    max-height: 29px;
+}
+/* In dialogs, words start one inset in, as in rows and tabs: labels, and
+   checkboxes, whose 14px box then sits where an app's square does. */
+QDialog QLabel {
+    padding: 0 8px;
+}
+QDialog QCheckBox, QDialog QRadioButton {
+    padding-left: 8px;
+}
 
-/* Tabs: one module, square, a 1px outline line between them, the open one
-   in the title gray. */
+/* Tabs: one module tall and whole modules wide (src/style sizes them; a
+   padding or border here would hand their size to the stylesheet, from the
+   text), no lines between them, the open one in the title colour. */
 QTabWidget::pane {
     border: none;
     border-top: 1px solid @rule;
@@ -232,11 +250,6 @@ QTabBar {
 QTabBar::tab {
     background: @paper;
     color: @ink;
-    border: none;
-    border-right: 1px solid @outline;
-    padding: 0 8px;
-    margin: 0;
-    height: 30px;
 }
 QTabBar::tab:selected {
     background: @title;
@@ -322,16 +335,19 @@ QStatusBar::item {
 }
 
 /* Scroll bars: a slim gray slider on paper, no arrows. */
+/* Scroll bars: a one-module gutter (a narrower one would leave what it
+   scrolls off the grid) with a light rule along it and a slim handle in its
+   middle. */
 QScrollBar:vertical {
     background: @paper;
-    width: 10px;
+    width: 30px;
     margin: 0;
     border: none;
     border-left: 1px solid @rule;
 }
 QScrollBar:horizontal {
     background: @paper;
-    height: 10px;
+    height: 30px;
     margin: 0;
     border: none;
     border-top: 1px solid @rule;
@@ -341,6 +357,12 @@ QScrollBar::handle {
     border: none;
     min-height: 30px;
     min-width: 30px;
+}
+QScrollBar::handle:vertical {
+    margin: 0 12px;
+}
+QScrollBar::handle:horizontal {
+    margin: 12px 0;
 }
 QScrollBar::add-line, QScrollBar::sub-line {
     width: 0;
@@ -370,8 +392,10 @@ QDockWidget::title {
     border-bottom: 1px solid @rule;
 }
 
+/* A group is its title, a heading row over what it holds, and no box (whose
+   1px frame would set all it holds a pixel off the grid). */
 QGroupBox {
-    border: 1px solid @rule;
+    border: none;
     margin-top: 30px;
     padding: 0;
 }

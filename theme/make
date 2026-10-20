@@ -54,7 +54,7 @@ C, FONTS, APPS = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
+SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "search-ink", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
 (repo / "config" / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"

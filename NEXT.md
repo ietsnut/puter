@@ -12,6 +12,16 @@ Where things stood at the end of the 20 October 2026 session.
 
 ## Open edges
 
+- **The grid in dialogs** (20-21 October): every Qt dialog is laid out by
+  the style; `dev/tour` passes 9 of its 17 windows, and most of the rest
+  look right but trip the checker. Left: Falkon (its preferences, 43 off,
+  and its own tab bar), the About box's icon, PCManFM's file properties
+  (the icon button), message boxes' colour Breeze icons (the question mark),
+  QTerminal's colour scheme showing as BlackOnLightYellow in its settings.
+- **dev/grid** finds a dialog by what changed on screen (`--before`), which
+  misjudges an edge lying over black that was there before, or content
+  changing inside the dialog.
+
 - **The file dialog** (libfm-qt's, through LXQt's portal) is the same for
   FeatherPad, Falkon and GTK 3 apps that ask for a native dialog, pared down
   and measured onto the grid (path bar, list, one strip of name and

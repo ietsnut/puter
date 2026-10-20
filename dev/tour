@@ -23,17 +23,17 @@ out = root / "dev" / "shots" / "tour"
 STEPS = [
     ("featherpad", "featherpad", "featherpad", []),
     ("featherpad-open", "featherpad", "featherpad", ["ctrl+o"]),
-    ("featherpad-save", "featherpad", "featherpad", ["ctrl+shift+s"]),
+    ("featherpad-save", "featherpad", "featherpad", ["ctrl+shift+s", "End"]),
     ("featherpad-preferences", "featherpad", "featherpad", ["alt+o", "p"]),
     ("featherpad-font", "featherpad", "featherpad", ["alt+o", "f"]),
-    ("featherpad-unsaved", "featherpad", "featherpad", ["x", "ctrl+w"]),
+    ("featherpad-unsaved", "featherpad", "featherpad", ["x", "ctrl+q"]),
     ("featherpad-about", "featherpad", "featherpad", ["alt+h", "a"]),
     ("pcmanfm", "pcmanfm-qt", "pcmanfm-qt", []),
     ("pcmanfm-preferences", "pcmanfm-qt", "pcmanfm-qt", ["alt+e", "Up", "Return"]),
     ("pcmanfm-properties", "pcmanfm-qt", "pcmanfm-qt", ["alt+f", "f"]),
     ("qterminal", "qterminal", "qterminal", []),
-    # QTerminal hands Alt to the shell, so its menu is clicked.
-    ("qterminal-preferences", "qterminal", "qterminal", ["click 816 346", "Up", "Return"]),
+    # QTerminal hands Alt to the shell, so its Session menu is clicked.
+    ("qterminal-preferences", "qterminal", "qterminal", ["click 637 283", "Up", "Up", "Return"]),
     ("lximage", "lximage-qt", "lximage-qt", []),
     ("lximage-preferences", "lximage-qt", "lximage-qt", ["alt+e", "Up", "Return"]),
     ("falkon", "falkon", "falkon", []),
@@ -83,13 +83,19 @@ def main():
         time.sleep(1)
         subprocess.run([root / "dev" / "run", app], check=True)
         time.sleep(8 if app == "falkon" else 4)
+        # A dialog is checked on its own: what changed on screen once its keys
+        # were pressed (it may open right over its app, sharing its outline).
+        before = out / f"{step}-before.png"
+        if keys:
+            subprocess.run([root / "dev" / "shot", before], check=True, stdout=subprocess.DEVNULL)
         for key in keys:
             press(key)
             time.sleep(1)
         time.sleep(2)
         shot = out / f"{step}.png"
         subprocess.run([root / "dev" / "shot", shot], check=True, stdout=subprocess.DEVNULL)
-        check = subprocess.run([root / "dev" / "grid", shot], capture_output=True, text=True)
+        check = subprocess.run([root / "dev" / "grid", shot, *(["--before", before] if keys else [])],
+                               capture_output=True, text=True)
         shutil.copy(root / "dev" / "shots" / "grid.png", out / f"{step}-grid.png")
         report = [l for l in check.stdout.splitlines() if not l.endswith("grid.png")]
         off = sum(1 for l in report if l.startswith("  ") and l.strip() != "on the grid")

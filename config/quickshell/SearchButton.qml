@@ -1,8 +1,8 @@
 import QtQuick
 import QtQuick.Shapes
 
-// A two-module square of paper with a magnifier in ink and the 1px outline
-// inside its edges, like the desk's buttons; gray under the pointer. The glyph keeps to the
+// A two-module square in the search colour with a magnifier in its ink and
+// the 1px outline inside its edges; the hover colour under the pointer. The glyph keeps to the
 // 20 x 20 box in the middle, drawn as the window buttons are: 2px vector
 // strokes, the handle clipped square where it meets the box's corner.
 Rectangle {
@@ -10,11 +10,11 @@ Rectangle {
 
     signal clicked
 
-    readonly property color ink: mouse.containsMouse ? Theme.hoverForeground : Theme.foreground
+    readonly property color ink: mouse.containsMouse ? Theme.hoverForeground : Theme.searchForeground
 
     width: Theme.module * 2
     height: Theme.module * 2
-    color: mouse.containsMouse ? Theme.hover : Theme.background
+    color: mouse.containsMouse ? Theme.hover : Theme.search
 
     Item {
         x: 20
@@ -64,7 +64,10 @@ Rectangle {
         }
     }
 
+    // Outlined only where the bar is (palettes whose bar-edge isn't the
+    // bar's own colour); a coloured square stands on the desk without one.
     Outline {
+        visible: Theme.barEdge !== Theme.bar
         edgeBottom: false
         edgeLeft: false
     }
