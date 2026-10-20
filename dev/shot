@@ -1,0 +1,8 @@
+#!/bin/bash
+# Screenshot the VM's desktop to dev/shot.png (or the path given).
+set -euo pipefail
+root="$(cd "$(dirname "$0")/.." && pwd)"
+out="${1:-$root/dev/shot.png}"
+ssh archvm 'XDG_RUNTIME_DIR=/run/user/$(id -u) WAYLAND_DISPLAY=wayland-0 grim /tmp/shot.png'
+scp -q archvm:/tmp/shot.png "$out"
+echo "$out"

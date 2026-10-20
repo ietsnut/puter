@@ -1,0 +1,7 @@
+#!/bin/bash
+# Mac → VM: copy this checkout to ~/puter on the VM and reload the desktop.
+# Quickshell reloads itself when its files change; labwc needs a nudge.
+set -euo pipefail
+root="$(cd "$(dirname "$0")/.." && pwd)"
+rsync -az --delete --exclude .git "$root/" archvm:puter/
+ssh archvm 'pkill -HUP -x labwc || true'

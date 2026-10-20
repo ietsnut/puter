@@ -1,0 +1,2 @@
+swaybg -c '#94e2d5' >/dev/null 2>&1 &
+quickshell >/dev/null 2>&1 &

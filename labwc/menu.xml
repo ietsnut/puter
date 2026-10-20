@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!-- Right-click the desktop, or Super+Escape. -->
+<openbox_menu>
+  <menu id="root-menu">
+    <item label="Terminal"><action name="Execute" command="ghostty" /></item>
+    <separator />
+    <item label="Reload"><action name="Reconfigure" /></item>
+    <item label="Log out"><action name="Exit" /></item>
+    <item label="Reboot"><action name="Execute" command="systemctl reboot" /></item>
+    <item label="Shut down"><action name="Execute" command="systemctl poweroff" /></item>
+  </menu>
+</openbox_menu>

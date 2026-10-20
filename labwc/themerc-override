@@ -1,0 +1,41 @@
+# Windows as Electronaut chips: square, flat, a one-module title bar that is
+# lime when focused. Every colour here is one of quickshell/Theme.qml's tokens.
+border.width: 0
+window.titlebar.padding.width: 8
+window.titlebar.padding.height: 0
+window.label.text.justify: left
+
+window.active.title.bg.color: #cef058
+window.inactive.title.bg.color: #b3cbc5
+window.active.label.text.color: #2f4a00
+window.inactive.label.text.color: #28463f
+
+window.button.width: 30
+window.button.height: 30
+window.button.spacing: 0
+window.button.hover.bg.color: #efffe1
+window.button.hover.bg.corner-radius: 0
+window.active.button.unpressed.image.color: #2f4a00
+window.inactive.button.unpressed.image.color: #28463f
+
+window.active.shadow.size: 0
+window.inactive.shadow.size: 0
+
+menu.border.width: 0
+menu.items.bg.color: #1b322d
+menu.items.text.color: #efffe1
+menu.items.active.bg.color: #cef058
+menu.items.active.text.color: #2f4a00
+menu.items.padding.x: 8
+menu.items.padding.y: 6
+menu.width.min: 180
+menu.separator.width: 2
+menu.separator.padding.width: 0
+menu.separator.padding.height: 0
+menu.separator.color: #efffe1
+
+osd.bg.color: #1b322d
+osd.border.width: 0
+osd.label.text.color: #efffe1
+osd.window-switcher.style-classic.item.active.border.width: 0
+osd.window-switcher.style-classic.item.active.bg.color: #cef058
