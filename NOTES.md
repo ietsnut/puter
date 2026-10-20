@@ -71,12 +71,11 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   square one inset in on its title bar (labwc's `icon` button, which opens
   the window menu) and its taskbar tab. Set in Stack Sans Text (code in IBM
   Plex Mono, as Stack Sans has no monospace), from `theme/fonts` (SIL OFL).
-- **Dot matrices** (`config/quickshell/DotMatrix.qml`) show levels in the
-  settings panel, after Stack's dotted charts: volume as ten module cells
-  (a square one inset in when on, a dot when off), the processor's load over
-  the last minute (thirty columns of three 10px cells, read from
-  `/proc/stat` every two seconds with a FileView, no process), and each
-  Wi-Fi network's signal in its last module.
+- **The bar's right end**: network, volume, the clock, restart and shut
+  down, each a one-module glyph (`BarButton.qml`) drawn like the window
+  buttons. The network's state comes from `nmcli monitor`, which waits for
+  changes rather than polling; clicking it opens nmtui. There's no settings
+  panel any more.
 - A palette has roles, then `[colors]`, `[fonts]` (sans, mono, headline) and
   `[apps]` (an icon name and its colour; an app without a desktop file of
   its app ID, like the file dialog's portal, is listed by app ID). Every app
@@ -185,7 +184,7 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   QML interpreter): its heap and Qt. The desk's dots are a tiled module
   image, not a full-screen canvas; the GTK portal is gone (it only served
   desktop settings, asked for at login, 16 MB); the activity chart samples
-  only while settings is open.
+  only while settings was open (since removed).
 
 ## Working on it
 

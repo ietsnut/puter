@@ -5,48 +5,24 @@ ShellRoot {
     Desk {}
 
     Bar {
-        onSearch: {
-            settingsPanel.visible = false;
-            searchPanel.toggle();
-        }
-        onSettings: {
-            searchPanel.visible = false;
-            settingsPanel.toggle();
-        }
+        onSearch: searchPanel.toggle()
     }
 
     Dismiss {
-        visible: searchPanel.visible || settingsPanel.visible
-        onClicked: {
-            searchPanel.visible = false;
-            settingsPanel.visible = false;
-        }
+        visible: searchPanel.visible
+        onClicked: searchPanel.visible = false
     }
 
     SearchPanel {
         id: searchPanel
     }
 
-    SettingsPanel {
-        id: settingsPanel
-    }
-
-    // Super+Space: `qs ipc call search toggle`; `qs ipc call settings toggle`.
+    // Super+Space: `qs ipc call search toggle`.
     IpcHandler {
         target: "search"
 
         function toggle(): void {
-            settingsPanel.visible = false;
             searchPanel.toggle();
-        }
-    }
-
-    IpcHandler {
-        target: "settings"
-
-        function toggle(): void {
-            searchPanel.visible = false;
-            settingsPanel.toggle();
         }
     }
 }
