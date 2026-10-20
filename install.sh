@@ -99,6 +99,23 @@ config() {
   mkdir -p "$HOME/.local/share/gtksourceview-4/styles"
   ln -sfn "$repo/theme/gtksourceview/puter.xml" "$HOME/.local/share/gtksourceview-4/styles/puter.xml"
 
+  # KiCad's colours: the theme, chosen in every editor. Copied rather than
+  # linked, since KiCad saves its themes back to this folder.
+  if command -v kicad >/dev/null; then
+    kicad_config="$HOME/.config/kicad/10.0"
+    mkdir -p "$kicad_config/colors"
+    cp "$repo/theme/kicad/puter.json" "$kicad_config/colors/puter.json"
+    python3 - "$kicad_config" <<'PY'
+import json, pathlib, sys
+config = pathlib.Path(sys.argv[1])
+for app in ("pcbnew", "eeschema", "fpedit", "symbol_editor", "gerbview"):
+    path = config / f"{app}.json"
+    settings = json.loads(path.read_text()) if path.exists() else {}
+    settings.setdefault("appearance", {})["color_theme"] = "puter"
+    path.write_text(json.dumps(settings, indent=2))
+PY
+  fi
+
   # Which app opens what.
   ln -sfn "$repo/mimeapps.list" "$HOME/.config/mimeapps.list"
 

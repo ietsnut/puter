@@ -12,7 +12,7 @@ icons in clean 2px vector strokes.
 | `labwc/` | the compositor: window behaviour, keys, snapping, the desktop menu |
 | `quickshell/` | the shell in QML: desk, bottom bar, search, settings; `Theme.qml` holds every size |
 | `theme/colors` | the palette (Apollo) and its roles; `theme/make` writes every app's colours and icons from it |
-| `theme/` | labwc's title bars and buttons, the GTK theme, the line icons |
+| `theme/` | labwc's title bars and buttons, the GTK theme, the line icons, KiCad's colours |
 | `ghostty/`, `fontconfig/`, `gtk-3.0/` | terminal, text smoothing, GTK settings |
 | `imv/`, `mpv/`, `mimeapps.list` | photo and video viewers, and which app opens what |
 | `dev/` | work from the Mac: `sync`, `shot`, `click`, `run` |
