@@ -42,12 +42,12 @@ PanelWindow {
         onClicked: bar.search()
     }
 
-    // Windows sit side by side, one module after the search square, parted
-    // by a seam of the strip.
+    // Windows sit flush, side by side, one module after the search square:
+    // each tab three to eight modules wide, parted by a hairline of white.
     Row {
         x: Theme.module * 3
         y: Theme.module
-        spacing: 2
+        spacing: 0
 
         Repeater {
             model: ToplevelManager.toplevels
@@ -55,7 +55,9 @@ PanelWindow {
             Chip {
                 required property var modelData
                 text: modelData.title
-                maxWidth: Theme.module * 8
+                minModules: 3
+                maxModules: 8
+                divider: true
                 fill: modelData.activated ? Theme.primary : Theme.muted
                 ink: modelData.activated ? Theme.primaryForeground : Theme.mutedForeground
                 onClicked: modelData.activate()
