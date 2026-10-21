@@ -3,16 +3,17 @@
 # border further right and down (onto its neighbour's border, or under the
 # taskbar's top line) and, against the screen's left and top edges, one
 # border further out, so windows meet on one line and no border is drawn
-# along the screen's edge. Built by install.sh;
-# when Arch moves to a new labwc, copy its PKGBUILD here again and keep the
-# patch and prepare().
+# along the screen's edge; and pixels.patch, which reads a font's size in
+# pixels rather than points, so its text is 15px like all of puter's (in
+# whole points it could only be 14.67 or 16). Built by install.sh; kept to
+# Arch's version by bin/puter-update.
 #
 # Maintainer: Peter Jung <ptr1337@archlinux.org>
 # Contributor: Lex Black <autumn-wind@web.de>
 
 pkgname=labwc
 pkgver=0.20.2
-pkgrel=1.3
+pkgrel=1.4
 pkgdesc='stacking wayland compositor with look and feel from openbox'
 url="https://github.com/labwc/labwc"
 arch=('x86_64')
@@ -47,14 +48,17 @@ optdepends=(
   "xorg-xwayland: X11 application support"
 )
 source=("git+https://github.com/labwc/labwc#tag=${pkgver}"
-        snap.patch)
+        snap.patch
+        pixels.patch)
 b2sums=('8f8023a5bc31e7fe52d80f1c99b02c59bd9ff9a3779145b9077dac3c2c4a78e291b99dc770039f90ac1ff548ff53adfeddad35de07f5d14d736b4c562ce3554f'
-        'a1a6935e2d4f96def23f9e024208d2786239f7be34f163d6c0920f3843fbea4ce9c536aff4e2fef4c6f21db77973e13264c165538780a67ced19aa71ed9ff28c')
+        'a1a6935e2d4f96def23f9e024208d2786239f7be34f163d6c0920f3843fbea4ce9c536aff4e2fef4c6f21db77973e13264c165538780a67ced19aa71ed9ff28c'
+        '424411849e09b5dbae818b1b934414385b20af6b2ba60a1b0e4917a4ae109087a19a0d7af8ca531ce73e16e512fafeb467267baa984fff87283c8de836a48d18')
 
 prepare() {
   cd $pkgname
   # Fails if labwc ever moves the lines the patch touches.
   patch -p1 < ../snap.patch
+  patch -p1 < ../pixels.patch
 }
 
 build() {

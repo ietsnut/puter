@@ -317,6 +317,11 @@ public:
             return 5 * Module;
         case PM_ScrollBarExtent:
             return Module;
+        // A tab's close button is a module square (the stylesheet centres
+        // its 16px glyph in it).
+        case PM_TabCloseIndicatorWidth:
+        case PM_TabCloseIndicatorHeight:
+            return Module;
         case PM_TabBarTabHSpace:
             return 2 * Inset;
         case PM_TabBarTabVSpace:

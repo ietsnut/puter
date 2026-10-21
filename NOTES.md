@@ -89,6 +89,14 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   is set in `puter-sans` and `puter-mono`, fontconfig aliases `theme/make`
   writes from `[fonts]` (`fc-match` reads a hyphen as a size: test with
   `fc-match 'puter\-sans'`). The app squares are icons in the puter theme.
+- All text is 15px, sans and mono alike: Quickshell (`Theme.textSize`), Qt
+  (qt6ct's fonts, FeatherPad's), GTK, Firefox and Thunderbird (their
+  stylesheets), foot (`pixelsize=15`) and labwc's titles and menus, whose
+  `<size>` puter's labwc reads in pixels (`packages/labwc/pixels.patch`;
+  in whole points it could only be 14.67 or 16). The calculator's keys
+  are one module tall, not larger text. The one exception is QTerminal:
+  it takes a whole point size and writes it back on every close, so a
+  pixel size wouldn't last; it's 11pt, 14.67px.
 - `theme/make` writes everything from it: `config/quickshell/Colors.qml`, labwc's
   `themerc` and window buttons (with hover images), the icon theme, the GTK 3
   colours (KiCad), the Qt stylesheet and palette (`theme/qt6ct/`), FeatherPad's
@@ -200,11 +208,12 @@ one-module rows. Account setup is the account hub, flattened.
 
 ## The calculator
 
-`src/calc`, twelve modules wide and twenty tall: the menu bar, seven
+`src/calc`, twelve modules wide and fifteen tall: the menu bar, seven
 history rows (the sum on the left in the muted ink, its result on the right),
 the sum being typed, its result as you type (muted; ink and semibold once
 Return or = has put it in the history), and the keypad, four keys across and
-five down, each three modules by two, drawn by the app as one grid on 1px
+five down, each three modules by one, in the same 15px as everything
+else, drawn by the app as one grid on 1px
 rules (digits on paper, operators on bone, = in the accent; colours from
 `CalcKeypad` in the stylesheet). A sum starting with an operator goes on from
 the last result, kept to 32 digits so 1/3 then × 3 is 1. libqalculate is set
@@ -300,8 +309,8 @@ undo an update.
 `puter-update check` lists what's out of date without root (`checkupdates`
 from pacman-contrib, a copy of the sync database). `Updates.qml` runs it
 each time it opens, then `sudo -n puter-update run`, reading `::step`,
-`::fail`, `::restart` and `::done` lines; everything else is shown, two
-lines a module, and kept in `~/.local/state/puter/update.log`.
+`::fail`, `::restart` and `::done` lines; everything else is shown, a
+line a module, and kept in `~/.local/state/puter/update.log`.
 `::restart` comes when the kernel, systemd, glibc, mesa, Qt, wlroots, labwc
 or Quickshell changed; the bar's button then turns orange and the panel's
 button restarts.

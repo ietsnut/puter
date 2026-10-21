@@ -248,11 +248,14 @@ QTabBar::tab:selected {
 QTabBar::tab:hover:!selected {
     background: #d6d1cb;
 }
+/* A tab's close button: a one-module square at its right end, the 16px
+   glyph in its middle (width and height hold the padding, so the glyph gets
+   what's left: 30 - 2 x 7). */
 QTabBar::close-button {
     subcontrol-position: right;
     image: url(@icons/16x16/actions/window-close-symbolic.svg);
-    width: 16px;
-    height: 16px;
+    width: 30px;
+    height: 30px;
     padding: 7px;
 }
 QTabBar::close-button:hover {

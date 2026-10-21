@@ -15,11 +15,11 @@ packages() {
   mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
   sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
 
-  # labwc, patched, wlrctl, qpdfview and JLCONE (packages/). Each is
-  # rebuilt whenever the installed version is older than its recipe's (a
-  # newer one is bin/puter-update's, from upstream).
+  # labwc and qps (System Monitor), patched, wlrctl, qpdfview and JLCONE
+  # (packages/). Each is rebuilt whenever the installed version is older
+  # than its recipe's (a newer one is bin/puter-update's, from upstream).
   local name want have
-  for name in labwc wlrctl qpdfview jlcone-bin; do
+  for name in labwc qps wlrctl qpdfview jlcone-bin; do
     # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
     want="$(source "$repo/packages/$name/PKGBUILD" && echo "$pkgver-$pkgrel")"
     # Empty when it isn't installed yet (pacman -Q fails, which would end the
@@ -169,7 +169,7 @@ standard_dialogs=xdgdesktopportal
 
 [Fonts]
 general="puter-sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
-fixed="puter-mono,-1,14,5,400,0,0,0,0,0,0,0,0,0,0,1"
+fixed="puter-mono,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
 
 [Interface]
 menus_have_icons=false
@@ -187,7 +187,7 @@ CONF
   # single file; no line numbers, since it paints their gutter dark gray in
   # code. Every app opens at 24 x 18 modules rather than at the size it last
   # had (which is seldom on the grid).
-  ini "$HOME/.config/featherpad/fp.conf" text font '"puter-mono,10.5,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"'
+  ini "$HOME/.config/featherpad/fp.conf" text font '"puter-mono,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"'
   ini "$HOME/.config/featherpad/fp.conf" text lineNumbers false
   ini "$HOME/.config/featherpad/fp.conf" window sysIcons true
   ini "$HOME/.config/featherpad/fp.conf" window hideSearchbar true

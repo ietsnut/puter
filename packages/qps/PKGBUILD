@@ -1,0 +1,46 @@
+# puter's qps (System Monitor): Arch's package (gitlab.archlinux.org/archlinux/
+# packaging/packages/qps) with fit.patch: the window always 24 modules wide
+# (only its height changes), every column a whole number of modules, the
+# process name taking what the others leave and ending in an ellipsis when
+# too long, so the table is exactly as wide as the window and never scrolls
+# sideways. Checked by its hash rather than its author's signature (no key
+# to fetch on a fresh install), as qpdfview is. Built by install.sh; kept to
+# Arch's version by bin/puter-update.
+#
+# Maintainer: Chih-Hsuan Yen <yan12125@archlinux.org>
+# Contributor: AUR user FredBezies
+# Contributor: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Contributor: David Rosenstrauch <darose@darose.net>
+
+pkgname=qps
+pkgver=2.13.0
+pkgrel=1.1
+pkgdesc="Qt process viewer and manager"
+url="https://github.com/lxqt/qps"
+depends=('hicolor-icon-theme' 'liblxqt' 'qt6-base')
+makedepends=('lxqt-build-tools')
+arch=('x86_64')
+license=("GPL")
+groups=("lxqt")
+source=("https://github.com/lxqt/qps/releases/download/$pkgver/$pkgname-$pkgver.tar.xz"
+        fit.patch)
+sha256sums=('d6f236fcafe16611b88c468502665dd5e9c73aa18eae0666e8ca9062ef5a471e'
+            'fc848a38352673b20d84825fc0a88d4273c382388baa2e66c4a2d1367061225c')
+
+prepare() {
+  cd "$pkgname-$pkgver"
+  # Fails if qps ever moves the lines the patch touches.
+  patch -p1 < ../fit.patch
+}
+
+build() {
+  cmake -B build -S "$srcdir/$pkgname-$pkgver" \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr
+  make -C build
+}
+
+package() {
+  cd build
+  make DESTDIR="$pkgdir" install
+}

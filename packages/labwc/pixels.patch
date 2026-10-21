@@ -1,0 +1,15 @@
+--- a/src/common/font.c
++++ b/src/common/font.c
+@@ -12,7 +12,11 @@
+ {
+ 	PangoFontDescription *desc = pango_font_description_new();
+ 	pango_font_description_set_family(desc, font->name);
+-	pango_font_description_set_size(desc, font->size * PANGO_SCALE);
++	/*
++	 * puter: a size is in pixels, as all of puter's text is (15px), not
++	 * points: labwc reads whole numbers, and 11pt is 14.67px.
++	 */
++	pango_font_description_set_absolute_size(desc, font->size * PANGO_SCALE);
+ 	pango_font_description_set_style(desc, font->slant);
+ 	pango_font_description_set_weight(desc, font->weight);
+ 	return desc;

@@ -11,7 +11,7 @@ import Quickshell.Widgets
 // strip, then what's out of date, a row each (looked up every time it opens),
 // and a row with the button that starts it all (sudo never asks for a
 // password on puter: install.sh's access). Once started, the rows give way
-// to the updater's output, two lines to a module, with a row of progress
+// to the updater's output, a line to a module, with a row of progress
 // over it filling a module at a time. Closing it leaves the update running; the bar's button shows it.
 PanelWindow {
     id: panel
@@ -31,7 +31,7 @@ PanelWindow {
     property date now: new Date()
 
     readonly property int columns: 24
-    // The updater's output: two lines to a module.
+    // The updater's output: a line to a module, in the same 15px as all text.
     readonly property int outputRows: 12
     readonly property bool output: phase === "running" || phase === "done"
     readonly property int bodyRows: output ? outputRows : phase === "checking" ? 1 : Math.max(1, items.length)
@@ -96,7 +96,7 @@ PanelWindow {
         const count = line.match(/^\((\d+)\/(\d+)\) /);
         if (count)
             stepPart = Math.min(1, Number(count[1]) / Number(count[2]));
-        lines = lines.concat([line]).slice(-outputRows * 2);
+        lines = lines.concat([line]).slice(-outputRows);
     }
 
     // Opening looks again, unless an update is running or has news.
@@ -249,7 +249,7 @@ PanelWindow {
     // The updater's output, its newest lines at the bottom.
     Column {
         visible: panel.output
-        y: Theme.module + (panel.outputRows * 2 - panel.lines.length) * Theme.module / 2
+        y: Theme.module + (panel.outputRows - panel.lines.length) * Theme.module
         x: Theme.inset
         width: parent.width - Theme.inset * 2
 
@@ -259,14 +259,14 @@ PanelWindow {
             Text {
                 required property var modelData
                 width: parent.width
-                height: Theme.module / 2
+                height: Theme.module
                 verticalAlignment: Text.AlignVCenter
                 text: modelData
                 textFormat: Text.PlainText
                 elide: Text.ElideRight
                 color: modelData.startsWith("!! ") ? Theme.attention : modelData.startsWith("== ") ? Theme.foreground : Theme.mutedForeground
                 font.family: "puter-mono"
-                font.pixelSize: 12
+                font.pixelSize: Theme.textSize
                 font.weight: modelData.startsWith("== ") ? Font.DemiBold : Font.Normal
                 renderType: Text.CurveRendering
             }

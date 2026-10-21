@@ -5,7 +5,7 @@
 //
 // Everything is on the 30px module: the history one row per sum, the sum
 // and its result a row each, and the keypad four keys across and five down,
-// each three modules wide and two tall. The keypad is drawn here; its
+// each three modules wide and one tall. The keypad is drawn here; its
 // colours come from the stylesheet (CalcKeypad in theme/qt/puter.qss).
 
 #include <cmath>
@@ -35,7 +35,7 @@ constexpr int Inset = 8;
 constexpr int Columns = 4;
 constexpr int Rows = 5;
 constexpr int KeyWidth = Module * 3;
-constexpr int KeyHeight = Module * 2;
+constexpr int KeyHeight = Module;
 constexpr int HistoryRows = 7;
 constexpr int HistoryKept = 100;
 

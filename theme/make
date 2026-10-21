@@ -383,7 +383,7 @@ def hex6(role):
     return C[role].lstrip("#").lower()
 foot = ["# Written by theme/make from theme/palette; edit those, not this.",
         # The family by name: fontconfig would read "puter-mono" as puter at size mono.
-        "[main]", f"font={FONTS['mono']}:size=11", "pad=8x8", "initial-window-size-pixels=720x540",
+        "[main]", f"font={FONTS['mono']}:pixelsize=15", "pad=8x8", "initial-window-size-pixels=720x540",
         "initial-color-theme=light", "resize-by-cells=no", "",
         "[bell]", "urgent=yes", "notify=no", "visual=no", "",
         "[scrollback]", "lines=10000", "",

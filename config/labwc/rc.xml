@@ -17,10 +17,12 @@
     </titlebar>
     <cornerRadius>0</cornerRadius>
     <dropShadows>no</dropShadows>
-    <font place="ActiveWindow"><name>puter-sans</name><size>11</size></font>
-    <font place="InactiveWindow"><name>puter-sans</name><size>11</size></font>
-    <font place="MenuItem"><name>puter-sans</name><size>11</size></font>
-    <font place="OnScreenDisplay"><name>puter-sans</name><size>11</size></font>
+    <!-- Sizes in pixels, as all of puter's text is (puter's labwc reads them so:
+         packages/labwc/pixels.patch). -->
+    <font place="ActiveWindow"><name>puter-sans</name><size>15</size></font>
+    <font place="InactiveWindow"><name>puter-sans</name><size>15</size></font>
+    <font place="MenuItem"><name>puter-sans</name><size>15</size></font>
+    <font place="OnScreenDisplay"><name>puter-sans</name><size>15</size></font>
   </theme>
 
   <!-- Windows-style snapping: drag a title bar to the left or right edge for

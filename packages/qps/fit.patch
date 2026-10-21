@@ -1,0 +1,97 @@
+diff -ruN qps-orig/src/htable.cpp qps-2.13.0/src/htable.cpp
+--- qps-orig/src/htable.cpp	2026-10-21 20:09:13
++++ qps-2.13.0/src/htable.cpp	2026-10-21 20:09:41
+@@ -214,7 +214,8 @@
+ 
+     // setTableFlags(Tbl_autoScrollBars | Tbl_smoothScrolling);
+     setTableFlags(Tbl_snapToVGrid); // works
+-    setTableFlags(Tbl_hScrollBar | Tbl_vScrollBar);
++    // puter: no sideways scroll bar; the table always fits (fitToWidth).
++    setTableFlags(Tbl_vScrollBar);
+     first_drag_row = prev_drag_row = -1;
+     autoscrolling = false;
+     gadget_click = false;
+@@ -479,7 +480,12 @@
+         }
+     }
+ 
+-    p->drawText(gap, 0, w, h, align, htable->text(row, col));
++    // puter: a left-aligned text too long for its column ends in an
++    // ellipsis rather than running under the next.
++    QString text = htable->text(row, col);
++    if (htable->alignment_col[col] == Qt::AlignLeft)
++        text = fontMetrics().elidedText(text, Qt::ElideRight, qMax(0, w - gap - 5));
++    p->drawText(gap, 0, w, h, align, text);
+ 
+     // cache write!
+     attr->text = htable->text(row, col);
+@@ -1025,20 +1031,30 @@
+     if (hw > w)
+         w = hw;
+ 
+-    // to have an elegant table, spread the last column if its contents are left aligned
+-    if (col == ncols - 1 && alignment_col[col] == Qt::AlignLeft)
+-    {
+-        int prevWidths = 0;
+-        for (int i = 0 ; i < col; i++)
+-            prevWidths += max_widths[i];
+-        QScrollBar *vs = body->verticalScrollBar();
+-        bool hidden = vs->minimum() == vs->maximum() // instead of !isVisible(), if update is paused
+-                      || vs->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, vs);
+-        int scrollWidth = hidden ? 0 : vs->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+-        w = qMax(w, width() - scrollWidth - prevWidths);
+-    }
++    // puter: every column a whole number of modules (30px), and the first
++    // left-aligned one (the name) taking what the others leave, so the table
++    // is exactly as wide as the window and never scrolls sideways.
++    max_widths[col] = (w + 29) / 30 * 30;
++    fitToWidth();
++}
+ 
+-    max_widths[col] = w;
++void HeadedTable::fitToWidth()
++{
++    int stretch = -1;
++    for (int i = 0; i < ncols && stretch < 0; i++)
++        if (alignment(i) == Qt::AlignLeft)
++            stretch = i;
++    if (stretch < 0)
++        return;
++    int others = 0;
++    for (int i = 0; i < ncols; i++)
++        if (i != stretch)
++            others += max_widths[i];
++    QScrollBar *vs = body->verticalScrollBar();
++    bool hidden = vs->minimum() == vs->maximum() // instead of !isVisible(), if update is paused
++                  || vs->style()->styleHint(QStyle::SH_ScrollBar_Transient, nullptr, vs);
++    int scrollWidth = hidden ? 0 : vs->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
++    max_widths[stretch] = qMax(30, width() - scrollWidth - others);
+ }
+ 
+ void HeadedTable::updateTable()
+diff -ruN qps-orig/src/htable.h qps-2.13.0/src/htable.h
+--- qps-orig/src/htable.h	2026-10-21 20:09:13
++++ qps-2.13.0/src/htable.h	2026-10-21 20:09:41
+@@ -300,6 +300,7 @@
+     virtual char *total_selectedRow(int col);
+     // colWidth returns width in digit units; negative means variable width.
+     virtual int colWidth(int col) = 0; // head_width
++    void fitToWidth();
+     virtual int alignment(int /*col*/) { return 0; }
+     void paintEvent(QPaintEvent *) override;
+     void hideEvent(QHideEvent *event) override;
+diff -ruN qps-orig/src/qps.cpp qps-2.13.0/src/qps.cpp
+--- qps-orig/src/qps.cpp	2026-10-21 20:09:13
++++ qps-2.13.0/src/qps.cpp	2026-10-21 20:09:41
+@@ -1396,7 +1396,10 @@
+     v = set.value("geometry/y");
+     if (v.isValid())
+         y = qMax(v.toInt(), 0);
+-    w = qMax(set.value("geometry/width").toInt(), 700);
++    // puter: always 24 modules wide (the table fits it exactly); only the
++    // height can change.
++    w = 720;
++    setFixedWidth(w);
+     h = qMax(set.value("geometry/height").toInt(), 400);
+     Qps::flag_show = true;
+     if (!under_wayland && x >= 0 && y >= 0 && Qps::save_pos)
