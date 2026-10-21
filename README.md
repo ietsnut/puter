@@ -75,7 +75,8 @@ the output and progress as it goes.
 
 ## Keys
 
-Super+Return terminal, Super+Space search, Super+Escape menu (or right-click
+Super+Return terminal, Super+Space or the Windows key (Command on a Mac
+keyboard) on its own for search, Super+Escape menu (or right-click
 the desktop), Super+Q close, Super+F maximise. Alt+Tab switches windows:
 a quick tap goes back to the last one; held, it shows every window as a
 card with a live preview (Tab and Shift+Tab or the arrows to pick, let go

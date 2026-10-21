@@ -42,6 +42,11 @@
     <default />
     <keybind key="W-Return"><action name="Execute" command="qterminal" /></keybind>
     <keybind key="W-space"><action name="Execute" command="qs ipc call search toggle" /></keybind>
+    <!-- The Windows key (Command on a Mac keyboard) on its own opens search too:
+         on release, and only when no other key was pressed with it, so
+         Super+Left and the rest still work. -->
+    <keybind key="Super_L" onRelease="yes"><action name="Execute" command="qs ipc call search toggle" /></keybind>
+    <keybind key="Super_R" onRelease="yes"><action name="Execute" command="qs ipc call search toggle" /></keybind>
     <keybind key="W-Escape"><action name="ShowMenu" menu="root-menu" /></keybind>
     <!-- Alt+Tab: the shell's switcher (config/quickshell/Switcher.qml), in
          place of labwc's. -->
