@@ -22,7 +22,7 @@ gvfs
 featherpad
 lximage-qt
 mpv
-qutebrowser
+firefox
 
 # Fonts
 ttf-ibm-plex

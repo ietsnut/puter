@@ -17,8 +17,6 @@ Where things stood at the end of the 20 October 2026 session.
   look right but trip the checker. Left: the About box's icon, PCManFM's file properties
   (the icon button), message boxes' colour Breeze icons (the question mark),
   QTerminal's colour scheme showing as BlackOnLightYellow in its settings.
-- **qutebrowser's completion list** (o, :) has 23px rows: it has no
-  setting for their height.
 - **dev/grid** finds a dialog by what changed on screen (`--before`), which
   misjudges an edge lying over black that was there before, or content
   changing inside the dialog.

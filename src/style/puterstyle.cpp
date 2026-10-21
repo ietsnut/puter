@@ -260,7 +260,7 @@ public:
                 roundSize(window);
             } else if (auto *window = qobject_cast<QWidget *>(object);
                        window && window->windowType() == Qt::Window && !qobject_cast<QToolButton *>(object)) {
-                // Any other window of its own (qutebrowser's is a plain
+                // Any other window of its own (some apps' main window is a plain
                 // widget): whole modules too.
                 roundSize(window);
             } else if (auto *button = qobject_cast<QToolButton *>(object);

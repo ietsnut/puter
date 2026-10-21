@@ -66,6 +66,19 @@ path.write_text("\n".join(out) + "\n")
 PY
 }
 
+# The folder of the Firefox profile this install opens, from its
+# profiles.ini: the [Install...] section's Default, else the default profile.
+firefox_profile() {
+  python3 - "$1" <<'PROFILE'
+import configparser, sys
+ini = configparser.ConfigParser()
+ini.read(sys.argv[1])
+install = [s for s in ini.sections() if s.startswith("Install") and ini[s].get("Default")]
+default = [s for s in ini.sections() if ini[s].get("Default") == "1" and ini[s].get("Path")]
+print(ini[install[0]]["Default"] if install else ini[default[0]]["Path"] if default else "")
+PROFILE
+}
+
 # Runs a command on the session bus, starting a private one when there is no
 # desktop session yet (a first install from the console).
 on_bus() {
@@ -200,12 +213,18 @@ CONF
   ini "$d" View ShowThumbnails false
   ini "$d" View NoItemTooltip true
 
-  # qutebrowser: its config (config/qutebrowser) and the palette's colours and
-  # fonts for it (theme/qutebrowser, from theme/make). Only these two files
-  # are linked: qutebrowser keeps its own state beside them.
-  mkdir -p "$HOME/.config/qutebrowser"
-  ln -sfn "$repo/config/qutebrowser/config.py" "$HOME/.config/qutebrowser/config.py"
-  ln -sfn "$repo/theme/qutebrowser/puter.py" "$HOME/.config/qutebrowser/puter.py"
+  # Firefox: its settings (config/firefox/user.js) and puter's stylesheet
+  # (theme/firefox/chrome, from theme/make) in its default profile, which a
+  # first run with no window makes if there's none yet.
+  if command -v firefox >/dev/null; then
+    local ff="$HOME/.config/mozilla/firefox" profile
+    [[ -f $ff/profiles.ini ]] || timeout 30 firefox --headless about:blank >/dev/null 2>&1 || true
+    profile="$(firefox_profile "$ff/profiles.ini")"
+    if [[ -n $profile && -d $ff/$profile ]]; then
+      ln -sfn "$repo/config/firefox/user.js" "$ff/$profile/user.js"
+      ln -sfn "$repo/theme/firefox/chrome" "$ff/$profile/chrome"
+    fi
+  fi
 
   # QTerminal: puter's colours (theme/qterminal/, from theme/make), puter-mono,
   # no margin (nor the 2px it keeps around a terminal to outline the focused

@@ -1,0 +1,220 @@
+/* Written by theme/make from theme/firefox/userChrome.css and theme/palette;
+   edit those, not this. */
+:root {
+    font-family: puter-sans !important;
+    font-size: 15px !important;
+    --toolbar-bgcolor: #ffffff !important;
+    --toolbar-color: #060606 !important;
+    --toolbar-field-background-color: #ffffff !important;
+    --toolbar-field-focus-background-color: #ffffff !important;
+    --toolbar-field-color: #060606 !important;
+    --toolbar-field-focus-color: #060606 !important;
+    --toolbar-field-border-color: transparent !important;
+    --toolbar-field-focus-border-color: transparent !important;
+    --toolbarbutton-border-radius: 0 !important;
+    --toolbarbutton-inner-padding: 7px !important;
+    --toolbarbutton-outer-padding: 0 !important;
+    --toolbar-start-end-padding: 0 !important;
+    --toolbarbutton-hover-background: #d6d1cb !important;
+    --toolbarbutton-active-background: #d6d1cb !important;
+    --tab-border-radius: 0 !important;
+    --tab-min-height: 30px !important;
+    --tab-block-margin: 0 !important;
+    --tab-shadow-max-size: 0 !important;
+    --urlbar-min-height: 30px !important;
+    --urlbar-container-height: 30px !important;
+    --focus-outline-width: 0 !important;
+    --focus-outline-color: transparent !important;
+    --chrome-content-separator-color: transparent !important;
+    --border-radius-small: 0 !important;
+    --border-radius-medium: 0 !important;
+    --border-radius-large: 0 !important;
+    --arrowpanel-background: #ffffff !important;
+    --arrowpanel-color: #060606 !important;
+    --arrowpanel-border-color: #060606 !important;
+    --arrowpanel-border-radius: 0 !important;
+    --panel-border-radius: 0 !important;
+    --panel-shadow-margin: 0 !important;
+    --panel-shadow: none !important;
+}
+
+/* The bars: paper, a light rule along the navigation bar's foot, inside its
+   module (a border on the toolbox would set the page a pixel off). */
+#navigator-toolbox {
+    background: #ffffff !important;
+    border: none !important;
+}
+#browser, #tabbrowser-tabbox, #tabbrowser-tabpanels {
+    border: none !important;
+    box-shadow: none !important;
+}
+#toolbar-menubar, #TabsToolbar, #nav-bar {
+    box-sizing: border-box !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+}
+#nav-bar {
+    border-bottom: 1px solid #d6d1cb !important;
+}
+
+/* The menu bar, always shown, each menu's name one inset in. */
+#toolbar-menubar[autohide="true"],
+#toolbar-menubar[autohide="true"][inactive] {
+    visibility: visible !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    overflow: visible !important;
+}
+#main-menubar > menu {
+    padding: 0 8px !important;
+    margin: 0 !important;
+    min-height: 30px !important;
+    border-radius: 0 !important;
+}
+#main-menubar > menu[_moz-menuactive] {
+    background: #e0a9df !important;
+    color: #060606 !important;
+}
+
+/* Tabs: only with two or more, eight modules wide, no icons, close buttons
+   or lines between them; the open one in the title colour. */
+#TabsToolbar:not(:has(.tabbrowser-tab:not([hidden]) ~ .tabbrowser-tab:not([hidden]))) {
+    visibility: collapse !important;
+}
+#tabbrowser-tabs {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 30px !important;
+}
+.tabbrowser-tab {
+    min-height: 30px !important;
+    padding: 0 !important;
+}
+.tabbrowser-tab:not([pinned]) {
+    min-width: 240px !important;
+    max-width: 240px !important;
+}
+.tabbrowser-tab::before, .tabbrowser-tab::after {
+    display: none !important;
+}
+.tab-background {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: #ffffff !important;
+}
+.tab-background:is([selected], [multiselected]) {
+    background: #f1f0ec !important;
+}
+.tabbrowser-tab:hover > .tab-stack > .tab-background:not([selected]) {
+    background: #d6d1cb !important;
+}
+.tab-content {
+    padding: 0 8px !important;
+    color: #060606 !important;
+}
+.tab-icon-stack, .tab-close-button, .tab-secondary-label,
+#tabs-newtab-button, #new-tab-button, #alltabs-button, #firefox-view-button,
+.titlebar-spacer, .titlebar-buttonbox-container, #tabbrowser-arrowscrollbox::part(scrollbutton-up),
+#tabbrowser-arrowscrollbox::part(scrollbutton-down) {
+    display: none !important;
+}
+
+/* The navigation bar: back, forward, reload, each one module square with its
+   16px icon in the middle, and the address field filling the rest. */
+#PanelUI-button, #unified-extensions-button, #fxa-toolbar-menu-button,
+#sidebar-button, #save-to-pocket-button, #library-button, #downloads-button:not([attention]),
+#home-button, #customizableui-special-spring1, #customizableui-special-spring2,
+#tracking-protection-icon-container, #star-button-box, #reader-mode-button,
+#picture-in-picture-button, #translations-button, #page-action-buttons > :not(#urlbar-zoom-button) {
+    display: none !important;
+}
+/* Whatever else Firefox puts there (its menu button, extensions, account,
+   VPN and other offers): only the four are kept. */
+#nav-bar > :not(#nav-bar-customization-target),
+#nav-bar-customization-target > :not(#back-button, #forward-button, #stop-reload-button, #urlbar-container),
+#urlbar-searchmode-switcher, #urlbar-search-mode-indicator {
+    display: none !important;
+}
+#nav-bar toolbarbutton {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+#nav-bar toolbarbutton > .toolbarbutton-icon {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 7px !important;
+    border-radius: 0 !important;
+}
+#urlbar-container {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+/* One pixel short of the module, so the bar's rule shows under it. */
+#urlbar {
+    --urlbar-height: 29px !important;
+    min-height: 29px !important;
+    max-height: 29px !important;
+}
+#urlbar-background {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+}
+#urlbar[focused] > #urlbar-background {
+    outline: none !important;
+    box-shadow: none !important;
+}
+#urlbar[open] > #urlbar-background {
+    border: 1px solid #060606 !important;
+}
+.urlbar-input-container {
+    padding: 0 8px !important;
+    border: none !important;
+}
+/* In the address field, only the address: no search engine, padlock or
+   page buttons. */
+.urlbar-input-container > :not(.urlbar-input-box) {
+    display: none !important;
+}
+.urlbarView-row {
+    min-height: 30px !important;
+    padding: 0 8px !important;
+    border-radius: 0 !important;
+}
+.urlbarView-row[selected] {
+    background: #e0a9df !important;
+    color: #060606 !important;
+}
+
+/* Menus: paper with the outline, an item per module, a light rule between
+   sections. */
+menupopup {
+    --panel-background: #ffffff !important;
+    --panel-color: #060606 !important;
+    --panel-border-color: #060606 !important;
+    --panel-padding: 0 !important;
+}
+menupopup menuitem, menupopup menu {
+    min-height: 30px !important;
+    padding: 0 8px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+menupopup menuitem[_moz-menuactive], menupopup menu[_moz-menuactive] {
+    background: #e0a9df !important;
+    color: #060606 !important;
+}
+menupopup menuseparator {
+    padding: 0 !important;
+    margin: 0 !important;
+    border-top: 1px solid #d6d1cb !important;
+}

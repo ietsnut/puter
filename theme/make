@@ -16,12 +16,13 @@ colour of each app).
   theme/featherpad/              the text editor's syntax colours
   theme/kicad/puter.json         KiCad's board, schematic and 3D colours
   theme/qterminal/puter.colorscheme  the terminal
-  theme/qutebrowser/puter.py     the browser's colours and fonts
+  theme/firefox/chrome/          Firefox's stylesheet, from theme/firefox
 
 Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
 sit on whole pixels so they are sharp; diagonals and curves are smooth. Run it after
 changing a palette or theme/palette, then dev/sync.
 """
+import re
 from pathlib import Path
 
 theme = Path(__file__).parent
@@ -80,54 +81,14 @@ SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "sear
 )
 
 
-# qutebrowser: its bars, completion, hints, prompts and messages in the
-# palette's roles and fonts (config/qutebrowser/config.py sets the rest).
-(theme / "qutebrowser").mkdir(exist_ok=True)
-QUTE = {
-    "tabs.bar.bg": "paper",
-    "tabs.even.bg": "paper", "tabs.odd.bg": "paper",
-    "tabs.even.fg": "ink", "tabs.odd.fg": "ink",
-    "tabs.selected.even.bg": "title", "tabs.selected.odd.bg": "title",
-    "tabs.selected.even.fg": "title-ink", "tabs.selected.odd.fg": "title-ink",
-    "statusbar.normal.bg": "muted", "statusbar.normal.fg": "ink",
-    "statusbar.insert.bg": "accent", "statusbar.insert.fg": "accent-ink",
-    "statusbar.passthrough.bg": "accent", "statusbar.passthrough.fg": "accent-ink",
-    "statusbar.command.bg": "paper", "statusbar.command.fg": "ink",
-    "statusbar.caret.bg": "accent", "statusbar.caret.fg": "accent-ink",
-    "statusbar.progress.bg": "ink",
-    "statusbar.url.fg": "ink", "statusbar.url.success.http.fg": "ink",
-    "statusbar.url.success.https.fg": "ink", "statusbar.url.hover.fg": "muted-ink",
-    "statusbar.url.warn.fg": "ink", "statusbar.url.error.fg": "ink",
-    "completion.fg": "ink", "completion.odd.bg": "paper", "completion.even.bg": "paper",
-    "completion.category.bg": "muted", "completion.category.fg": "ink",
-    "completion.category.border.top": "muted", "completion.category.border.bottom": "muted",
-    "completion.item.selected.bg": "accent", "completion.item.selected.fg": "accent-ink",
-    "completion.item.selected.border.top": "accent", "completion.item.selected.border.bottom": "accent",
-    "completion.item.selected.match.fg": "accent-ink", "completion.match.fg": "ink",
-    "completion.scrollbar.bg": "paper", "completion.scrollbar.fg": "hover",
-    "hints.bg": "search", "hints.fg": "search-ink", "hints.match.fg": "paper",
-    "downloads.bar.bg": "muted", "downloads.start.bg": "muted", "downloads.start.fg": "ink",
-    "downloads.stop.bg": "accent", "downloads.stop.fg": "accent-ink",
-    "downloads.error.bg": "close-hover", "downloads.error.fg": "close-hover-ink",
-    "messages.info.bg": "paper", "messages.info.fg": "ink", "messages.info.border": "outline",
-    "messages.warning.bg": "search", "messages.warning.fg": "search-ink", "messages.warning.border": "outline",
-    "messages.error.bg": "close-hover", "messages.error.fg": "close-hover-ink", "messages.error.border": "outline",
-    "prompts.bg": "paper", "prompts.fg": "ink", "prompts.border": "1px solid " ,
-    "prompts.selected.bg": "accent", "prompts.selected.fg": "accent-ink",
-    "keyhint.bg": "paper", "keyhint.fg": "ink", "keyhint.suffix.fg": "muted-ink",
-}
-lines = []
-for setting, role in QUTE.items():
-    value = f"1px solid {C['outline']}" if setting == "prompts.border" else C[role]
-    lines.append(f'c.colors.{setting} = "{value}"')
-(theme / "qutebrowser" / "puter.py").write_text(
-    "# Written by theme/make from theme/palette; edit those, not this.\n"
-    + "\n".join(lines) + "\n"
-    + 'c.colors.webpage.preferred_color_scheme = "light"\n'
-    + 'c.fonts.default_family = ["puter-sans"]\n'
-    + 'c.fonts.default_size = "15px"\n'
-    + 'c.fonts.hints = "bold 13px puter-mono"\n'
-    + 'c.fonts.keyhint = "15px puter-sans"\n'
+# Firefox: theme/firefox/userChrome.css with its @roles filled in, into
+# theme/firefox/chrome/, which install.sh links into Firefox's profile.
+(theme / "firefox" / "chrome").mkdir(parents=True, exist_ok=True)
+css = (theme / "firefox" / "userChrome.css").read_text().split("*/", 1)[1].lstrip("\n")
+css = re.sub(r"@([a-z][a-z0-9-]*)", lambda m: C.get(m.group(1), m.group(0)), css)
+(theme / "firefox" / "chrome" / "userChrome.css").write_text(
+    "/* Written by theme/make from theme/firefox/userChrome.css and theme/palette;\n"
+    "   edit those, not this. */\n" + css
 )
 
 

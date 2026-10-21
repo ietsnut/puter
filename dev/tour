@@ -36,16 +36,16 @@ STEPS = [
     ("qterminal-preferences", "qterminal", "qterminal", ["click 637 283", "Up", "Up", "Return"]),
     ("lximage", "lximage-qt", "lximage-qt", []),
     ("lximage-preferences", "lximage-qt", "lximage-qt", ["alt+e", "Up", "Return"]),
-    ("qutebrowser", "qutebrowser", "qutebrowser", []),
-    # A second tab brings the tab bar; o opens the address, with completion.
-    ("qutebrowser-tabs", "qutebrowser", "qutebrowser", ["ctrl+t"]),
-    ("qutebrowser-open", "qutebrowser", "qutebrowser", ["o"]),
+    ("firefox", "firefox", "firefox", []),
+    # A second tab brings the tab bar; Alt+F opens the File menu.
+    ("firefox-tabs", "firefox", "firefox", ["ctrl+t"]),
+    ("firefox-menu", "firefox", "firefox", ["alt+f"]),
     ("sheet", "puter-sheet", "puter-sheet", []),
 ]
 APPS = sorted({process for _, _, process, _ in STEPS})
 # Steps whose keys change the app's window rather than open one: checked
 # whole, not by what changed.
-IN_PLACE = {"qutebrowser-tabs", "qutebrowser-open"}
+IN_PLACE = {"firefox-tabs", "firefox-menu"}
 NAMED = {"Return", "Escape", "Tab", "Down", "Up", "Left", "Right", "End", "Home", "BackSpace"}
 MODIFIERS = {"ctrl", "shift", "alt", "logo"}
 
@@ -85,7 +85,7 @@ def main():
         close()
         time.sleep(1)
         subprocess.run([root / "dev" / "run", app], check=True)
-        time.sleep(8 if app == "qutebrowser" else 4)
+        time.sleep(8 if app == "firefox" else 4)
         # A dialog is checked on its own: what changed on screen once its keys
         # were pressed (it may open right over its app, sharing its outline).
         before = out / f"{step}-before.png"

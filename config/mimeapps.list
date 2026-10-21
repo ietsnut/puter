@@ -1,5 +1,5 @@
 # Which app opens what: text in FeatherPad, tables in Sheet, photos in
-# LXImage-Qt, videos in mpv, folders in PCManFM-Qt, the web in qutebrowser.
+# LXImage-Qt, videos in mpv, folders in PCManFM-Qt, the web in Firefox.
 [Default Applications]
 inode/directory=pcmanfm-qt.desktop
 text/plain=featherpad.desktop
@@ -27,6 +27,6 @@ audio/mpeg=mpv.desktop
 audio/flac=mpv.desktop
 text/csv=puter-sheet.desktop
 text/tab-separated-values=puter-sheet.desktop
-text/html=org.qutebrowser.qutebrowser.desktop
-x-scheme-handler/http=org.qutebrowser.qutebrowser.desktop
-x-scheme-handler/https=org.qutebrowser.qutebrowser.desktop
+text/html=firefox.desktop
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop

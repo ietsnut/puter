@@ -11,7 +11,7 @@
 # of the pages it uses, shared ones split between their users).
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-apps="featherpad pcmanfm-qt qterminal lximage-qt qutebrowser puter-sheet"
+apps="featherpad pcmanfm-qt qterminal lximage-qt firefox puter-sheet"
 
 measure() {
   ssh archvm "python3 - '$1'" <<'PY'
