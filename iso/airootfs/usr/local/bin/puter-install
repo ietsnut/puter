@@ -88,7 +88,9 @@ mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$src/puter/packages
 # The stick's packages stand in for the new system's package cache, so
 # they aren't copied onto the disk as well.
 mkdir -p /mnt/var/cache/pacman/pkg
-mount --bind -o ro "$src/offline" /mnt/var/cache/pacman/pkg
+# (Writable, or pacman copies them all to /tmp, in memory: it only writes
+# there for a package that isn't there, and every one is.)
+mount --bind "$src/offline" /mnt/var/cache/pacman/pkg
 pacstrap -C "$conf" -K /mnt base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}"
 umount /mnt/var/cache/pacman/pkg
 genfstab -U /mnt >>/mnt/etc/fstab
@@ -128,6 +130,9 @@ CHROOT
 echo "== puter"
 cp -a "$src/puter" "/mnt/home/$user/puter"
 arch-chroot /mnt chown -R "$user:" "/home/$user/puter"
+# mkarchiso copies the stick's files without their modes, so the scripts
+# have lost being executable; git puts back what it recorded.
+arch-chroot /mnt runuser -u "$user" -- git -C "/home/$user/puter" reset -q --hard
 arch-chroot /mnt "/home/$user/puter/bin/puter-update" repo
 # install.sh's access, which sudo needs before it can run without a
 # password (it's put in place again, the same, by access itself).
