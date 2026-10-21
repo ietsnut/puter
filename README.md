@@ -15,7 +15,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them) |
-| `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses) and `sheet/` (the table editor) |
+| `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor) and `calc/` (the calculator) |
 | `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), wlrctl, qpdfview, JLCONE from JLCPCB's .deb |
 | `dev/` | work from the Mac: `sync`, `shot`, `grid`, `tour`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
@@ -55,7 +55,7 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt),
 Notepad (FeatherPad, syntax colours from the palette), Photos (LXImage-Qt),
 Video (mpv), Terminal (QTerminal), Browser (Firefox), Sheets (puter's own),
-PDFs (qpdfview), Archives (LXQt's archiver), Calculator (Qalculate) and
+PDFs (qpdfview), Archives (LXQt's archiver), Calculator (puter's own) and
 System Monitor (qps); KiCad and JLCONE (PCB orders) keep their own names; helpers that come with a package (foot's server, CMake, the Qt test
 tools) are kept out of search.
 Claude Code and Codex, each session in a window of its own (search, or

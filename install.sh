@@ -30,8 +30,9 @@ packages() {
     fi
   done
 
-  # puter's Qt widget style and its table editor, Sheet, built from src/.
-  for part in style sheet; do
+  # puter's Qt widget style, its table editor (Sheets) and its calculator,
+  # built from src/.
+  for part in style sheet calc; do
     build="$(mktemp -d)"
     cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
     cmake --build "$build"
@@ -282,10 +283,6 @@ CONF
   ini "$a" Window StatusBar false
   ini "$a" Sizes ViewsIconSize 16
   ini "$a" Sizes WindowSize "@Size(720 540)"
-
-  # The calculator (Qalculate): the history and the expression, without
-  # its keypad.
-  ini "$HOME/.config/qalculate/qalculate-qt.cfg" General show_keypad 0
 
   # The system monitor (qps): only your own programs, by name, with their
   # processor and memory use; none of its meters, control row or status bar

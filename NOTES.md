@@ -40,7 +40,7 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | Video | mpv | No interface of its own |
 | PDFs | qpdfview (`packages/qpdfview`, the AUR's recipe) | Qt Widgets on poppler, tabs only for two or more; pages on bone with a 1px edge |
 | Archives | LXQt's archiver | Qt, the list alone as in Files; 7-Zip, unzip and zip do the work |
-| Calculator | Qalculate (Qt) | Qt Widgets, typed sums with units and currencies; SpeedCrunch 1.0 was tried first and draws its own dark, rounded interface |
+| Calculator | Calculator (`src/calc`, puter's own) on libqalculate | Qalculate's arithmetic (units, currencies, functions) under a grid of our own; SpeedCrunch 1.0 draws its own dark, rounded interface, and Qalculate's Qt app keeps its menus in a toolbar |
 | System monitor | qps | Qt Widgets; only your programs, their processor and memory, without its meters |
 | Web | Firefox | A normal browser (tabs, an address field), its whole interface restyled by one stylesheet (`theme/firefox`, from the palette) and its settings a web page |
 | PCB orders | JLCONE | JLCPCB's Electron app, from their .deb (`packages/jlcone-bin`, the AUR's recipe) |
@@ -179,6 +179,22 @@ Code", file-manager actions that install.sh writes).
 - Claude Code comes from Anthropic's installer (`~/.local/bin`, it updates
   itself), Codex from extra (`openai-codex`). Signing in is each agent's own
   first screen.
+
+## The calculator
+
+`src/calc`, twelve modules wide and twenty tall: the menu bar, seven
+history rows (the sum on the left in the muted ink, its result on the right),
+the sum being typed, its result as you type (muted; ink and semibold once
+Return or = has put it in the history), and the keypad, four keys across and
+five down, each three modules by two, drawn by the app as one grid on 1px
+rules (digits on paper, operators on bone, = in the accent; colours from
+`CalcKeypad` in the stylesheet). A sum starting with an operator goes on from
+the last result, kept to 32 digits so 1/3 then × 3 is 1. libqalculate is set
+to work exactly where it can and print decimals, ten significant digits in
+groups of three, no trailing zeros, E notation only past twenty digits, no
+mixed units (3.106 856 mi, not 3 mi + 188 yd), and currencies left as they
+are; "20% of 85" is read as 20% × 85. Up and Down recall sums, Escape clears,
+a click on a history row puts its result in the sum. The history is kept.
 
 ## Notifications
 

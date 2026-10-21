@@ -153,7 +153,7 @@ mpv                   gray-100
 xdg-desktop-portal-lxqt  gray-100
 qpdfview              gray-100
 lxqt-archiver         gray-100
-qalculate-qt          gray-100
+accessories-calculator  gray-100
 qps                   gray-100
 # The agents (bin/puter-agent), each in its own terminal window.
 claude                gray-100

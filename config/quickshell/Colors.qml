@@ -44,7 +44,7 @@ Singleton {
         "xdg-desktop-portal-lxqt": "#e0a9df",
         "qpdfview": "#c8372d",
         "lxqt-archiver": "#7a52c4",
-        "qalculate-qt": "#5552c4",
+        "accessories-calculator": "#5552c4",
         "qps": "#5f7a1e",
         "claude": "#b85926",
         "codex": "#3e8fa8"

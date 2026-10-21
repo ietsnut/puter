@@ -23,13 +23,13 @@ featherpad
 lximage-qt
 mpv
 firefox
-# Archives, the calculator and the system monitor (PDFs: qpdfview, built
-# from packages/)
+# Archives and the system monitor (PDFs: qpdfview, built from packages/),
+# and the calculator's arithmetic (src/calc)
 lxqt-archiver
 7zip
 unzip
 zip
-qalculate-qt
+libqalculate
 qps
 
 # Agents (bin/puter-agent): Codex, and foot for their windows; Claude Code

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Calculator
+Comment=Sums, units and currencies
+Exec=puter-calc
+Icon=accessories-calculator
+Terminal=false
+Categories=Utility;Calculator;Qt;
+StartupWMClass=puter-calc

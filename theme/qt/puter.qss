@@ -410,3 +410,39 @@ QProgressBar {
 QProgressBar::chunk {
     background: @hover;
 }
+
+/* The calculator (src/calc). The sum on a row of its own, a rule above;
+   its result right-aligned under it, muted while it's only a preview, ink
+   once it's worked out; the keys drawn by the app in these colours: digits on
+   paper, operators on bone, equals in the accent. */
+QLineEdit#calcInput {
+    border: none;
+    border-top: 1px solid @rule;
+    /* A field keeps 2px of its own around the text: 6 + 2 is the inset. */
+    padding: 0 6px;
+    min-height: 29px;
+    max-height: 29px;
+}
+QLabel#calcResult {
+    padding: 0 8px;
+    color: @muted-ink;
+}
+QLabel#calcResult[final="true"] {
+    color: @ink;
+    font-weight: 600;
+}
+QListWidget#calcHistory {
+    border: none;
+}
+CalcKeypad {
+    qproperty-digitColor: @paper;
+    qproperty-operatorColor: @muted;
+    qproperty-equalsColor: @accent;
+    qproperty-equalsInk: @accent-ink;
+    qproperty-inkColor: @ink;
+    qproperty-ruleColor: @rule;
+    qproperty-hoverColor: @hover;
+    qproperty-hoverInk: @hover-ink;
+    qproperty-pressedColor: @button-hover;
+    qproperty-pressedInk: @button-hover-ink;
+}

@@ -57,13 +57,11 @@
   </mouse>
 
   <!-- Apps that open at the size they last had (seldom on the grid) are
-       sized when their first window maps: 24 x 18 modules, the calculator
-       12 x 16; only main windows, not their dialogs. The others are set in
+       sized when their first window maps: 24 x 18 modules; only main windows, not their dialogs. The others are set in
        their own settings (install.sh). -->
   <windowRules>
     <windowRule type="normal" identifier="qpdfview*"><action name="ResizeTo" width="720" height="540" /></windowRule>
     <windowRule type="normal" identifier="lxqt-archiver"><action name="ResizeTo" width="720" height="540" /></windowRule>
     <windowRule type="normal" identifier="qps"><action name="ResizeTo" width="720" height="540" /></windowRule>
-    <windowRule type="normal" identifier="io.github.Qalculate.qalculate-qt"><action name="ResizeTo" width="360" height="480" /></windowRule>
   </windowRules>
 </labwc_config>
