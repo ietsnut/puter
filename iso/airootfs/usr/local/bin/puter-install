@@ -83,6 +83,7 @@ cat >"$conf" <<CONF
 [options]
 Architecture = auto
 ParallelDownloads = 5
+$(grep -x DisableSandbox /etc/pacman.conf || true)
 
 # Not checked again: pacstrap checks against the stick's own keyring,
 # which hasn't puter's key, and the stick is what's trusted anyway (iso/build

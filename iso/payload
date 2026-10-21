@@ -42,6 +42,7 @@ repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.zst
 cat >"$work/offline.conf" <<CONF
 [options]
 Architecture = auto
+$(grep -x DisableSandbox /etc/pacman.conf || true)
 [offline]
 SigLevel = Never
 Server = file://$offline

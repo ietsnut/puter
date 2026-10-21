@@ -2,7 +2,9 @@
 # Makes the Docker image "arch" for this machine's architecture, for CI
 # (.github/workflows/): Arch Linux's own image on x86_64, and on aarch64
 # Arch Linux ARM's root file system, imported (it publishes no image), its
-# keyring set up.
+# keyring set up, and pacman's sandbox off (Docker on GitHub's ARM runners
+# doesn't allow its Landlock rules; iso/payload and puter-install follow
+# this pacman.conf in theirs).
 set -euo pipefail
 case $(uname -m) in
   x86_64)
@@ -16,7 +18,8 @@ case $(uname -m) in
     echo "$(curl -fsSL "$url.md5" | awk '{print $1}')  $dir/root.tar.gz" | md5sum -c -
     docker import "$dir/root.tar.gz" arch-root
     rm -rf "$dir"
-    docker run --name arch-keys arch-root bash -c 'pacman-key --init && pacman-key --populate archlinuxarm'
+    docker run --name arch-keys arch-root bash -c \
+      "pacman-key --init && pacman-key --populate archlinuxarm && sed -i '/^\\[options\\]/a DisableSandbox' /etc/pacman.conf"
     docker commit arch-keys arch
     docker rm arch-keys
     ;;

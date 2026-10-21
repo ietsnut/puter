@@ -3,27 +3,36 @@
 # registry (ghcr.io/ietsnut/puter-iso, where .github/workflows/iso.yml
 # puts it), with only curl, and checks it against the registry's digest.
 # Then write it to a stick with any USB writer (balenaEtcher, Raspberry Pi
-# Imager, dd).
+# Imager, dd). It downloads puter's virtual machine the same way (vm/try).
 #
-#   iso/download [FILE]    FILE is puter.iso unless given
+#   iso/download [FILE] [IMAGE]    FILE is puter.iso and IMAGE puter-iso
+#                                  unless given
 #
-# Or, with oras: oras pull ghcr.io/ietsnut/puter-iso:latest
+# A FILE already the newest (its digest kept beside it, FILE.digest) isn't
+# downloaded again. Or, with oras: oras pull ghcr.io/ietsnut/puter-iso:latest
 set -euo pipefail
 file="${1:-puter.iso}"
-image=ietsnut/puter-iso
+image="ietsnut/${2:-puter-iso}"
 
 token="$(curl -fsSL "https://ghcr.io/token?scope=repository:$image:pull" | sed 's/.*"token":"\([^"]*\)".*/\1/')"
 digest="$(curl -fsSL -H "Authorization: Bearer $token" \
   -H "Accept: application/vnd.oci.image.manifest.v1+json" \
   "https://ghcr.io/v2/$image/manifests/latest" |
   tr ',' '\n' | sed -n '/"layers"/,$p' | grep -o 'sha256:[0-9a-f]*' | head -1)"
-echo "Downloading puter.iso ($digest) to $file"
-curl -fL --progress-bar -H "Authorization: Bearer $token" -o "$file" \
+if [[ -f $file && $(cat "$file.digest" 2>/dev/null) == "$digest" ]]; then
+  echo "$file is the newest."
+  exit 0
+fi
+echo "Downloading $(basename "$file") ($digest) to $file"
+curl -fL --progress-bar -H "Authorization: Bearer $token" -o "$file.part" \
   "https://ghcr.io/v2/$image/blobs/$digest"
 
-if command -v sha256sum >/dev/null; then sum="$(sha256sum "$file")"; else sum="$(shasum -a 256 "$file")"; fi
+if command -v sha256sum >/dev/null; then sum="$(sha256sum "$file.part")"; else sum="$(shasum -a 256 "$file.part")"; fi
 if [[ sha256:${sum%% *} != "$digest" ]]; then
+  rm -f "$file.part"
   echo "The download doesn't match its digest; try again." >&2
   exit 1
 fi
+mv "$file.part" "$file"
+echo "$digest" >"$file.digest"
 echo "Done: $file"
