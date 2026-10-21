@@ -65,8 +65,7 @@ PanelWindow {
     }
 
     // Windows sit flush, side by side, straight after the search square: each
-    // tab three to eight modules wide, the app's icon in its first module, a
-    // 1px line between one tab and the next.
+    // tab three to eight modules wide, the app's icon in its first module.
     Row {
         x: Theme.module * 2
         y: Theme.module
@@ -84,7 +83,6 @@ PanelWindow {
                 minModules: 3
                 maxModules: 8
                 hoverable: true
-                divider: true
                 fill: modelData.activated ? Theme.tabActive : Theme.tab
                 ink: modelData.activated ? Theme.tabActiveForeground : Theme.tabForeground
                 onClicked: modelData.activate()

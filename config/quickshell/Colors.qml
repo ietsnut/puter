@@ -9,7 +9,7 @@ Singleton {
     readonly property color bar: "#f1f0ec"
     readonly property color barInk: "#060606"
     readonly property color barEdge: "#f1f0ec"
-    readonly property color search: "#e4722c"
+    readonly property color search: "#f1f0ec"
     readonly property color searchInk: "#060606"
     readonly property color tab: "#f1f0ec"
     readonly property color tabInk: "#060606"

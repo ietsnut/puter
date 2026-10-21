@@ -12,7 +12,7 @@ desk-dot      bone            # a dot at every module corner on the desk
 bar           bone            # the taskbar strip and the clock
 bar-ink       ink
 bar-edge      bone            # a line along the bar's top: the bar's colour, so none
-search        orange          # the search square in the bar's corner
+search        bone            # the search square in the bar's corner
 search-ink    ink
 tab           bone            # a window's tab on the taskbar
 tab-ink       ink
