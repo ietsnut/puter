@@ -1,0 +1,144 @@
+#!/bin/bash
+# Builds puter's pacman repository, [puter]: the recipes here and puter's
+# own apps (src/, as puter-apps), each only when it's newer than what the
+# repository already has, signed with puter's key (puter.gpg here; the
+# private half is CI's PUTER_SIGNING_KEY secret). Runs as root in an Arch
+# container (.github/workflows/packages.yml), makepkg as the user builder:
+#
+#   packages/build DIR    DIR holds the repository as published; new
+#                         packages replace old ones in it, and puter.db
+#                         lists them
+#
+# Each recipe follows upstream rather than waiting to be bumped by hand:
+# labwc and qps to Arch's version, still patched, their release Arch's with
+# puter's own revision after the dot (1.4 on Arch's 1 is puter's fourth), so
+# it stays above Arch's and pacman never swaps them back; wlrctl and
+# qpdfview to the AUR's, with the AUR recipe's checksums (read with a regex,
+# never sourced); JLCONE to JLCPCB's own electron-updater feed, whose sha512
+# is the checksum; puter-apps to Qt's version and src/'s commit count. A
+# bumped copy is built; the repo isn't changed.
+set -euo pipefail
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+out="$(readlink -f "${1:?usage: packages/build DIR}")"
+recipes=(labwc qps wlrctl qpdfview jlcone-bin puter-apps)
+
+# A recipe's own version: pkgver-pkgrel.
+recipe_version() {
+  # shellcheck disable=SC1090,SC2154  # pkgver and pkgrel come from the PKGBUILD
+  (source "$repo/packages/$1/PKGBUILD" && echo "$pkgver-$pkgrel")
+}
+
+# The newest version upstream, without its release: JLCONE's from JLCPCB's
+# feed, the others' from the AUR.
+latest() {
+  case $1 in
+    jlcone-bin) curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml |
+      awk '/^version:/ {print $2; exit}' ;;
+    *) curl -fsSL --max-time 20 "https://aur.archlinux.org/rpc/v5/info?arg[]=$1" | python3 -c '
+import json, sys
+results = json.load(sys.stdin)["results"]
+print(results[0]["Version"].rsplit("-", 1)[0] if results else "")' ;;
+  esac
+}
+
+# The version a recipe builds.
+target() {
+  local own arch new
+  own="$(recipe_version "$1")"
+  case $1 in
+    labwc | qps)
+      arch="$(pacman -Si "$1" | awk '/^Version/ {print $3; exit}')"
+      echo "${arch%-*}-${arch##*-}.${own##*.}" ;;
+    puter-apps)
+      echo "$(pacman -Q qt6-base | awk '{print $2}' | sed 's/-.*//').$(git -C "$repo" rev-list --count HEAD -- src packages/puter-apps)-1" ;;
+    *)
+      new="$(latest "$1")"
+      if [[ -n $new && $(vercmp "$new" "${own%-*}") -gt 0 ]]; then echo "$new-1"; else echo "$own"; fi ;;
+  esac
+}
+
+# The checksums for a recipe bumped to a new upstream version, appended to
+# its copy (a later assignment wins when makepkg reads it). labwc builds a
+# git tag, which has none; qps takes its tarball's from Arch's recipe and
+# keeps its patch's own.
+sums() { # name dir
+  case $1 in
+    labwc | puter-apps) ;;
+    qps)
+      local patch
+      # shellcheck disable=SC1091,SC2154  # sha256sums comes from the PKGBUILD
+      patch="$(source "$2/PKGBUILD" && echo "${sha256sums[1]}")"
+      curl -fsSL --max-time 20 "https://gitlab.archlinux.org/archlinux/packaging/packages/qps/-/raw/main/PKGBUILD" |
+        python3 -c '
+import re, sys
+body = re.search(r"^sha256sums=\((.*?)\)", sys.stdin.read(), re.M | re.S).group(1)
+tarball = re.findall(r"[0-9a-f]{64}", body)[0]
+print("sha256sums=(%r %r)" % (tarball, sys.argv[1]))' "$patch" ;;
+    jlcone-bin)
+      curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml | python3 -c '
+import base64, re, sys
+sha = re.search(r"^sha512: (\S+)", sys.stdin.read(), re.M).group(1)
+print(f"unset sha256sums; sha512sums=({base64.b64decode(sha).hex()!r})")' ;;
+    *)
+      local count
+      # shellcheck disable=SC1091,SC2154  # source comes from the PKGBUILD
+      count="$(source "$2/PKGBUILD" && echo "${#source[@]}")"
+      curl -fsSL --max-time 20 "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$1" | python3 -c '
+import re, sys
+count, text = int(sys.argv[1]), sys.stdin.read()
+print("unset md5sums sha256sums sha512sums b2sums")
+for name, body in re.findall(r"^((?:md5|sha256|sha512|b2)sums)=\((.*?)\)", text, re.M | re.S):
+    values = re.findall(r"[\x27\"]([^\x27\"]*)[\x27\"]", body)[:count]
+    print(f"{name}=(" + " ".join(repr(v) for v in values) + ")")' "$count" ;;
+  esac
+}
+
+# Builds one recipe at a version, signs it and adds it to the repository
+# (repo-add -R deletes the version it replaces).
+build() { # name version
+  local name=$1 want=$2 own dir pkg
+  own="$(recipe_version "$name")"
+  dir="$(mktemp -d)"
+  cp -r "$repo/packages/$name/." "$dir/"
+  [[ $name == puter-apps ]] && cp -r "$repo/src" "$dir/puter-src"
+  if [[ $want != "$own" ]]; then
+    sed -i -e "s/^pkgver=.*/pkgver=${want%-*}/" -e "s/^pkgrel=.*/pkgrel=${want##*-}/" "$dir/PKGBUILD"
+    if [[ ${want%-*} != "${own%-*}" ]]; then sums "$name" "$dir" >>"$dir/PKGBUILD"; fi
+  fi
+  chown -R builder: "$dir"
+  (cd "$dir" && runuser -u builder -- makepkg --syncdeps --noconfirm) || return 1
+  pkg="$(cd "$dir" && ls "$name"-[0-9]*.pkg.tar.zst)"
+  # (set -e doesn't reach in here, since build is called with ||.)
+  cp "$dir/$pkg" "$out/" &&
+    gpg --batch --yes --detach-sign --no-armor -u "$key" "$out/$pkg" &&
+    repo-add -R -s -k "$key" "$out/puter.db.tar.gz" "$out/$pkg" || return 1
+  rm -rf "$dir"
+}
+
+export GNUPGHOME
+GNUPGHOME="$(mktemp -d)"
+gpg --batch --import <<<"${PUTER_SIGNING_KEY:?the private key, armored}"
+key="$(gpg --with-colons --list-secret-keys | awk -F: '/^fpr/ {print $10; exit}')"
+
+# What the repository has: NAME VERSION, from its database.
+declare -A have=()
+if [[ -f $out/puter.db.tar.gz ]]; then
+  while read -r name version; do have[$name]=$version; done < <(bsdtar -xOf "$out/puter.db.tar.gz" '*/desc' |
+    awk '/^%NAME%$/ {getline; name = $0} /^%VERSION%$/ {getline; print name, $0}')
+fi
+
+pacman -S --needed --noconfirm qt6-base >/dev/null
+failed=()
+for name in "${recipes[@]}"; do
+  want="$(target "$name")"
+  if [[ -n ${have[$name]:-} && $(vercmp "${have[$name]}" "$want") -ge 0 ]]; then
+    echo "== $name ${have[$name]} is the newest"
+    continue
+  fi
+  echo "== $name ${have[$name]:-(none)} → $want"
+  build "$name" "$want" || failed+=("$name")
+done
+if ((${#failed[@]})); then
+  echo "Failed: ${failed[*]}" >&2
+  exit 1
+fi
