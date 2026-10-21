@@ -15,7 +15,11 @@ PanelWindow {
     property int selected: 0
 
     readonly property var apps: DesktopEntries.applications.values.filter(entry => !entry.noDisplay)
-    readonly property var recentApps: recent.ids.map(id => DesktopEntries.byId(id)).filter(entry => entry)
+    // Found among apps rather than with DesktopEntries.byId, so they're looked
+    // up again whenever the apps change: when an app is installed or its
+    // desktop file rewritten, the old entries are deleted, and holding on to
+    // one crashes the shell.
+    readonly property var recentApps: recent.ids.map(id => apps.find(entry => entry.id === id)).filter(entry => entry)
     readonly property var results: query === "" && recentApps.length > 0 ? recentApps
         : apps.filter(entry => entry.name.toLowerCase().includes(query.toLowerCase()))
               .sort((a, b) => a.name.localeCompare(b.name))

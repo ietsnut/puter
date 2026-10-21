@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Sheet
+Name=Sheets
 Comment=Edit tables: CSV and TSV files
 Exec=puter-sheet %f
 Icon=x-office-spreadsheet

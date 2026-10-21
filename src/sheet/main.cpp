@@ -282,7 +282,7 @@ private:
     void showTitle()
     {
         const QString name = path.isEmpty() ? QStringLiteral("Untitled") : QFileInfo(path).fileName();
-        setWindowTitle((undo.isClean() ? QString() : QStringLiteral("* ")) + name + QStringLiteral(" - Sheet"));
+        setWindowTitle((undo.isClean() ? QString() : QStringLiteral("* ")) + name + QStringLiteral(" - Sheets"));
     }
 
     // Asks before throwing away unsaved changes; true when it's fine to go on.

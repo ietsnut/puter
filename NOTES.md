@@ -216,6 +216,12 @@ Code", file-manager actions that install.sh writes).
   `Colors.qml`.
 - **labwc draws `*_hover` button images instead of its hover colour**, so
   hover is drawn into those images.
+- **Quickshell deletes its desktop entries when it rescans** (an app
+  installed, a desktop file rewritten): holding one (search's recent apps,
+  from `DesktopEntries.byId`) crashed the shell the next time search opened.
+  Search finds them again among the apps, so they're looked up afresh.
+- **A desktop file without a name doesn't count**: the system's copy shows
+  instead. Hiding an app (`NoDisplay=true`) keeps its name.
 - **Quickshell reads the app folders it finds at start**: one made later
   (`~/.local/share/applications`, on a desktop already running) shows in
   search only after the shell restarts.

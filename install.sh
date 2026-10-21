@@ -260,6 +260,34 @@ CONF
   # Which app opens what.
   ln -sfn "$repo/config/mimeapps.list" "$HOME/.config/mimeapps.list"
 
+  # What the apps are called (config/apps.names): a copy of each one's
+  # desktop file with its plain name and none of its translated or generic
+  # names, or kept out of search (a hidden one keeps its name: a desktop
+  # file without one doesn't count, and the system's would show instead).
+  python3 - "$repo/config/apps.names" <<'NAMES'
+import pathlib, re, sys
+apps = pathlib.Path.home() / ".local/share/applications"
+apps.mkdir(parents=True, exist_ok=True)
+for line in pathlib.Path(sys.argv[1]).read_text().splitlines():
+    line = line.split("#", 1)[0].strip()
+    if not line:
+        continue
+    desktop, name = line.split(None, 1)
+    source = pathlib.Path("/usr/share/applications") / desktop
+    if not source.exists():
+        continue
+    out, entry = [], False
+    for row in source.read_text().splitlines():
+        if row.startswith("["):
+            entry = row == "[Desktop Entry]"
+        elif entry and re.match(r"NoDisplay=" if name == "hide" else r"(Name|GenericName)(\[.*\])?=|NoDisplay=", row):
+            continue
+        out.append(row)
+        if row == "[Desktop Entry]":
+            out.append("NoDisplay=true" if name == "hide" else f"Name={name}")
+    (apps / desktop).write_text("\n".join(out) + "\n")
+NAMES
+
   agents
 
   on_bus bash -c "$(declare -f settings); settings"

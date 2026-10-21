@@ -12,7 +12,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, builds, configs, login screen |
 | `packages.txt` | everything it installs from the Arch repos |
-| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
+| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses) and `sheet/` (the table editor) |
@@ -52,9 +52,12 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 ## Apps
 
-PCManFM-Qt for files, FeatherPad for text and code (syntax colours from the
-palette), LXImage-Qt for photos, mpv for video, QTerminal for the terminal,
-Firefox for the web, Sheet (puter's own) for tables, JLCONE for PCB orders.
+Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt),
+Notepad (FeatherPad, syntax colours from the palette), Photos (LXImage-Qt),
+Video (mpv), Terminal (QTerminal), Browser (Firefox), Sheets (puter's own),
+PCB Orders (JLCONE), and KiCad's as Electronics, Schematics, PCB Editor and
+so on; helpers that come with a package (foot's server, CMake, the Qt test
+tools) are kept out of search.
 Claude Code and Codex, each session in a window of its own (search, or
 right-click a folder: Open in Claude Code); its taskbar tab shows whether
 it's working, waiting for you (orange) or done, and both can see and use the

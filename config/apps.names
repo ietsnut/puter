@@ -1,0 +1,30 @@
+# What each app is called in search and menus: just what it is. install.sh
+# writes a copy of each app's desktop file under ~/.local/share/applications
+# with this name (an app that isn't installed is skipped). "hide" keeps an
+# entry out of search: helpers that come with a package.
+#
+# desktop file                    name
+featherpad.desktop                Notepad
+pcmanfm-qt.desktop                Files
+qterminal.desktop                 Terminal
+lximage-qt.desktop                Photos
+mpv.desktop                       Video
+firefox.desktop                   Browser
+puter-sheet.desktop               Sheets
+jlcone.desktop                    PCB Orders
+org.kicad.kicad.desktop           Electronics
+org.kicad.eeschema.desktop        Schematics
+org.kicad.pcbnew.desktop          PCB Editor
+org.kicad.gerbview.desktop        Gerber Viewer
+org.kicad.pcbcalculator.desktop   PCB Calculator
+org.kicad.bitmap2component.desktop  Image to Footprint
+foot.desktop                      hide
+foot-server.desktop               hide
+footclient.desktop                hide
+qterminal-drop.desktop            hide
+pcmanfm-qt-desktop-pref.desktop   hide
+qt6ct.desktop                     hide
+cmake-gui.desktop                 hide
+lstopo.desktop                    hide
+qv4l2.desktop                     hide
+qvidcap.desktop                   hide
