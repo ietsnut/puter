@@ -325,12 +325,25 @@ public:
         case PM_TabBarTabHSpace:
             return 2 * Inset;
         case PM_TabBarTabVSpace:
+        // The chosen tab's label stays where the others' are.
+        case PM_TabBarTabShiftVertical:
+        case PM_TabBarTabShiftHorizontal:
             return 0;
         case PM_HeaderMargin:
             return Inset;
         default:
             return QProxyStyle::pixelMetric(metric, option, widget);
         }
+    }
+
+    // A tab's close button fills the tab's last module, flush with its right
+    // edge (the base style keeps half the tab's padding beside it, which
+    // left it off the grid).
+    QRect subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const override
+    {
+        if (element == SE_TabBarTabRightButton && option)
+            return QRect(option->rect.right() + 1 - Module, option->rect.top(), Module, Module);
+        return QProxyStyle::subElementRect(element, option, widget);
     }
 
     QSize sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &contents,
