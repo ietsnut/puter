@@ -321,10 +321,10 @@ QStatusBar::item {
     border: none;
 }
 
-/* Scroll bars: a slim gray slider on paper, no arrows. */
 /* Scroll bars: a one-module gutter (a narrower one would leave what it
-   scrolls off the grid) with a light rule along it and a slim handle in its
-   middle. */
+   scrolls off the grid) with a light rule along it, and the handle filling
+   it, as wide as the gutter, darker under the pointer and while dragged.
+   No arrows. */
 QScrollBar:vertical {
     background: #ffffff;
     width: 30px;
@@ -345,11 +345,8 @@ QScrollBar::handle {
     min-height: 30px;
     min-width: 30px;
 }
-QScrollBar::handle:vertical {
-    margin: 0 12px;
-}
-QScrollBar::handle:horizontal {
-    margin: 12px 0;
+QScrollBar::handle:hover, QScrollBar::handle:pressed {
+    background: #6b6459;
 }
 QScrollBar::add-line, QScrollBar::sub-line {
     width: 0;
