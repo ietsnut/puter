@@ -4,6 +4,15 @@ Where things stood at the end of the 20 October 2026 session.
 
 ## Open edges
 
+- **The USB installer** (21 October): built, installed and started in
+  QEMU by CI (`iso.yml`: KVM, OVMF, virtio), which boots straight to the
+  desktop; not yet on real hardware or from a real stick (the disk picker
+  and the `yes` have only been read, not used). UEFI only. Claude Code
+  isn't on the stick: it comes with the first update, online. 3.7 GB.
+- **[puter]** (21 October): built, signed and published by CI, and read by
+  pacman in a container; `puter-update` against it hasn't run on a puter
+  machine yet (the installer runs only its `repo` step, offline).
+
 - **Mail with a real account** (21 October): the main window, folders,
   list, message and the account hub are styled and measured with local
   mail, but no account has been signed in, so the compose window, account
@@ -54,8 +63,8 @@ Where things stood at the end of the 20 October 2026 session.
   nor with many windows (two rows) or minimised ones (grim can't capture a
   window that isn't drawn; its card shows the last preview, or none).
 - **No passwords** (21 October): `install.sh access` (sudo and polkit) is
-  tested on the VM; the greetd part (labwc straight away, no login screen)
-  isn't, since the VM keeps its own greetd config (pixman rendering).
+  tested on the VM, and greetd starting labwc with no login screen in the
+  installer's test in CI.
 - **The search square overlaps windows**: windows stop at the strip (one
   module), so a snapped window's bottom-left 60x30 sits under the square.
   Making windows stop above the square would waste a row along the bottom.
