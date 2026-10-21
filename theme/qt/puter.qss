@@ -246,6 +246,9 @@ QTabWidget::pane {
 }
 QTabBar {
     background: @paper;
+    /* No base line of its own: the rule above (the menu bar's) is the only
+       one, where the base style drew a second, in a gray of its own. */
+    qproperty-drawBase: 0;
 }
 QTabBar::tab {
     background: @paper;
