@@ -59,7 +59,7 @@ C, FONTS, APPS = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "search-ink", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink", "attention", "attention-ink")
+SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "title", "title-ink", "button-hover", "button-hover-ink", "attention", "attention-ink")
 (repo / "config" / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"
@@ -89,17 +89,20 @@ SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "sear
 )
 
 
-# Firefox and Thunderbird: theme/<app>/userChrome.css with its @roles
-# filled in, into theme/<app>/chrome/, which install.sh links into the app's
-# profile.
+def fill(source, target):
+    """A stylesheet with its @roles filled in from the palette (its first
+    comment, which says what it is, swapped for one saying it's written)."""
+    text = (theme / source).read_text().split("*/", 1)[1].lstrip("\n")
+    text = re.sub(r"@([a-z][a-z0-9-]*)", lambda m: C.get(m.group(1), m.group(0)), text)
+    (theme / target).parent.mkdir(parents=True, exist_ok=True)
+    (theme / target).write_text(f"/* Written by theme/make from theme/{source} and theme/palette;\n"
+                                "   edit those, not this. */\n" + text)
+
+
+# Firefox and Thunderbird: into theme/<app>/chrome/, which install.sh links
+# into the app's profile.
 for app in ("firefox", "thunderbird"):
-    (theme / app / "chrome").mkdir(parents=True, exist_ok=True)
-    css = (theme / app / "userChrome.css").read_text().split("*/", 1)[1].lstrip("\n")
-    css = re.sub(r"@([a-z][a-z0-9-]*)", lambda m: C.get(m.group(1), m.group(0)), css)
-    (theme / app / "chrome" / "userChrome.css").write_text(
-        f"/* Written by theme/make from theme/{app}/userChrome.css and theme/palette;\n"
-        "   edit those, not this. */\n" + css
-    )
+    fill(f"{app}/userChrome.css", f"{app}/chrome/userChrome.css")
 
 
 # labwc: title bars and menus.
@@ -141,13 +144,6 @@ menu.separator.width: 1
 menu.separator.padding.width: 0
 menu.separator.padding.height: 0
 menu.separator.color: {C['rule']}
-
-osd.bg.color: {C['paper']}
-osd.border.width: 1
-osd.border.color: {C['outline']}
-osd.label.text.color: {C['ink']}
-osd.window-switcher.style-classic.item.active.border.width: 0
-osd.window-switcher.style-classic.item.active.bg.color: {C['accent']}
 
 # Where a dragged window will snap: a plain 2px outline in ink, no fill.
 snapping.overlay.region.bg.enabled: no
@@ -233,10 +229,8 @@ def glyph(name, canvas, box, ink, fill=None):
 # labwc: the window buttons, one module each (30 x 30), their 16px glyph in
 # the middle. Each as it sits on a title bar and under the pointer: the whole
 # square filled and the glyph turned over, the close colour for close. (labwc
-# draws these hover images in place of its own hover colour.) The menu
-# button isn't in the title bar (the app's square is), but is made anyway.
-BUTTONS = {"close": "close", "iconify": "subtract", "max": "maximize",
-           "max_toggled": "minimize", "menu": "menu"}
+# draws these hover images in place of its own hover colour.)
+BUTTONS = {"close": "close", "iconify": "subtract", "max": "maximize", "max_toggled": "minimize"}
 for name, icon in BUTTONS.items():
     hover, hover_ink = (C["close-hover"], C["close-hover-ink"]) if name == "close" else (C["button-hover"], C["button-hover-ink"])
     for state in ("active", "inactive"):
@@ -318,19 +312,12 @@ for name, icon in MAIL_ICONS.items():
     + "".join(f"@define-color {role.replace('-', '_')} {value};\n" for role, value in C.items())
 )
 
-# Qt Widgets apps: theme/qt/puter.qss with its @roles filled in, and a Qt
-# palette in qt6ct's colour scheme format, its roles in Qt's order: window
-# text, button, light, midlight, dark, mid, text, bright text, button text,
-# base, window, shadow, highlight, highlighted text, link, visited link,
-# alternate base, (none), tooltip base, tooltip text, placeholder, accent.
-import re
-qss = (theme / "qt" / "puter.qss").read_text().split("*/", 1)[1].lstrip("\n")
-qss = re.sub(r"@([a-z0-9-]+)", lambda m: C.get(m.group(1), m.group(0)), qss)
-(theme / "qt6ct").mkdir(exist_ok=True)
-(theme / "qt6ct" / "puter.qss").write_text(
-    "/* Written by theme/make from theme/qt/puter.qss and theme/palette;\n"
-    "   edit those, not this. */\n" + qss
-)
+# Qt Widgets apps: theme/qt/puter.qss filled in, and a Qt palette in
+# qt6ct's colour scheme format, its roles in Qt's order: window text, button,
+# light, midlight, dark, mid, text, bright text, button text, base, window,
+# shadow, highlight, highlighted text, link, visited link, alternate base,
+# (none), tooltip base, tooltip text, placeholder, accent.
+fill("qt/puter.qss", "qt6ct/puter.qss")
 def qt_palette(text, muted_text):
     return ", ".join(C[r] if r in C else r for r in (
         text, "paper", "paper", "muted", "rule", "rule", text, "paper", text,
@@ -357,9 +344,12 @@ def qt_palette(text, muted_text):
 
 # The terminal (QTerminal): paper and ink and the palette's sixteen ANSI
 # roles, as a QTermWidget colour scheme.
+def channels(role):
+    return [int(C[role][i:i + 2], 16) for i in (1, 3, 5)]
+
+
 def rgb3(role):
-    h = C[role]
-    return ",".join(str(int(h[i:i + 2], 16)) for i in (1, 3, 5))
+    return ",".join(map(str, channels(role)))
 scheme = ["# Written by theme/make from theme/palette; edit those, not this.",
           "[General]", "Description=puter", "Opacity=1", "",
           "[Background]", f"Color={rgb3('paper')}", "",
@@ -409,8 +399,7 @@ foot += [f"bright{i}={hex6(f'ansi{i + 8}')}" for i in range(8)]
 # KiCad: boards, schematics and the 3D view from the palette's KiCad roles.
 # Masks and highlights are see-through, as KiCad's own themes draw them.
 def rgb(role, alpha=1.0):
-    hexa = C[role]
-    r, g, b = (int(hexa[i:i + 2], 16) for i in (1, 3, 5))
+    r, g, b = channels(role)
     return f"rgba({r}, {g}, {b}, {alpha})" if alpha < 1 else f"rgb({r}, {g}, {b})"
 
 

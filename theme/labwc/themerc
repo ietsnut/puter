@@ -37,13 +37,6 @@ menu.separator.padding.width: 0
 menu.separator.padding.height: 0
 menu.separator.color: #d6d1cb
 
-osd.bg.color: #ffffff
-osd.border.width: 1
-osd.border.color: #060606
-osd.label.text.color: #060606
-osd.window-switcher.style-classic.item.active.border.width: 0
-osd.window-switcher.style-classic.item.active.bg.color: #e0a9df
-
 # Where a dragged window will snap: a plain 2px outline in ink, no fill.
 snapping.overlay.region.bg.enabled: no
 snapping.overlay.edge.bg.enabled: no
