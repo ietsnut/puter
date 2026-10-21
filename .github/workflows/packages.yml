@@ -1,10 +1,11 @@
 # Builds puter's pacman repository, [puter] (packages/build: the recipes in
-# packages/ and puter's apps from src/), and publishes it as the assets of
-# the "repo" release, where pacman reads it:
-# https://github.com/ietsnut/puter/releases/download/repo. Only the newest
-# of each package is kept. Runs on pushes to main that touch what it
-# builds, daily (Arch, the AUR, JLCPCB and Qt move on their own) and by
-# hand; never for pull requests.
+# packages/ and puter's apps from src/), for x86_64 (Arch Linux) and aarch64
+# (Arch Linux ARM, on GitHub's ARM runners), and publishes each as the
+# assets of a release, where pacman reads it: "repo" for x86_64,
+# "repo-aarch64" for aarch64 (https://github.com/ietsnut/puter/releases/
+# download/repo...). Only the newest of each package is kept. Runs on
+# pushes to main that touch what it builds, daily (Arch, the AUR, JLCPCB,
+# OpenAI and Qt move on their own) and by hand; never for pull requests.
 name: packages
 
 on:
@@ -23,18 +24,22 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container: archlinux:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-latest
+            release: repo
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+            release: repo-aarch64
+    runs-on: ${{ matrix.runner }}
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
+      RELEASE: ${{ matrix.release }}
     steps:
-      - name: Tools, and a user for makepkg
-        run: |
-          pacman -Syu --noconfirm --needed base-devel git github-cli python
-          useradd -m builder
-          echo 'builder ALL=(ALL) NOPASSWD: ALL' >/etc/sudoers.d/builder
-
       - uses: actions/checkout@v4
         with:
           # src/'s commit count is puter-apps' version.
@@ -42,25 +47,33 @@ jobs:
 
       - name: The repository as published
         run: |
-          git config --global --add safe.directory "$PWD"
-          gh release view repo >/dev/null 2>&1 ||
-            gh release create repo --latest=false --title "[puter]" \
-              --notes "puter's pacman repository, built by .github/workflows/packages.yml. Server = https://github.com/ietsnut/puter/releases/download/repo"
-          mkdir /repo
-          gh release download repo -D /repo || true
-          sha256sum /repo/puter.db.tar.gz >/before 2>/dev/null || true
+          gh release view "$RELEASE" >/dev/null 2>&1 ||
+            gh release create "$RELEASE" --latest=false --title "[puter] ${{ matrix.arch }}" \
+              --notes "puter's pacman repository for ${{ matrix.arch }}, built by .github/workflows/packages.yml. Server = https://github.com/ietsnut/puter/releases/download/$RELEASE"
+          mkdir published
+          gh release download "$RELEASE" -D published || true
+          (cd published && sha256sum puter.db.tar.gz) >before 2>/dev/null || true
+
+      - name: An Arch container
+        run: packages/container
 
       - name: Build
         env:
           PUTER_SIGNING_KEY: ${{ secrets.PUTER_SIGNING_KEY }}
-        run: packages/build /repo
+        run: |
+          docker run --rm -e PUTER_SIGNING_KEY -v "$PWD:/puter" arch bash -c '
+            pacman -Syu --noconfirm --needed base-devel git python &&
+            useradd -m builder && echo "builder ALL=(ALL) NOPASSWD: ALL" >/etc/sudoers.d/builder &&
+            git config --global --add safe.directory /puter &&
+            /puter/packages/build /puter/published'
 
       # What did build is published even when another package failed.
       - name: Publish
         if: ${{ !cancelled() }}
         run: |
-          cd /repo
-          if [ ! -f puter.db.tar.gz ] || sha256sum -c --status /before 2>/dev/null; then
+          sudo chown -R "$USER" published
+          cd published
+          if [ ! -f puter.db.tar.gz ] || sha256sum -c --status ../before 2>/dev/null; then
             echo "Nothing new."
             exit 0
           fi
@@ -70,8 +83,8 @@ jobs:
           for f in puter.db puter.db.sig puter.files puter.files.sig; do
             cp --remove-destination "$(readlink -f "$f")" "$f"
           done
-          gh release upload repo --clobber /repo/*
+          gh release upload "$RELEASE" --clobber ./*
           # Only the newest: what repo-add replaced goes from the release too.
-          gh release view repo --json assets --jq '.assets[].name' | while read -r asset; do
-            [ -e "/repo/$asset" ] || gh release delete-asset repo "$asset" --yes
+          gh release view "$RELEASE" --json assets --jq '.assets[].name' | while read -r asset; do
+            [ -e "$asset" ] || gh release delete-asset "$RELEASE" "$asset" --yes
           done

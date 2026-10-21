@@ -16,6 +16,9 @@
 #   puter-update check    what's out of date, a line each: what, tab, by how much
 #   puter-update repo     only trust and list [puter] (what the USB installer,
 #                         iso/, runs offline on the new disk)
+#   puter-update packages [ARCH]
+#                         what packages.txt says to install on this machine's
+#                         architecture (or ARCH's), a name a line
 #
 # The bar's update button (config/quickshell/Updates.qml) runs
 # `sudo puter-update run` and follows lines starting with "::":
@@ -97,6 +100,13 @@ fail() {
   echo "!! $1 failed"
 }
 
+# What packages.txt says to install on an architecture: every package
+# that names none, and those that name it.
+packages() { # [arch]
+  local arch="${1:-$(uname -m)}"
+  sed 's/#.*//' "$repo/packages.txt" | awk -v arch="$arch" 'NF == 1 || (NF > 1 && index(" " $0 " ", " " arch " ")) {print $1}'
+}
+
 # puter's pacman repository, [puter]: built and signed by CI
 # (packages/build), trusted through puter's key (packages/puter.gpg, taken
 # again each time, so a new key only needs committing) and listed before
@@ -106,16 +116,26 @@ puter_repo() {
   pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" |
     awk -F: '/^fpr/ {print $10; exit}')" >/dev/null || return 1
   grep -q '^\[puter\]' /etc/pacman.conf ||
-    sed -i '/^\[core\]/i [puter]\nSigLevel = Required\nServer = https://github.com/ietsnut/puter/releases/download/repo\n' /etc/pacman.conf
+    sed -i "/^\\[core\\]/i [puter]\\nSigLevel = Required\\nServer = $(repo_url)\\n" /etc/pacman.conf
+}
+
+# Where [puter] is for this machine: the release "repo" for x86_64,
+# "repo-aarch64" for Arch Linux ARM.
+repo_url() {
+  local release=repo
+  [[ $(uname -m) == x86_64 ]] || release="repo-$(uname -m)"
+  echo "https://github.com/ietsnut/puter/releases/download/$release"
 }
 
 system() {
   begin "Arch Linux"
   puter_repo || return 1
-  pacman -Sy --needed --noconfirm archlinux-keyring || return 1
+  local keyring=archlinux-keyring
+  [[ $(uname -m) == x86_64 ]] || keyring=archlinuxarm-keyring
+  pacman -Sy --needed --noconfirm "$keyring" || return 1
   # Everything in packages.txt, so what puter has added since is installed.
   local pkgs overwrite=()
-  mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
+  mapfile -t pkgs < <(packages)
   # puter's apps were once installed by cmake, outside pacman: their files
   # are taken over the first time they come as a package.
   pacman -Q puter-apps >/dev/null 2>&1 || overwrite=(--overwrite '/usr/bin/puter-*'
@@ -210,8 +230,9 @@ main() {
     check) check ;;
     run) run ;;
     repo) puter_repo ;;
+    packages) packages "${2:-}" ;;
     "") if [[ $EUID -eq 0 ]]; then run; else exec sudo "$0" run; fi ;;
-    *) echo "usage: puter-update [check|repo]" >&2; return 1 ;;
+    *) echo "usage: puter-update [check|repo|packages [ARCH]]" >&2; return 1 ;;
   esac
 }
 main "$@"

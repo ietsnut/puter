@@ -15,8 +15,6 @@ out="$(readlink -f "${2:?usage: iso/build WORK OUT}")"
 mkdir -p "$work" "$out"
 
 pacman -Syu --noconfirm --needed archiso git
-# The checkout belongs to someone else in the container.
-git config --global --add safe.directory "$repo"
 
 profile="$work/profile"
 rm -rf "$profile"
@@ -36,51 +34,9 @@ sed -i -e 's/^iso_name=.*/iso_name="puter"/' \
 # shellcheck disable=SC2016  # for zsh, on the stick
 echo '[[ $(tty) == /dev/tty1 ]] && puter-install' >>"$profile/airootfs/root/.zlogin"
 
-# Every package puter installs, and everything they need: downloaded into
-# an empty database's view, so nothing counts as installed already. [puter]
-# is listed first, so its labwc and qps are the ones taken.
-offline="$profile/airootfs/opt/puter/offline"
-mkdir -p "$offline"
-conf="$work/pacman.conf"
-sed '/^\[core\]/i [puter]\nSigLevel = Required\nServer = https://github.com/ietsnut/puter/releases/download/repo\n' \
-  /etc/pacman.conf >"$conf"
-# (The container's keyring has no key of its own to sign puter's with yet.)
-pacman-key --init
-pacman-key --add "$repo/packages/puter.gpg"
-pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" | awk -F: '/^fpr/ {print $10; exit}')"
-mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
-db="$work/db"
-mkdir -p "$db"
-pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
-  base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}"
-repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.zst
-# Everything resolves from the stick alone, or the build fails here rather
-# than an install.
-cat >"$work/offline.conf" <<CONF
-[options]
-Architecture = auto
-[offline]
-SigLevel = Never
-Server = file://$offline
-CONF
-mkdir -p "$work/empty"
-pacman -Sy --config "$work/offline.conf" --dbpath "$work/empty" >/dev/null
-pacman -Sp --config "$work/offline.conf" --dbpath "$work/empty" \
-  base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}" >/dev/null
-
-# Claude Code, which comes from Anthropic's own installer rather than
-# pacman: installed here for a user of the build's own, and its one file
-# (versions/VERSION) put on the stick for puter-install to place where the
-# installer would have, so that `claude update` keeps it current after.
-id claude >/dev/null 2>&1 || useradd -m claude
-runuser -u claude -- bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
-mkdir -p "$profile/airootfs/opt/puter/claude"
-cp /home/claude/.local/share/claude/versions/* "$profile/airootfs/opt/puter/claude/"
-
-# puter itself, as a git checkout of what's being built (puter-update
-# pulls it later).
-git clone -q --no-hardlinks "$repo" "$profile/airootfs/opt/puter/puter"
-git -C "$profile/airootfs/opt/puter/puter" remote set-url origin https://github.com/ietsnut/puter.git
+# What the installer installs from: every package, Claude Code and puter
+# itself (iso/payload).
+"$repo/iso/payload" "$profile/airootfs/opt/puter" "$work/payload"
 
 mkarchiso -v -w "$work/archiso" -o "$work/iso" "$profile"
 mv "$work"/iso/puter-*.iso "$out/puter.iso"

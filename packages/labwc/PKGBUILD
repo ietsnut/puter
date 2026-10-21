@@ -16,7 +16,7 @@ pkgver=0.20.2
 pkgrel=1.4
 pkgdesc='stacking wayland compositor with look and feel from openbox'
 url="https://github.com/labwc/labwc"
-arch=('x86_64')
+arch=('x86_64' 'aarch64')
 license=('GPL-2.0-only')
 depends=(
   cairo

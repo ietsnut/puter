@@ -2,8 +2,9 @@
 # Builds puter's pacman repository, [puter]: the recipes here and puter's
 # own apps (src/, as puter-apps), each only when it's newer than what the
 # repository already has, signed with puter's key (puter.gpg here; the
-# private half is CI's PUTER_SIGNING_KEY secret). Runs as root in an Arch
-# container (.github/workflows/packages.yml), makepkg as the user builder:
+# private half is CI's PUTER_SIGNING_KEY secret). Runs as root in an Arch (or
+# Arch Linux ARM) container (.github/workflows/packages.yml), makepkg as
+# the user builder; on Arch Linux ARM, "Arch" below is Arch Linux ARM:
 #
 #   packages/build DIR    DIR holds the repository as published; new
 #                         packages replace old ones in it, and puter.db
@@ -15,12 +16,19 @@
 # it stays above Arch's and pacman never swaps them back; wlrctl and
 # qpdfview to the AUR's, with the AUR recipe's checksums (read with a regex,
 # never sourced); JLCONE to JLCPCB's own electron-updater feed, whose sha512
-# is the checksum; puter-apps to Qt's version and src/'s commit count. A
-# bumped copy is built; the repo isn't changed.
+# is the checksum; Codex (on Arch Linux ARM) to OpenAI's GitHub releases;
+# puter-apps to Qt's version and src/'s commit count. A bumped copy is
+# built; the repo isn't changed.
 set -euo pipefail
 repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 out="$(readlink -f "${1:?usage: packages/build DIR}")"
-recipes=(labwc qps wlrctl qpdfview jlcone-bin puter-apps)
+# Which recipes this architecture builds: JLCONE exists only for x86_64,
+# and Codex only needs building for Arch Linux ARM (Arch has it).
+recipes=(labwc qps wlrctl qpdfview puter-apps)
+case $(uname -m) in
+  x86_64) recipes+=(jlcone-bin) ;;
+  aarch64) recipes+=(openai-codex) ;;
+esac
 
 # A recipe's own version: pkgver-pkgrel.
 recipe_version() {
@@ -29,9 +37,11 @@ recipe_version() {
 }
 
 # The newest version upstream, without its release: JLCONE's from JLCPCB's
-# feed, the others' from the AUR.
+# feed, Codex's from OpenAI's GitHub releases, the others' from the AUR.
 latest() {
   case $1 in
+    openai-codex) curl -fsSL --max-time 20 https://api.github.com/repos/openai/codex/releases/latest |
+      python3 -c 'import json, sys; print(json.load(sys.stdin)["tag_name"].removeprefix("rust-v"))' ;;
     jlcone-bin) curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml |
       awk '/^version:/ {print $2; exit}' ;;
     *) curl -fsSL --max-time 20 "https://aur.archlinux.org/rpc/v5/info?arg[]=$1" | python3 -c '
@@ -74,6 +84,11 @@ import re, sys
 body = re.search(r"^sha256sums=\((.*?)\)", sys.stdin.read(), re.M | re.S).group(1)
 tarball = re.findall(r"[0-9a-f]{64}", body)[0]
 print("sha256sums=(%r %r)" % (tarball, sys.argv[1]))' "$patch" ;;
+    openai-codex)
+      curl -fsSL --max-time 20 "https://api.github.com/repos/openai/codex/releases/tags/rust-v$(latest openai-codex)" | python3 -c '
+import json, sys
+asset = [a for a in json.load(sys.stdin)["assets"] if a["name"] == "codex-aarch64-unknown-linux-musl.tar.gz"][0]
+print("sha256sums=(%r)" % asset["digest"].removeprefix("sha256:"))' ;;
     jlcone-bin)
       curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml | python3 -c '
 import base64, re, sys

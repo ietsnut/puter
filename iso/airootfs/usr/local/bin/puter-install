@@ -10,11 +10,17 @@
 #
 # puter.disk=/dev/X on the kernel command line installs there without
 # asking and powers off afterwards (how CI tests the stick, in QEMU).
+#
+# It also makes puter's virtual machine (vm/build), in a container rather
+# than on a stick: PUTER_IMAGE=/dev/loopN installs onto that, from
+# PUTER_SRC (iso/payload's), without asking, without touching this
+# machine's firmware settings, and without restarting it.
 set -euo pipefail
-src=/opt/puter
+src="${PUTER_SRC:-/opt/puter}"
 user=puter
+image="${PUTER_IMAGE:-}"
 
-disk="$(sed -n 's/.*puter\.disk=\([^ ]*\).*/\1/p' /proc/cmdline)"
+disk="${image:-$(sed -n 's/.*puter\.disk=\([^ ]*\).*/\1/p' /proc/cmdline)}"
 unattended=${disk:+1}
 # Unattended, everything goes to the serial console too, for CI to read.
 if [[ -n $unattended && -w /dev/ttyS0 ]]; then
@@ -25,11 +31,11 @@ failed() {
   local status=$?
   ((status == 0)) && return
   echo "!! The install stopped (see above)."
-  if [[ -n $unattended ]]; then poweroff; fi
+  if [[ -n $unattended && -z $image ]]; then poweroff; fi
 }
 trap failed EXIT
 
-if [[ ! -d /sys/firmware/efi ]]; then
+if [[ -z $image && ! -d /sys/firmware/efi ]]; then
   echo "puter starts through UEFI, and this machine started the stick without it."
   echo "Turn on UEFI (or turn off legacy/CSM) in its firmware settings, and try again."
   exit 1
@@ -58,12 +64,12 @@ fi
 
 echo "== The disk: $disk"
 umount -R /mnt 2>/dev/null || true
-swapoff -a
+[[ -n $image ]] || swapoff -a
 wipefs -af "$disk"
 sgdisk --zap-all "$disk"
 sgdisk -n1:0:+1G -t1:ef00 -c1:boot -n2:0:0 -t2:8304 -c2:puter "$disk"
 partprobe "$disk"
-udevadm settle
+udevadm settle || true
 # The partitions, whatever they're called (sda1, nvme0n1p1, vda1).
 mapfile -t parts < <(lsblk -pnlo NAME,TYPE "$disk" | awk '$2 == "part" {print $1}')
 mkfs.fat -F 32 -n BOOT "${parts[0]}"
@@ -85,14 +91,15 @@ ParallelDownloads = 5
 SigLevel = Never
 Server = file://$src/offline
 CONF
-mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$src/puter/packages.txt" | grep -v '^$')
+# (bash: the checkout's scripts aren't executable until it's on the disk.)
+mapfile -t pkgs < <(bash "$src/puter/bin/puter-update" packages)
 # The stick's packages stand in for the new system's package cache, so
 # they aren't copied onto the disk as well.
 mkdir -p /mnt/var/cache/pacman/pkg
 # (Writable, or pacman copies them all to /tmp, in memory: it only writes
 # there for a package that isn't there, and every one is.)
 mount --bind "$src/offline" /mnt/var/cache/pacman/pkg
-pacstrap -C "$conf" -K /mnt base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}"
+pacstrap -C "$conf" -K /mnt "${pkgs[@]}"
 umount /mnt/var/cache/pacman/pkg
 genfstab -U /mnt >>/mnt/etc/fstab
 # Arch's own mirrors from now on (its worldwide CDN), and [puter].
@@ -101,6 +108,12 @@ echo 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch' >/mnt/etc/pacman.
 
 echo "== The system"
 root_uuid="$(blkid -s UUID -o value "${parts[1]}")"
+# The kernel: Arch's (vmlinuz-linux) or Arch Linux ARM's (Image).
+kernel=vmlinuz-linux
+[[ -e /mnt/boot/Image ]] && kernel=Image
+# An image's firmware settings are its own machine's, not this one's.
+variables=yes
+[[ -n $image ]] && variables=no
 arch-chroot /mnt bash -s <<CHROOT
 set -euo pipefail
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
@@ -114,7 +127,7 @@ echo puter >/etc/hostname
 useradd -m -G wheel -s /bin/bash $user
 passwd -d $user
 passwd -l root
-bootctl install
+bootctl install --variables=$variables
 cat >/boot/loader/loader.conf <<LOADER
 default puter.conf
 timeout 0
@@ -122,7 +135,7 @@ editor no
 LOADER
 cat >/boot/loader/entries/puter.conf <<ENTRY
 title puter
-linux /vmlinuz-linux
+linux /$kernel
 initrd /initramfs-linux.img
 options root=UUID=$root_uuid rw quiet
 ENTRY
@@ -155,7 +168,9 @@ arch-chroot /mnt runuser -u "$user" -- env HOME="/home/$user" USER="$user" LOGNA
 
 umount -R /mnt
 echo "::installed"
-if [[ -n $unattended ]]; then
+if [[ -n $image ]]; then
+  :
+elif [[ -n $unattended ]]; then
   poweroff
 else
   echo

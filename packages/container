@@ -1,0 +1,23 @@
+#!/bin/bash
+# Makes the Docker image "arch" for this machine's architecture, for CI
+# (.github/workflows/): Arch Linux's own image on x86_64, and on aarch64
+# Arch Linux ARM's root file system, imported (it publishes no image), its
+# keyring set up.
+set -euo pipefail
+case $(uname -m) in
+  x86_64)
+    docker pull -q archlinux:latest
+    docker tag archlinux:latest arch
+    ;;
+  aarch64)
+    url=https://fl.us.mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
+    dir="$(mktemp -d)"
+    curl -fsSL -o "$dir/root.tar.gz" "$url"
+    echo "$(curl -fsSL "$url.md5" | awk '{print $1}')  $dir/root.tar.gz" | md5sum -c -
+    docker import "$dir/root.tar.gz" arch-root
+    rm -rf "$dir"
+    docker run --name arch-keys arch-root bash -c 'pacman-key --init && pacman-key --populate archlinuxarm'
+    docker commit arch-keys arch
+    docker rm arch-keys
+    ;;
+esac

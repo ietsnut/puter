@@ -3,6 +3,19 @@
 # patched ones), which CI builds and signs from packages/ and src/
 # (packages/build). The apps are Qt Widgets ones, styled by puter's Qt
 # style and stylesheet through qt6ct.
+#
+# puter runs on x86_64 (Arch Linux) and aarch64 (Arch Linux ARM). A package
+# that exists on only one of them names it after its own name; `puter-update
+# packages` lists what this machine's takes.
+
+# The system
+base
+linux                 x86_64
+linux-aarch64         aarch64
+linux-firmware
+intel-ucode           x86_64
+amd-ucode             x86_64
+sudo
 
 # The desktop
 labwc
@@ -34,11 +47,11 @@ qps
 qpdfview
 
 # Electronics: KiCad with its symbols, footprints and 3D models, and
-# JLCONE (JLCPCB's ordering app)
+# JLCONE (JLCPCB's ordering app; JLCPCB only makes it for x86_64)
 kicad
 kicad-library
 kicad-library-3d
-jlcone-bin
+jlcone-bin            x86_64
 
 # puter's own apps (src/): the Qt style, Sheet, Calculator, puter-windows
 puter-apps

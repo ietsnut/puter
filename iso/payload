@@ -1,0 +1,66 @@
+#!/bin/bash
+# What puter-install installs from, made in DIR, for this machine's
+# architecture: every package puter installs and everything they need, as a
+# pacman repository (DIR/offline, offline.db), Claude Code (DIR/claude) and
+# puter itself, a git checkout of what's being built (DIR/puter). For the
+# USB installer (iso/build: DIR is the stick's /opt/puter) and the virtual
+# machine (vm/build). Runs as root in an Arch (or Arch Linux ARM)
+# container:
+#
+#   iso/payload DIR WORK
+set -euo pipefail
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+dir="$(readlink -f "${1:?usage: iso/payload DIR WORK}")"
+work="$(readlink -f "${2:?usage: iso/payload DIR WORK}")"
+mkdir -p "$dir" "$work"
+pacman -S --noconfirm --needed git
+# The checkout belongs to someone else in the container.
+git config --global --add safe.directory "$repo"
+
+# Every package puter installs, and everything they need: downloaded into
+# an empty database's view, so nothing counts as installed already. [puter]
+# is listed first, so its labwc and qps are the ones taken.
+offline="$dir/offline"
+mkdir -p "$offline"
+conf="$work/pacman.conf"
+release=repo
+[[ $(uname -m) == x86_64 ]] || release="repo-$(uname -m)"
+sed "/^\\[core\\]/i [puter]\\nSigLevel = Required\\nServer = https://github.com/ietsnut/puter/releases/download/$release\\n" \
+  /etc/pacman.conf >"$conf"
+# (The container's keyring has no key of its own to sign puter's with yet.)
+pacman-key --init
+pacman-key --add "$repo/packages/puter.gpg"
+pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" | awk -F: '/^fpr/ {print $10; exit}')"
+mapfile -t pkgs < <(bash "$repo/bin/puter-update" packages)
+db="$work/db"
+mkdir -p "$db"
+pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
+  "${pkgs[@]}"
+repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.zst
+# Everything resolves from the stick alone, or the build fails here rather
+# than an install.
+cat >"$work/offline.conf" <<CONF
+[options]
+Architecture = auto
+[offline]
+SigLevel = Never
+Server = file://$offline
+CONF
+mkdir -p "$work/empty"
+pacman -Sy --config "$work/offline.conf" --dbpath "$work/empty" >/dev/null
+pacman -Sp --config "$work/offline.conf" --dbpath "$work/empty" \
+  "${pkgs[@]}" >/dev/null
+
+# Claude Code, which comes from Anthropic's own installer rather than
+# pacman: installed here for a user of the build's own, and its one file
+# (versions/VERSION) kept for puter-install to place where the
+# installer would have, so that `claude update` keeps it current after.
+id claude >/dev/null 2>&1 || useradd -m claude
+runuser -u claude -- bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
+mkdir -p "$dir/claude"
+cp /home/claude/.local/share/claude/versions/* "$dir/claude/"
+
+# puter itself, as a git checkout of what's being built (puter-update
+# pulls it later).
+git clone -q --no-hardlinks "$repo" "$dir/puter"
+git -C "$dir/puter" remote set-url origin https://github.com/ietsnut/puter.git
