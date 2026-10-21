@@ -36,7 +36,9 @@ db="$work/db"
 mkdir -p "$db"
 pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
   "${pkgs[@]}"
-repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.zst
+# (Arch's packages are zstd, Arch Linux ARM's mostly xz.)
+shopt -s extglob
+repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.@(zst|xz)
 # Everything resolves from the stick alone, or the build fails here rather
 # than an install.
 cat >"$work/offline.conf" <<CONF

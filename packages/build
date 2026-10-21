@@ -121,7 +121,8 @@ build() { # name version
     if [[ ${want%-*} != "${own%-*}" ]]; then sums "$name" "$dir" >>"$dir/PKGBUILD"; fi
   fi
   chown -R builder: "$dir"
-  (cd "$dir" && runuser -u builder -- makepkg --syncdeps --noconfirm) || return 1
+  # zstd, as Arch's are (Arch Linux ARM's makepkg makes xz).
+  (cd "$dir" && runuser -u builder -- env PKGEXT=.pkg.tar.zst makepkg --syncdeps --noconfirm) || return 1
   pkg="$(cd "$dir" && ls "$name"-[0-9]*.pkg.tar.zst)"
   # (set -e doesn't reach in here, since build is called with ||.)
   cp "$dir/$pkg" "$out/" &&
