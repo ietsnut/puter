@@ -5,8 +5,8 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 
 // Updates: everything on puter brought to the newest there is, by
-// bin/puter-update (Arch and the kernel, firmware, puter, the packages it
-// builds, its own apps, Claude Code). It stands on the strip in the right
+// bin/puter-update (Arch and the kernel, puter's own packages, firmware,
+// puter, Claude Code). It stands on the strip in the right
 // corner, over the bar's update button, twenty-four modules wide: a title
 // strip, then what's out of date, a row each (looked up every time it opens),
 // and a row with the button that starts it all (sudo never asks for a

@@ -1,8 +1,7 @@
 # JLCONE, JLCPCB's desktop app for PCB, PCBA, stencil and CNC orders: the AUR's
-# recipe (aur.archlinux.org/packages/jlcone-bin) as it is, kept here so
-# install.sh can build it like puter's other packages. It repackages
-# JLCPCB's own .deb; when they release a new one, copy the AUR's PKGBUILD in
-# again.
+# recipe (aur.archlinux.org/packages/jlcone-bin) as it is, kept here so CI
+# builds it into [puter] like puter's other packages. It repackages JLCPCB's
+# own .deb; packages/build follows their update feed to a new one.
 #
 # Maintainer: Joe Sedutto <joe@millyardlabs.com>
 

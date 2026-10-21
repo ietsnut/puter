@@ -287,24 +287,45 @@ machine, not for one with your own data on it.
 
 ## Updates
 
-`bin/puter-update` brings everything to the newest, in steps: Arch (the
-keyring first, then `pacman -Su` with whatever `packages.txt` has gained,
-and `paccache -rk2`), firmware (fwupd), puter itself (`git pull --ff-only`,
-when the checkout has a remote), the four packages in `packages/`, puter's
-apps from `src/` (always rebuilt: a Qt upgrade breaks the style plugin),
-Claude Code (`claude update`), and `install.sh config`. It runs as root
-through sudo, and runs as the user (`runuser`) what mustn't be root:
-makepkg, the builds, git, Claude Code, the settings. A failed step is
-reported and the rest still run, except when Arch's own upgrade fails.
-
-The recipes follow upstream rather than waiting to be bumped by hand: labwc
-to Arch's version (still patched, a release above Arch's so pacman never
-swaps it back; `pacman -Su` ignores the four), wlrctl and qpdfview to the
-AUR's, with the AUR recipe's checksums (read with a regex, never sourced),
-and JLCONE to JLCPCB's own electron-updater feed (`latest-linux.yml`), whose
-sha512 is the checksum. A bumped copy is built; the repo isn't changed.
+`bin/puter-update` brings everything to the newest, in steps: the packages
+(the keyring first, then `pacman -Su` with whatever `packages.txt` has
+gained, and `paccache -rk2`), firmware (fwupd), puter itself (`git pull
+--ff-only`, when the checkout has a remote), Claude Code (`claude update`),
+and `install.sh config`. It runs as root through sudo, and runs as the user
+(`runuser`) what mustn't be root: git, Claude Code, the settings. A failed
+step is reported and the rest still run, except when the packages fail.
 `install.sh packages` is `puter-update run` too: a first install is an
 update from nothing.
+
+## [puter], the pacman repository
+
+Nothing is compiled on a puter machine. puter's own packages (labwc and
+qps patched, wlrctl, qpdfview, JLCONE, and `puter-apps`: the style, Sheet,
+Calculator and `puter-windows` from `src/`) come from its own pacman
+repository, `[puter]`, which `.github/workflows/packages.yml` builds on
+GitHub's runners in an Arch container (`packages/build`) on every push to
+`main` touching `packages/` or `src/`, daily and by hand, never for pull
+requests. It's published as the assets of the `repo` release
+(`Server = https://github.com/ietsnut/puter/releases/download/repo`), each
+package replacing the one before it, so only the newest is kept.
+
+The recipes follow upstream rather than waiting to be bumped by hand: labwc
+and qps to Arch's version, still patched, their release Arch's with puter's
+revision after the dot (`1.4` on Arch's `1` is puter's fourth: bump the
+number after the dot when a patch changes), so they stay above Arch's;
+wlrctl and qpdfview to the AUR's, with the AUR recipe's checksums (read
+with a regex, never sourced); JLCONE to JLCPCB's own electron-updater feed
+(`latest-linux.yml`), whose sha512 is the checksum; `puter-apps` to Qt's
+version and `src/`'s commit count (`6.10.1.42`), since a Qt upgrade breaks
+the style plugin. A package is built only when its version is newer than
+the repository's; a bumped copy is built, the repo isn't changed.
+
+Packages and database are signed with puter's key: the public half is
+`packages/puter.gpg`, the private half only the `PUTER_SIGNING_KEY`
+secret. `puter-update` adds the key (`pacman-key --add`, `--lsign-key`)
+every run, so a new key only needs committing (and the secret replacing),
+and lists `[puter]` above `[core]` in `/etc/pacman.conf`, so its labwc and
+qps are the ones pacman picks even before CI has caught up with Arch.
 
 `puter-update check` lists what's out of date without root (`checkupdates`
 from pacman-contrib, a copy of the sync database). `Updates.qml` runs it

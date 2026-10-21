@@ -4,8 +4,8 @@
 # process name taking what the others leave and ending in an ellipsis when
 # too long, so the table is exactly as wide as the window and never scrolls
 # sideways. Checked by its hash rather than its author's signature (no key
-# to fetch on a fresh install), as qpdfview is. Built by install.sh; kept to
-# Arch's version by bin/puter-update.
+# to fetch on a fresh install), as qpdfview is. Built by CI (packages/build),
+# which keeps it to Arch's version.
 #
 # Maintainer: Chih-Hsuan Yen <yan12125@archlinux.org>
 # Contributor: AUR user FredBezies

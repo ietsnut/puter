@@ -18,7 +18,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
-| `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), wlrctl, qpdfview, JLCONE from JLCPCB's .deb |
+| `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `dev/` | work from the Mac: `sync`, `shot`, `grid`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
 ## Installing

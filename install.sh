@@ -11,7 +11,7 @@
 set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
-# The packages, the ones puter builds (packages/), its own apps (src/) and
+# The packages (Arch's, and puter's own from its repository, [puter]) and
 # Claude Code, then the settings: bin/puter-update does all of it, so a first
 # install is an update from nothing.
 packages() {

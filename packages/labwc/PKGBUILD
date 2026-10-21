@@ -5,8 +5,8 @@
 # border further out, so windows meet on one line and no border is drawn
 # along the screen's edge; and pixels.patch, which reads a font's size in
 # pixels rather than points, so its text is 15px like all of puter's (in
-# whole points it could only be 14.67 or 16). Built by install.sh; kept to
-# Arch's version by bin/puter-update.
+# whole points it could only be 14.67 or 16). Built by CI (packages/build),
+# which keeps it to Arch's version.
 #
 # Maintainer: Peter Jung <ptr1337@archlinux.org>
 # Contributor: Lex Black <autumn-wind@web.de>

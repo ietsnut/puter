@@ -1,17 +1,15 @@
 #!/bin/bash
 # Updates everything on puter to the newest there is, in one go:
 #
-#   1. Arch: the keyring first, then every package (the kernel, firmware
-#      files, the apps, the build tools, Codex), and any package puter has
-#      added to packages.txt since
+#   1. Arch and puter's own packages: the keyring first, then every package
+#      (the kernel, firmware files, the apps, Codex), and any package puter
+#      has added to packages.txt since. puter's own (labwc and qps patched,
+#      wlrctl, qpdfview, JLCONE, and its apps from src/) come from its pacman
+#      repository, [puter], which CI builds and signs (packages/build)
 #   2. firmware, through fwupd (the machine's own: disks, the BIOS, docks)
 #   3. puter itself, from its git remote, when this checkout has one
-#   4. the packages puter builds (packages/): labwc and qps (System
-#      Monitor) to Arch's newest with puter's patches, wlrctl and qpdfview to the AUR's newest, JLCONE to
-#      JLCPCB's newest
-#   5. puter's own apps (src/), rebuilt against the Qt just installed
-#   6. Claude Code, through its own updater
-#   7. puter's settings, applied again (install.sh config)
+#   4. Claude Code, through its own updater
+#   5. puter's settings, applied again (install.sh config)
 #
 #   puter-update          all of it (through sudo, which on puter never asks
 #                         for a password: install.sh's access)
@@ -19,8 +17,8 @@
 #
 # The bar's update button (config/quickshell/Updates.qml) runs
 # `sudo puter-update run` and follows lines starting with "::":
-#   ::step 4 10 labwc     a step begins
-#   ::fail labwc          a step failed (the others still run)
+#   ::step 4 5 Claude Code  a step begins
+#   ::fail Claude Code         a step failed (the others still run)
 #   ::restart             something running (the kernel, labwc, the shell) changed
 #   ::done                finished
 # Everything else is the steps' own output, also kept in
@@ -28,117 +26,27 @@
 set -uo pipefail
 repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 
-# The packages built from packages/, and what each is called on screen.
-recipes=(labwc qps wlrctl qpdfview jlcone-bin)
-declare -A names=([labwc]=labwc [qps]="System Monitor" [wlrctl]=wlrctl [qpdfview]=PDFs [jlcone-bin]=JLCONE)
-# The ones that are Arch's own packages patched, so they follow Arch.
-patched=(labwc qps)
-
-is_patched() {
-  [[ " ${patched[*]} " == *" $1 "* ]]
-}
 # What, upgraded, wants a restart to take effect.
 running=(linux linux-lts linux-zen linux-hardened systemd glibc mesa labwc quickshell qt6-base wlroots0.20)
 
-# A recipe's own version: pkgver-pkgrel.
-recipe_version() {
-  # shellcheck disable=SC1090,SC2154  # pkgver and pkgrel come from the PKGBUILD
-  (source "$repo/packages/$1/PKGBUILD" && echo "$pkgver-$pkgrel")
+# What's out of date, without changing anything (and without root): the
+# packages through checkupdates (a copy of the sync database), puter's own
+# listed apart from Arch's, and the rest by asking upstream.
+count_line() { # label updates (checkupdates' lines)
+  local count names_
+  count="$(grep -c . <<<"$2")"
+  ((count > 0)) || return 0
+  names_="$(awk '{print $1}' <<<"$2" | head -3 | paste -sd, - | sed 's/,/, /g')"
+  ((count > 3)) && names_+=" and $((count - 3)) more"
+  printf '%s\t%s package%s: %s\n' "$1" "$count" "$([[ $count == 1 ]] || echo s)" "$names_"
 }
 
-installed() {
-  pacman -Q "$1" 2>/dev/null | cut -d' ' -f2
-}
-
-# The newest version upstream, without its release: labwc's and qps's from
-# Arch (the sync database, so after pacman -Sy), JLCONE's from JLCPCB's own update
-# feed, the others' from the AUR.
-latest() {
-  case $1 in
-    labwc | qps) pacman -Si "$1" 2>/dev/null | awk '/^Version/ {print $3; exit}' | sed 's/-[^-]*$//' ;;
-    jlcone-bin) curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml |
-      awk '/^version:/ {print $2; exit}' ;;
-    *) curl -fsSL --max-time 20 "https://aur.archlinux.org/rpc/v5/info?arg[]=$1" | python3 -c '
-import json, sys
-results = json.load(sys.stdin)["results"]
-print(results[0]["Version"].rsplit("-", 1)[0] if results else "")' ;;
-  esac
-}
-
-# The version a recipe builds: its own, or upstream's newest when that's
-# newer (the recipe is then bumped as it's copied to be built).
-target() { # name latest
-  local own; own="$(recipe_version "$1")"
-  if [[ -n $2 && $(vercmp "$2" "${own%-*}") -gt 0 ]]; then
-    # A patched package keeps a release above Arch's own, so pacman never
-    # swaps it back.
-    if is_patched "$1"; then
-      echo "$2-$(pacman -Si "$1" | awk '/^Version/ {print $3; exit}' | sed 's/.*-//').1"
-    else
-      echo "$2-1"
-    fi
-  else
-    echo "$own"
-  fi
-}
-
-# The checksums for a bumped recipe, appended to its copy (a later
-# assignment wins when makepkg reads it): JLCONE's from JLCPCB's feed, the
-# AUR packages' from the AUR's recipe for that version (read, not run), as
-# many as the recipe has sources. labwc builds a git tag, which has none;
-# qps takes its tarball's from Arch's recipe and keeps its patch's own.
-sums() { # name dir
-  case $1 in
-    labwc) ;;
-    qps)
-      local patch
-      # shellcheck disable=SC1091,SC2154  # sha256sums comes from the PKGBUILD
-      patch="$(source "$2/PKGBUILD" && echo "${sha256sums[1]}")"
-      curl -fsSL --max-time 20 "https://gitlab.archlinux.org/archlinux/packaging/packages/qps/-/raw/main/PKGBUILD" |
-        python3 -c '
-import re, sys
-body = re.search(r"^sha256sums=\((.*?)\)", sys.stdin.read(), re.M | re.S).group(1)
-tarball = re.findall(r"[0-9a-f]{64}", body)[0]
-print("sha256sums=(%r %r)" % (tarball, sys.argv[1]))' "$patch" ;;
-    jlcone-bin)
-      curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml | python3 -c '
-import base64, re, sys
-sha = re.search(r"^sha512: (\S+)", sys.stdin.read(), re.M).group(1)
-print(f"unset sha256sums; sha512sums=({base64.b64decode(sha).hex()!r})")' ;;
-    *)
-      local count
-      # shellcheck disable=SC1091,SC2154  # source comes from the PKGBUILD
-      count="$(source "$2/PKGBUILD" && echo "${#source[@]}")"
-      curl -fsSL --max-time 20 "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$1" | python3 -c '
-import re, sys
-count, text = int(sys.argv[1]), sys.stdin.read()
-print("unset md5sums sha256sums sha512sums b2sums")
-for name, body in re.findall(r"^((?:md5|sha256|sha512|b2)sums)=\((.*?)\)", text, re.M | re.S):
-    values = re.findall(r"[\x27\"]([^\x27\"]*)[\x27\"]", body)[:count]
-    print(f"{name}=(" + " ".join(repr(v) for v in values) + ")")' "$count" ;;
-  esac
-}
-
-# What's out of date, without changing anything (and without root): Arch's
-# packages through checkupdates (a copy of the sync database), the rest by
-# asking upstream.
 check() {
-  local updates count names_ line name have want
+  local updates ours count have want
   updates="$(checkupdates 2>/dev/null)"
-  # The patched packages are listed with puter's own (Arch's version is
-  # only their recipe's source), from what checkupdates says Arch has.
-  declare -A arch_latest=()
-  for name in "${patched[@]}"; do
-    line="$(grep "^$name " <<<"$updates")"
-    [[ -n $line ]] && arch_latest[$name]="$(awk '{print $4}' <<<"$line" | sed 's/-[^-]*$//')"
-  done
-  updates="$(grep -v -E "^($(IFS='|'; echo "${recipes[*]}")) " <<<"$updates" | grep -v '^$')"
-  count="$(grep -c . <<<"$updates")"
-  if ((count > 0)); then
-    names_="$(awk '{print $1}' <<<"$updates" | head -3 | paste -sd, - | sed 's/,/, /g')"
-    ((count > 3)) && names_+=" and $((count - 3)) more"
-    printf 'Arch Linux\t%s package%s: %s\n' "$count" "$([[ $count == 1 ]] || echo s)" "$names_"
-  fi
+  ours="$(pacman -Slq puter 2>/dev/null | paste -sd'|' -)"
+  count_line "Arch Linux" "$(grep -v -E "^(${ours:-^}) " <<<"$updates")"
+  count_line "puter's packages" "$(grep -E "^(${ours:-^}) " <<<"$updates")"
 
   if command -v fwupdmgr >/dev/null; then
     count="$(timeout 20 fwupdmgr get-updates --json 2>/dev/null | python3 -c '
@@ -154,15 +62,6 @@ except Exception: print(0)')"
     ((count > 0)) && printf 'puter\t%s new change%s\n' "$count" "$([[ $count == 1 ]] || echo s)"
   fi
 
-  for name in "${recipes[@]}"; do
-    have="$(installed "$name")"
-    if is_patched "$name"; then want="$(target "$name" "${arch_latest[$name]:-}")"
-    else want="$(target "$name" "$(latest "$name")")"; fi
-    if [[ $(vercmp "${have:-0}" "$want") -lt 0 ]]; then
-      printf '%s\t%s → %s\n' "${names[$name]}" "${have:-not installed}" "${want%-*}"
-    fi
-  done
-
   local claude="$HOME/.local/bin/claude"
   if [[ -x $claude ]]; then
     have="$("$claude" --version 2>/dev/null | awk '{print $1}')"
@@ -174,7 +73,7 @@ except Exception: print(0)')"
 }
 
 # Everything below runs as root, with the user who asked (sudo's) for what
-# mustn't: makepkg, the builds, Claude Code and the settings.
+# mustn't: git, Claude Code and the settings.
 as_user() {
   runuser -u "$user" -- env HOME="$home" USER="$user" LOGNAME="$user" \
     XDG_RUNTIME_DIR="/run/user/$uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
@@ -196,16 +95,30 @@ fail() {
   echo "!! $1 failed"
 }
 
+# puter's pacman repository, [puter]: built and signed by CI
+# (packages/build), trusted through puter's key (packages/puter.gpg, taken
+# again each time, so a new key only needs committing) and listed before
+# Arch's own, so its labwc and qps, patched, are the ones installed.
+puter_repo() {
+  pacman-key --add "$repo/packages/puter.gpg" >/dev/null || return 1
+  pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" |
+    awk -F: '/^fpr/ {print $10; exit}')" >/dev/null || return 1
+  grep -q '^\[puter\]' /etc/pacman.conf ||
+    sed -i '/^\[core\]/i [puter]\nSigLevel = Required\nServer = https://github.com/ietsnut/puter/releases/download/repo\n' /etc/pacman.conf
+}
+
 system() {
   begin "Arch Linux"
+  puter_repo || return 1
   pacman -Sy --needed --noconfirm archlinux-keyring || return 1
-  # Everything in packages.txt, so what puter has added since is installed,
-  # but not the packages puter builds itself (pacman would put Arch's own
-  # labwc back).
-  local pkgs
-  mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$' |
-    grep -v -x -F -f <(printf '%s\n' "${recipes[@]}"))
-  pacman -Su --needed --noconfirm --ignore "$(IFS=,; echo "${recipes[*]}")" "${pkgs[@]}" || return 1
+  # Everything in packages.txt, so what puter has added since is installed.
+  local pkgs overwrite=()
+  mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
+  # puter's apps were once installed by cmake, outside pacman: their files
+  # are taken over the first time they come as a package.
+  pacman -Q puter-apps >/dev/null 2>&1 || overwrite=(--overwrite '/usr/bin/puter-*'
+    --overwrite /usr/lib/qt6/plugins/styles/libputerstyle.so --overwrite '/usr/share/applications/puter-*')
+  pacman -Su --needed --noconfirm "${overwrite[@]}" "${pkgs[@]}" || return 1
   # The two newest of each package are kept in pacman's cache.
   if command -v paccache >/dev/null; then paccache -rk2; fi
 }
@@ -230,44 +143,6 @@ puter() {
     return 0
   fi
   as_user git -C "$repo" pull --ff-only
-}
-
-recipe() { # name
-  local name=$1 want have build
-  begin "${names[$name]}"
-  want="$(target "$name" "$(latest "$name")")"
-  have="$(installed "$name")"
-  if [[ $(vercmp "${have:-0}" "$want") -ge 0 ]]; then
-    echo "$name $have is the newest."
-    return 0
-  fi
-  echo "$name ${have:-(not installed)} → $want"
-  build="$(as_user mktemp -d)"
-  as_user cp -r "$repo/packages/$name/." "$build/"
-  if [[ $want != "$(recipe_version "$name")" ]]; then
-    as_user sed -i -e "s/^pkgver=.*/pkgver=${want%-*}/" -e "s/^pkgrel=.*/pkgrel=${want##*-}/" "$build/PKGBUILD"
-    sums "$name" "$build" | as_user tee -a "$build/PKGBUILD" >/dev/null
-  fi
-  # Its dependencies, installed here as root, so makepkg needn't ask for them.
-  local deps
-  mapfile -t deps < <(cd "$build" && as_user makepkg --printsrcinfo | awk -F' = ' '/^\t(make|check)?depends = / {print $2}')
-  ((${#deps[@]} == 0)) || pacman -S --needed --asdeps --noconfirm "${deps[@]}" || return 1
-  (cd "$build" && as_user makepkg --noconfirm --force) || return 1
-  pacman -U --noconfirm "$build/$name"-[0-9]*.pkg.tar.zst || return 1
-  rm -rf "$build"
-}
-
-apps() {
-  begin "puter's apps"
-  local part build
-  for part in style sheet calc windows; do
-    echo "-- $part"
-    build="$(as_user mktemp -d)"
-    as_user cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release || return 1
-    as_user cmake --build "$build" || return 1
-    cmake --install "$build" || return 1
-    rm -rf "$build"
-  done
 }
 
 claude() {
@@ -297,9 +172,9 @@ run() {
 
   local before after
   before="$(pacman -Q "${running[@]}" 2>/dev/null)"
-  steps=$((6 + ${#recipes[@]}))
+  steps=5
 
-  # Without Arch's packages, nothing else can be trusted to build.
+  # Without the packages, nothing else can be trusted to run.
   if ! system; then
     fail "Arch Linux"
     echo "::done"
@@ -307,11 +182,6 @@ run() {
   fi
   firmware || fail "Firmware"
   puter || fail "puter"
-  local name
-  for name in "${recipes[@]}"; do
-    recipe "$name" || fail "${names[$name]}"
-  done
-  apps || fail "puter's apps"
   claude || fail "Claude Code"
   settings || fail "Settings"
 

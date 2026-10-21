@@ -1,8 +1,8 @@
-# Everything puter installs from the Arch repos. The apps are Qt Widgets ones,
-# styled by puter's Qt style and stylesheet through qt6ct. Then labwc is
-# rebuilt with puter's patch, wlrctl built from the AUR's recipe, JLCONE (JLCPCB's ordering app) built from
-# JLCPCB's .deb (packages/), and puter's Qt style and table editor (src/)
-# built from this repo (install.sh).
+# Everything puter installs: Arch's packages, and puter's own from its
+# pacman repository, [puter] (listed first, so its labwc and qps are the
+# patched ones), which CI builds and signs from packages/ and src/
+# (packages/build). The apps are Qt Widgets ones, styled by puter's Qt
+# style and stylesheet through qt6ct.
 
 # The desktop
 labwc
@@ -23,20 +23,32 @@ lximage-qt
 mpv
 firefox
 thunderbird
-# Archives and the system monitor (PDFs: qpdfview, built from packages/),
-# and the calculator's arithmetic (src/calc)
+# Archives, the system monitor and PDFs, and the calculator's arithmetic
+# (src/calc)
 lxqt-archiver
 7zip
 unzip
 zip
 libqalculate
 qps
+qpdfview
+
+# Electronics: KiCad with its symbols, footprints and 3D models, and
+# JLCONE (JLCPCB's ordering app)
+kicad
+kicad-library
+kicad-library-3d
+jlcone-bin
+
+# puter's own apps (src/): the Qt style, Sheet, Calculator, puter-windows
+puter-apps
 
 # Agents (bin/puter-agent): Codex, and foot for their windows; Claude Code
-# comes from Anthropic's installer (install.sh). Typing for puter-desktop
-# (wlrctl, for the pointer, is built from packages/).
+# comes from Anthropic's installer (install.sh). The pointer and typing for
+# puter-desktop.
 foot
 openai-codex
+wlrctl
 wtype
 
 # Fonts
@@ -51,19 +63,16 @@ pipewire-pulse
 wireplumber
 wl-clipboard
 # Screenshots, and the switcher's previews (grim -T, by the identifiers
-# src/windows lists, which wayland-protocols builds)
+# src/windows lists)
 grim
-wayland-protocols
 slurp
 
-# Qt: the apps' settings, the icons they fall back on, and building
+# Qt: the apps' settings and the icons they fall back on
 qt6ct
 breeze-icons
-cmake
 
-# Building the patched packages
+# puter itself is a git checkout (puter-update pulls it)
 git
-base-devel
 
 # Updates (bin/puter-update): checkupdates and paccache, and the
 # machine's firmware

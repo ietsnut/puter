@@ -64,8 +64,9 @@ jobs:
             echo "Nothing new."
             exit 0
           fi
-          # repo-add links puter.db and puter.files to their archives; a
-          # release holds files.
+          # repo-add keeps the database it replaced as .old, and links
+          # puter.db and puter.files to their archives; a release holds files.
+          rm -f ./*.old ./*.old.sig
           for f in puter.db puter.db.sig puter.files puter.files.sig; do
             cp --remove-destination "$(readlink -f "$f")" "$f"
           done
