@@ -268,6 +268,11 @@ nothing runs while there are none.
   `Colors.qml`.
 - **labwc draws `*_hover` button images instead of its hover colour**, so
   hover is drawn into those images.
+- **Quickshell and labwc keep every icon they've looked up** for as long as
+  they run, misses included: an app whose square is added while the shell
+  runs shows no square on its taskbar tab until the shell starts again. A
+  login always has them; `dev/sync` restarts the shell when `theme/icons`
+  changed.
 - **Quickshell deletes its desktop entries when it rescans** (an app
   installed, a desktop file rewritten): holding one (search's recent apps,
   from `DesktopEntries.byId`) crashed the shell the next time search opened.
