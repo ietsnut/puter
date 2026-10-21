@@ -23,6 +23,14 @@ featherpad
 lximage-qt
 mpv
 firefox
+# Archives, the calculator and the system monitor (PDFs: qpdfview, built
+# from packages/)
+lxqt-archiver
+7zip
+unzip
+zip
+qalculate-qt
+qps
 
 # Agents (bin/puter-agent): Codex, and foot for their windows; Claude Code
 # comes from Anthropic's installer (install.sh). Typing for puter-desktop

@@ -17,6 +17,7 @@ colour of each app).
   theme/kicad/puter.json         KiCad's board, schematic and 3D colours
   theme/qterminal/puter.colorscheme  the terminal
   theme/foot/foot.ini            the agents' terminal
+  theme/qpdfview/colors          the PDF viewer's page colours
   theme/firefox/chrome/          Firefox's stylesheet, from theme/firefox
 
 Icons and glyphs are IBM's Carbon icons (theme/carbon), named in
@@ -66,6 +67,11 @@ SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "sear
         f'    readonly property color {"".join(w.capitalize() if i else w for i, w in enumerate(role.split("-")))}: "{C[role]}"\n'
         for role in SHELL_ROLES
     )
+    # Each app's colour by its icon name (the [apps] section), for the strip
+    # along a notification's toast.
+    + "    readonly property var apps: ({\n"
+    + ",\n".join(f'        "{name}": "{color}"' for name, color in APPS.items())
+    + "\n    })\n"
     + "}\n"
 )
 
@@ -376,6 +382,12 @@ foot += [f"regular{i}={hex6(f'ansi{i}')}" for i in range(8)]
 foot += [f"bright{i}={hex6(f'ansi{i + 8}')}" for i in range(8)]
 (theme / "foot").mkdir(exist_ok=True)
 (theme / "foot" / "foot.ini").write_text("\n".join(foot) + "\n")
+
+
+# PDFs (qpdfview): pages on paper with a 1px edge in the outline colour,
+# lying on muted (bone); install.sh writes these into its settings.
+(theme / "qpdfview").mkdir(exist_ok=True)
+(theme / "qpdfview" / "colors").write_text(f"backgroundColor {C['muted']}\npaperColor {C['paper']}\n")
 
 
 

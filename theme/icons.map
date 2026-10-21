@@ -218,3 +218,6 @@ puter-power                   actions     power
 puter-agent-working           status      in-progress
 puter-agent-waiting           status      help
 puter-agent-done              status      checkmark
+# A notification's glyph on its toast (config/quickshell/Toasts.qml).
+puter-notification            status      notification
+puter-notification-urgent     status      warning--alt

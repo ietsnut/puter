@@ -29,4 +29,24 @@ Singleton {
     readonly property color buttonHoverInk: "#ffffff"
     readonly property color attention: "#e4722c"
     readonly property color attentionInk: "#060606"
+    readonly property var apps: ({
+        "featherpad": "#e4722c",
+        "pcmanfm-qt": "#e0a9df",
+        "utilities-terminal": "#9cb747",
+        "lximage-qt": "#a9a7f9",
+        "firefox": "#f2c14e",
+        "x-office-spreadsheet": "#c9d1e2",
+        "jlcone": "#f0a27a",
+        "kicad": "#583127",
+        "pcbnew": "#583127",
+        "eeschema": "#583127",
+        "mpv": "#e88fb0",
+        "xdg-desktop-portal-lxqt": "#e0a9df",
+        "qpdfview": "#c8372d",
+        "lxqt-archiver": "#7a52c4",
+        "qalculate-qt": "#5552c4",
+        "qps": "#5f7a1e",
+        "claude": "#b85926",
+        "codex": "#3e8fa8"
+    })
 }

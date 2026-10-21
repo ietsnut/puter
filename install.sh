@@ -13,10 +13,10 @@ packages() {
   mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
   sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
 
-  # labwc, patched, wlrctl and JLCONE (packages/). Each is
+  # labwc, patched, wlrctl, qpdfview and JLCONE (packages/). Each is
   # rebuilt whenever the installed version isn't its recipe's.
   local name want have
-  for name in labwc wlrctl jlcone-bin; do
+  for name in labwc wlrctl qpdfview jlcone-bin; do
     # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
     want="$(source "$repo/packages/$name/PKGBUILD" && echo "$pkgver-$pkgrel")"
     # Empty when it isn't installed yet (pacman -Q fails, which would end the
@@ -256,6 +256,46 @@ CONF
   ini "$q" General HideTabBarWithOneTab true
   ini "$q" General AskOnExit false
   ini "$q" General MenuVisible true
+
+  # qpdfview: the page as wide as the window, pages one module apart, each
+  # with a 1px edge, on bone (theme/qpdfview/colors, from theme/make); the
+  # tab bar only for two or more, no toolbars, and closing the last tab
+  # closes the window.
+  local p="$HOME/.config/qpdfview/qpdfview.conf" key value
+  ini "$p" documentView scaleMode 1
+  ini "$p" documentView pageSpacing 30
+  ini "$p" pageItem decoratePages true
+  while read -r key value; do
+    ini "$p" pageItem "$key" "$value"
+  done <"$repo/theme/qpdfview/colors"
+  ini "$p" mainWindow tabVisibility 0
+  ini "$p" mainWindow fileToolBar ""
+  ini "$p" mainWindow editToolBar ""
+  ini "$p" mainWindow viewToolBar ""
+  ini "$p" mainWindow exitAfterLastTab true
+
+  # Archives (LXQt's archiver): the list alone, as in Files (no folder tree,
+  # toolbar or status bar), 16px icons.
+  local a="$HOME/.config/lxqt/archiver.conf"
+  ini "$a" Window DirTree false
+  ini "$a" Window ToolBar false
+  ini "$a" Window StatusBar false
+  ini "$a" Sizes ViewsIconSize 16
+  ini "$a" Sizes WindowSize "@Size(720 540)"
+
+  # The calculator (Qalculate): the history and the expression, without
+  # its keypad.
+  ini "$HOME/.config/qalculate/qalculate-qt.cfg" General show_keypad 0
+
+  # The system monitor (qps): only your own programs, by name, with their
+  # processor and memory use; none of its meters, control row or status bar
+  # (only the list, as in Files); every two seconds.
+  local m="$HOME/.config/qps/qps.conf"
+  ini "$m" General flags "ExitOnClose, selectpids"
+  ini "$m" General field "47, 42, 32"
+  ini "$m" General viewproc 1
+  ini "$m" General interval 2000
+  ini "$m" sort field 42
 
   # Which app opens what.
   ln -sfn "$repo/config/mimeapps.list" "$HOME/.config/mimeapps.list"

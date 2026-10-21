@@ -1,5 +1,6 @@
 # Which app opens what: text in FeatherPad, tables in Sheet, photos in
-# LXImage-Qt, videos in mpv, folders in PCManFM-Qt, the web in Firefox.
+# LXImage-Qt, videos in mpv, folders in PCManFM-Qt, the web in Firefox,
+# PDFs in qpdfview, archives in LXQt's archiver.
 [Default Applications]
 inode/directory=pcmanfm-qt.desktop
 text/plain=featherpad.desktop
@@ -30,3 +31,13 @@ text/tab-separated-values=puter-sheet.desktop
 text/html=firefox.desktop
 x-scheme-handler/http=firefox.desktop
 x-scheme-handler/https=firefox.desktop
+application/pdf=qpdfview.desktop
+application/zip=lxqt-archiver.desktop
+application/x-tar=lxqt-archiver.desktop
+application/x-compressed-tar=lxqt-archiver.desktop
+application/x-xz-compressed-tar=lxqt-archiver.desktop
+application/x-zstd-compressed-tar=lxqt-archiver.desktop
+application/x-bzip2-compressed-tar=lxqt-archiver.desktop
+application/gzip=lxqt-archiver.desktop
+application/x-7z-compressed=lxqt-archiver.desktop
+application/vnd.rar=lxqt-archiver.desktop

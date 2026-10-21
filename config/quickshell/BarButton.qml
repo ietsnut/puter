@@ -9,12 +9,14 @@ Rectangle {
 
     // An icon name in puter's theme.
     property string icon: ""
+    // Its colour at rest: the bar's, or whatever it stands on.
+    property color fill: Theme.bar
     signal clicked
     signal scrolled(int steps)
 
     width: Theme.module
     height: Theme.module
-    color: mouse.containsMouse ? Theme.hover : Theme.bar
+    color: mouse.containsMouse ? Theme.hover : fill
 
     IconImage {
         x: (Theme.module - width) / 2

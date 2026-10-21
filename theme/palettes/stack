@@ -155,6 +155,10 @@ mpv                   pink
 # The file dialog every app gets (LXQt's portal, by its app ID, as it has
 # no desktop file of that name): the files colour.
 xdg-desktop-portal-lxqt  lilac
+qpdfview              red
+lxqt-archiver         purple
+qalculate-qt          periwinkle-dark
+qps                   lime-dark
 # The agents (bin/puter-agent), each in its own terminal window.
 claude                coral-dark
 codex                 cyan

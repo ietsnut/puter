@@ -12,11 +12,11 @@ and `mulholland` (black, white and gray, IBM Plex).
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, builds, configs, login screen |
 | `packages.txt` | everything it installs from the Arch repos |
-| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
+| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses) and `sheet/` (the table editor) |
-| `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), wlrctl, JLCONE from JLCPCB's .deb |
+| `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), wlrctl, qpdfview, JLCONE from JLCPCB's .deb |
 | `dev/` | work from the Mac: `sync`, `shot`, `grid`, `tour`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
 ## Installing
@@ -54,14 +54,16 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt),
 Notepad (FeatherPad, syntax colours from the palette), Photos (LXImage-Qt),
-Video (mpv), Terminal (QTerminal), Browser (Firefox) and Sheets (puter's
-own); KiCad and JLCONE (PCB orders) keep their own names; helpers that come with a package (foot's server, CMake, the Qt test
+Video (mpv), Terminal (QTerminal), Browser (Firefox), Sheets (puter's own),
+PDFs (qpdfview), Archives (LXQt's archiver), Calculator (Qalculate) and
+System Monitor (qps); KiCad and JLCONE (PCB orders) keep their own names; helpers that come with a package (foot's server, CMake, the Qt test
 tools) are kept out of search.
 Claude Code and Codex, each session in a window of its own (search, or
 right-click a folder: Open in Claude Code); its taskbar tab shows whether
 it's working, waiting for you (orange) or done, and both can see and use the
 desktop.
-Left of the clock, the network (click for nmtui: networks, Wi-Fi and its
+Notifications come up as toasts in the top-right corner, each with a strip
+in its app's colour (orange when critical). Left of the clock, the network (click for nmtui: networks, Wi-Fi and its
 passwords) and the volume (click to mute, scroll to turn it up or down);
 restart and shut down in the bar's right corner.
 

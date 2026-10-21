@@ -17,6 +17,8 @@ ShellRoot {
         id: searchPanel
     }
 
+    Toasts {}
+
     // Super+Space: `qs ipc call search toggle`.
     IpcHandler {
         target: "search"

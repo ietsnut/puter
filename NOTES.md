@@ -38,6 +38,10 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | Tables | Sheet (`src/sheet`, puter's own) | No maintained small Qt table editor exists |
 | Photos | LXImage-Qt | |
 | Video | mpv | No interface of its own |
+| PDFs | qpdfview (`packages/qpdfview`, the AUR's recipe) | Qt Widgets on poppler, tabs only for two or more; pages on bone with a 1px edge |
+| Archives | LXQt's archiver | Qt, the list alone as in Files; 7-Zip, unzip and zip do the work |
+| Calculator | Qalculate (Qt) | Qt Widgets, typed sums with units and currencies; SpeedCrunch 1.0 was tried first and draws its own dark, rounded interface |
+| System monitor | qps | Qt Widgets; only your programs, their processor and memory, without its meters |
 | Web | Firefox | A normal browser (tabs, an address field), its whole interface restyled by one stylesheet (`theme/firefox`, from the palette) and its settings a web page |
 | PCB orders | JLCONE | JLCPCB's Electron app, from their .deb (`packages/jlcone-bin`, the AUR's recipe) |
 | Login | greetd + tuigreet | Text login that starts labwc |
@@ -176,6 +180,20 @@ Code", file-manager actions that install.sh writes).
   itself), Codex from extra (`openai-codex`). Signing in is each agent's own
   first screen.
 
+## Notifications
+
+`Toasts.qml` is the notification server (Quickshell's): toasts in the
+top-right corner, one module in from the edges, twelve modules wide, the
+newest on top and each flush under the last (they meet on one line). A
+toast is a one-module strip in the app's colour (the palette's `[apps]`,
+which `theme/make` also writes into `Colors.qml` as `apps`; the accent for
+an app without one; `attention` when critical) with a Carbon glyph (a bell,
+or a warning when critical), the app's name and a close button; then the
+summary and body on paper, rounded up to whole modules; then the actions as
+chips. A click takes the default action. A toast goes after its timeout (six
+seconds unless the app says), a critical one stays. No animation, and
+nothing runs while there are none.
+
 ## Things that took finding out
 
 - **Carbon at 16px**: most icons are drawn on a 32px grid and halved, and
@@ -220,6 +238,14 @@ Code", file-manager actions that install.sh writes).
   installed, a desktop file rewritten): holding one (search's recent apps,
   from `DesktopEntries.byId`) crashed the shell the next time search opened.
   Search finds them again among the apps, so they're looked up afresh.
+- **Window rules size apps that keep their own size** (`rc.xml`): labwc's
+  `ResizeTo` when a window first maps, only for `type="normal"` (else their
+  dialogs are blown up too). qpdfview's app ID is `qpdfview.local.qpdfview`.
+- **qpdfview only draws its page edge and background with
+  `decoratePages`** (otherwise the background is the paper colour, so pages
+  vanish); the decoration is a 1px edge, no shadow.
+- **qps's fields are numbered by its build** (`proc.h` less the fields it
+  leaves out): 47 the command, 42 processor, 32 memory; 48 crashes it.
 - **A desktop file without a name doesn't count**: the system's copy shows
   instead. Hiding an app (`NoDisplay=true`) keeps its name.
 - **Quickshell reads the app folders it finds at start**: one made later
