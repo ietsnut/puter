@@ -176,15 +176,48 @@ def carbon(name, small):
     return body, grid
 
 
+# Hinting. Carbon centres its icons on the middle of the grid, so a line down
+# the middle of a 16px glyph runs from 7.5 to 8.5: two gray pixels rather
+# than one in ink. Each 16px glyph is drawn four ways, nudged half a pixel
+# across, down, both or neither, and the sharpest kept: the one with the
+# least in between ink and nothing (rsvg-convert draws them; PIL reads them).
+import io
+import subprocess
+from PIL import Image
+
+HINTS = {}
+
+
+def hint(name):
+    """The half-pixel nudge (dx, dy) that draws a 16px glyph sharpest."""
+    if name not in HINTS:
+        body, grid = carbon(name, small=True)
+        best = None
+        for dx in (0, 0.5):
+            for dy in (0, 0.5):
+                svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'
+                       f'<g transform="translate({dx} {dy}) scale({16 / grid:g})">{body}</g></svg>')
+                png = subprocess.run(["rsvg-convert", "-w", "16", "-h", "16"], input=svg.encode(),
+                                     capture_output=True, check=True).stdout
+                alpha = Image.open(io.BytesIO(png)).getchannel("A")
+                gray = sum(n * min(v, 255 - v) for v, n in enumerate(alpha.histogram()))
+                if best is None or gray < best[0]:
+                    best = (gray, (dx, dy))
+        HINTS[name] = best[1]
+    return HINTS[name]
+
+
 def glyph(name, canvas, box, ink, fill=None):
     """A Carbon icon drawn box pixels square in the middle of a canvas pixels
-    square (on whole pixels), in ink, on a filled square if fill is given."""
+    square (on whole pixels, nudged by its hint at 16px), in ink, on a filled
+    square if fill is given."""
     body, grid = carbon(name, small=box <= 16)
+    dx, dy = hint(name) if box == 16 else (0, 0)
     offset, scale = (canvas - box) // 2, box / grid
     square = f'<rect width="{canvas}" height="{canvas}" fill="{fill}"/>' if fill else ""
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{canvas}" height="{canvas}" '
             f'viewBox="0 0 {canvas} {canvas}">{square}'
-            f'<g transform="translate({offset} {offset}) scale({scale:g})" fill="{ink}">{body}</g></svg>\n')
+            f'<g transform="translate({offset + dx:g} {offset + dy:g}) scale({scale:g})" fill="{ink}">{body}</g></svg>\n')
 
 
 # labwc: the window buttons, one module each (30 x 30), their 16px glyph in

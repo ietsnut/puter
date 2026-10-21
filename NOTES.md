@@ -12,9 +12,9 @@ from what was learned rather than repeating it. `README.md` says what's where;
   to it gets patched, restyled or replaced (fuzzel was, see below).
 - **Floating windows**, never tiling. Snapping (Super+arrows, drag to an edge)
   gives halves and quarters, which land on the grid at 1920x1080.
-- **Clean vector icons, 2px strokes.** No pixel art, no dithering. Glyphs sit
-  in a 10x10 box (14px in toolbars), straight lines on whole pixels so they're
-  sharp, diagonals and curves smooth.
+- **One icon set: IBM's Carbon** (21 October, replacing puter's own line
+  drawings), in ink, 16px glyphs one module square, every line sharp. No
+  pixel art, no dithering.
 - **One palette for everything**, from one file; square corners, no shadows,
   no blur, no animation.
 - **Minimal and well supported.** Apps like KiCad must just work.
@@ -141,6 +141,12 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
 
 ## Things that took finding out
 
+- **Carbon at 16px**: most icons are drawn on a 32px grid and halved, and
+  Carbon centres them, so a line down the middle lands from 7.5 to 8.5, two
+  gray pixels. `theme/make` hints each 16px glyph: it draws it nudged half a
+  pixel four ways (`rsvg-convert`, read with PIL) and keeps the sharpest.
+  Apps ask for a file type's own icon first (`text-x-log`, `image-png`), so
+  `theme/icons.map` names the common ones, or Breeze's would show.
 - **Window outlines** are labwc's 1px border in the `outline` role. Two
   snapped windows would show two lines side by side, and labwc has no setting
   for it: `packages/labwc` is Arch's recipe plus `snap.patch`, which makes a
@@ -149,8 +155,8 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   out against the screen's left and top edges, so no border lines the screen.
   Installing a new labwc takes a session restart to show.
 - **Qt's SVG renderer (SVG Tiny)** draws a `clipPath` as a filled black
-  square, so the icon theme uses none. Icons the theme doesn't draw come from
-  Breeze, whose icons Qt draws as they are (Adwaita's are symbolic outlines
+  square, so the icon theme uses none (Carbon's are plain paths and
+  circles). Icons the theme doesn't name come from Breeze, whose icons Qt draws as they are (Adwaita's are symbolic outlines
   only GTK can recolour).
 - **Qt stylesheets and sizes**: a widget the stylesheet gives a border or
   background is sized from the stylesheet's box model, ignoring the widget

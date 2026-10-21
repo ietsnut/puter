@@ -3,8 +3,8 @@
 > How it's built and why: `NOTES.md`. What's left: `NEXT.md`. The dev VM: `dev/devbox/README.md`.
 
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
-search, and Qt Widgets apps, all on a 30px module, square and flat, with icons
-in clean 2px vector strokes. Two looks, one palette file each: `stack` (a
+search, and Qt Widgets apps, all on a 30px module, square and flat, with IBM's
+Carbon icons. Two looks, one palette file each: `stack` (a
 dotted brown desk, bone title bars, a colour for every app)
 and `mulholland` (black, white and gray, IBM Plex).
 
