@@ -32,7 +32,8 @@ git clone https://github.com/ietsnut/puter ~/puter
 ```
 
 then reboot. `install.sh config` only relinks the configs and reapplies
-settings; `install.sh packages` only installs packages.
+settings; `install.sh packages` installs and builds everything, as an update
+(`bin/puter-update`).
 
 ## Changing colours
 

@@ -302,9 +302,9 @@ to Arch's version (still patched, a release above Arch's so pacman never
 swaps it back; `pacman -Su` ignores the four), wlrctl and qpdfview to the
 AUR's, with the AUR recipe's checksums (read with a regex, never sourced),
 and JLCONE to JLCPCB's own electron-updater feed (`latest-linux.yml`), whose
-sha512 is the checksum. A bumped copy is built; the repo isn't changed, and
-`install.sh` only rebuilds a package older than its recipe, so it doesn't
-undo an update.
+sha512 is the checksum. A bumped copy is built; the repo isn't changed.
+`install.sh packages` is `puter-update run` too: a first install is an
+update from nothing.
 
 `puter-update check` lists what's out of date without root (`checkupdates`
 from pacman-contrib, a copy of the sync database). `Updates.qml` runs it

@@ -6,48 +6,16 @@
 #                         straight into the desktop on boot
 #   ./install.sh config   only link the configs and apply settings (what
 #                         dev/sync runs after copying a change over)
-#   ./install.sh packages only install the packages
+#   ./install.sh packages only the packages, builds and settings (as an update)
 #   ./install.sh access   only stop sudo and polkit asking for a password
 set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
+# The packages, the ones puter builds (packages/), its own apps (src/) and
+# Claude Code, then the settings: bin/puter-update does all of it, so a first
+# install is an update from nothing.
 packages() {
-  mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
-  sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
-
-  # labwc and qps (System Monitor), patched, wlrctl, qpdfview and JLCONE
-  # (packages/). Each is rebuilt whenever the installed version is older
-  # than its recipe's (a newer one is bin/puter-update's, from upstream).
-  local name want have
-  for name in labwc qps wlrctl qpdfview jlcone-bin; do
-    # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
-    want="$(source "$repo/packages/$name/PKGBUILD" && echo "$pkgver-$pkgrel")"
-    # Empty when it isn't installed yet (pacman -Q fails, which would end the
-    # script under pipefail).
-    have="$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2 || true)"
-    if [[ $(vercmp "${have:-0}" "$want") -lt 0 ]]; then
-      build="$(mktemp -d)"
-      cp "$repo/packages/$name/"* "$build/"
-      (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm "$name"-[0-9]*.pkg.tar.zst)
-      rm -rf "$build"
-    fi
-  done
-
-  # puter's Qt widget style, its table editor (Sheets), its calculator and
-  # the window lister the switcher's previews need, built from src/.
-  for part in style sheet calc windows; do
-    build="$(mktemp -d)"
-    cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
-    cmake --build "$build"
-    sudo cmake --install "$build"
-    rm -rf "$build"
-  done
-
-  # Claude Code, from Anthropic's installer (to ~/.local/bin; it keeps
-  # itself up to date).
-  if [[ ! -x $HOME/.local/bin/claude ]]; then
-    curl -fsSL https://claude.ai/install.sh | bash
-  fi
+  sudo "$repo/bin/puter-update" run
 }
 
 # Sets one key in an ini file (Qt's settings files), making the file and the
@@ -476,7 +444,6 @@ case "${1:-all}" in
     # First, so nothing after it asks for the password again.
     access
     packages
-    config
     login
     echo "Done. Reboot to log in to puter."
     ;;
