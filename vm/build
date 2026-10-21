@@ -1,0 +1,29 @@
+#!/bin/bash
+# Builds puter's virtual machine: puter installed on a disk image by the USB
+# installer's own puter-install, from iso/payload's packages, for this
+# machine's architecture. Built for aarch64, to run on a Mac with Apple
+# silicon at its own speed (vm/try). Runs as root in a privileged Arch
+# Linux ARM container with the host's /dev (for the image's loop device
+# and its partitions; .github/workflows/vm.yml):
+#
+#   vm/build WORK OUT    builds in WORK, writes OUT/puter.qcow2
+set -euo pipefail
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+work="$(readlink -m "${1:?usage: vm/build WORK OUT}")"
+out="$(readlink -m "${2:?usage: vm/build WORK OUT}")"
+mkdir -p "$work" "$out"
+
+pacman -Syu --noconfirm --needed arch-install-scripts dosfstools e2fsprogs gptfdisk parted qemu-img
+
+"$repo/iso/payload" "$work/src" "$work/payload"
+
+# A disk of 32 GB, sparse: the system takes about 8 and the rest is room.
+truncate -s 32G "$work/disk.raw"
+loop="$(losetup -fP --show "$work/disk.raw")"
+trap 'losetup -d "$loop" 2>/dev/null || true' EXIT
+PUTER_IMAGE="$loop" PUTER_SRC="$work/src" bash "$repo/iso/airootfs/usr/local/bin/puter-install"
+losetup -d "$loop"
+
+qemu-img convert -p -O qcow2 -c -o compression_type=zstd "$work/disk.raw" "$out/puter.qcow2"
+rm -f "$work/disk.raw"
+ls -lh "$out/puter.qcow2"

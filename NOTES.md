@@ -306,6 +306,25 @@ line a module, and kept in `~/.local/state/puter/update.log`.
 or Quickshell changed; the bar's button then turns orange and the panel's
 button restarts.
 
+## On ARM, and on a Mac
+
+puter also runs on aarch64, on Arch Linux ARM (Arch itself has no ARM
+port). Arch Linux ARM has nearly everything at Arch's versions; what it
+lacks puter builds into `[puter]` for it (`repo-aarch64`, on GitHub's ARM
+runners): its own recipes as on x86_64, and Codex from OpenAI's own aarch64
+binary (`packages/openai-codex`). JLCONE has no ARM build, so `packages.txt`
+marks it `x86_64`, as it marks the kernel and microcode;
+`puter-update packages` lists what a machine's architecture takes.
+
+`vm/build` installs the aarch64 build onto a disk image with the USB
+installer's own `puter-install` (`PUTER_IMAGE`: no questions, no firmware
+variables, no restart) from `iso/payload`'s packages, and
+`.github/workflows/vm.yml` publishes it as `ghcr.io/ietsnut/puter-vm`.
+`vm/try` runs it on a Mac with Apple silicon in QEMU with Apple's
+hypervisor (`-accel hvf`), so at the Mac's own speed: virtio graphics at 40
+x 25 modules (1200 x 750, one pixel a point), a USB tablet for the pointer,
+the changes kept in a disk of their own over the download.
+
 ## [puter], the pacman repository
 
 Nothing is compiled on a puter machine. puter's own packages (labwc and

@@ -1,0 +1,55 @@
+#!/bin/bash
+# puter on a Mac with Apple silicon, in a window: puter's virtual machine
+# (ghcr.io/ietsnut/puter-vm, the aarch64 build of puter installed on a
+# disk, from .github/workflows/vm.yml) in QEMU with Apple's hypervisor, so
+# at the Mac's own speed. Needs QEMU: brew install qemu.
+#
+#   vm/try           start it; the first time (or when there's a newer
+#                    one, with `update`) it's downloaded, about 3 GB
+#   vm/try update    download the newest, and start over on it
+#   vm/try fresh     start over on the one downloaded, forgetting changes
+#
+# What you change is kept between runs, beside the download in
+# ~/Library/Caches/puter (a disk of its own over the downloaded one, which
+# itself is never changed). The window is 40 x 25 modules (1200 x 750);
+# PUTER_SIZE=WxH for another, PUTER_MEMORY (6G) and PUTER_CPUS (4).
+# Ctrl+Alt+G lets go of the keyboard and pointer.
+set -euo pipefail
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+cache="$HOME/Library/Caches/puter"
+mkdir -p "$cache"
+
+if [[ $(uname -sm) != "Darwin arm64" ]]; then
+  echo "vm/try is for a Mac with Apple silicon." >&2
+  exit 1
+fi
+if ! command -v qemu-system-aarch64 >/dev/null; then
+  echo "QEMU is needed: brew install qemu" >&2
+  exit 1
+fi
+firmware="$(brew --prefix qemu 2>/dev/null || echo /opt/homebrew)/share/qemu"
+
+case "${1:-}" in
+  update)
+    "$repo/iso/download" "$cache/puter.qcow2" puter-vm
+    rm -f "$cache/disk.qcow2" "$cache/vars.fd"
+    ;;
+  fresh) rm -f "$cache/disk.qcow2" "$cache/vars.fd" ;;
+  "") [[ -f $cache/puter.qcow2 ]] || "$repo/iso/download" "$cache/puter.qcow2" puter-vm ;;
+  *) echo "usage: vm/try [update|fresh]" >&2; exit 1 ;;
+esac
+
+# Your disk, over the downloaded one, and the machine's firmware settings.
+[[ -f $cache/disk.qcow2 ]] ||
+  qemu-img create -q -f qcow2 -b "$cache/puter.qcow2" -F qcow2 "$cache/disk.qcow2"
+[[ -f $cache/vars.fd ]] || cp "$firmware/edk2-arm-vars.fd" "$cache/vars.fd"
+
+size="${PUTER_SIZE:-1200x750}"
+exec qemu-system-aarch64 -name puter -machine virt -accel hvf -cpu host \
+  -smp "${PUTER_CPUS:-4}" -m "${PUTER_MEMORY:-6G}" \
+  -drive if=pflash,format=raw,readonly=on,file="$firmware/edk2-aarch64-code.fd" \
+  -drive if=pflash,format=raw,file="$cache/vars.fd" \
+  -drive file="$cache/disk.qcow2",if=virtio,discard=unmap \
+  -device virtio-gpu-pci,xres="${size%x*}",yres="${size#*x}" -display cocoa \
+  -device qemu-xhci -device usb-kbd -device usb-tablet \
+  -nic user,model=virtio-net-pci -device virtio-rng-pci

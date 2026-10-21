@@ -1,0 +1,63 @@
+# Builds puter's virtual machine for Macs with Apple silicon (vm/build: the
+# aarch64 build of puter installed on a disk image, on GitHub's ARM runners)
+# and publishes it to GitHub's container registry as
+# ghcr.io/ietsnut/puter-vm:latest, deleting the one before. vm/try
+# downloads and starts it. Runs weekly, on pushes to main touching vm/ or
+# the installer, and by hand; never for pull requests.
+name: vm
+
+on:
+  push:
+    branches: [main]
+    paths: [vm/**, iso/payload, iso/airootfs/**, .github/workflows/vm.yml]
+  schedule:
+    - cron: "47 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: vm
+
+jobs:
+  vm:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - name: Room
+        run: |
+          sudo mkdir -p /mnt/vm && sudo chown "$USER" /mnt/vm
+          df -h / /mnt
+          ls -l /dev/kvm || true
+
+      - uses: actions/checkout@v4
+
+      - name: An Arch Linux ARM container
+        run: packages/container
+
+      - name: Build
+        run: |
+          docker run --rm --privileged -v /dev:/dev -v "$PWD:/puter:ro" -v /mnt/vm:/work arch \
+            /puter/vm/build /work/build /work/out
+          sudo rm -rf /mnt/vm/build
+
+      - uses: oras-project/setup-oras@v1
+
+      - name: Publish
+        run: |
+          cd /mnt/vm/out
+          echo "${{ github.token }}" | oras login ghcr.io -u "${{ github.actor }}" --password-stdin
+          oras push ghcr.io/ietsnut/puter-vm:latest \
+            --artifact-type application/vnd.puter.vm \
+            --annotation org.opencontainers.image.source=https://github.com/ietsnut/puter \
+            --annotation org.opencontainers.image.revision=${{ github.sha }} \
+            puter.qcow2:application/vnd.qemu.qcow2
+
+      # Only the newest is kept.
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: puter-vm
+          package-type: container
+          min-versions-to-keep: 1
