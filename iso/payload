@@ -10,8 +10,8 @@
 #   iso/payload DIR WORK
 set -euo pipefail
 repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
-dir="$(readlink -f "${1:?usage: iso/payload DIR WORK}")"
-work="$(readlink -f "${2:?usage: iso/payload DIR WORK}")"
+dir="$(readlink -m "${1:?usage: iso/payload DIR WORK}")"
+work="$(readlink -m "${2:?usage: iso/payload DIR WORK}")"
 mkdir -p "$dir" "$work"
 pacman -S --noconfirm --needed git
 # The checkout belongs to someone else in the container.
