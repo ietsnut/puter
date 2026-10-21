@@ -43,6 +43,8 @@ mkdir -p "$offline"
 conf="$work/pacman.conf"
 sed '/^\[core\]/i [puter]\nSigLevel = Required\nServer = https://github.com/ietsnut/puter/releases/download/repo\n' \
   /etc/pacman.conf >"$conf"
+# (The container's keyring has no key of its own to sign puter's with yet.)
+pacman-key --init
 pacman-key --add "$repo/packages/puter.gpg"
 pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" | awk -F: '/^fpr/ {print $10; exit}')"
 mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
