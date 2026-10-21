@@ -53,6 +53,9 @@ Where things stood at the end of the 20 October 2026 session.
   30 ms, holding and stepping, letting go); not yet with a real keyboard,
   nor with many windows (two rows) or minimised ones (grim can't capture a
   window that isn't drawn; its card shows the last preview, or none).
+  Firefox's capture comes out larger than its window (740 x 586 at half
+  size), with black down the left and along the bottom: something of its
+  surface outside the window, which grim captures too.
 - **No passwords** (21 October): `install.sh access` (sudo and polkit) is
   tested on the VM; the greetd part (labwc straight away, no login screen)
   isn't, since the VM keeps its own greetd config (pixman rendering).

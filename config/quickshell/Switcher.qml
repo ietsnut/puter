@@ -11,9 +11,10 @@ import Quickshell.Wayland
 // only show once Alt has been held a moment. A click picks one too, Escape
 // or a click elsewhere goes back, Delete closes the picked window.
 //
-// Cards are eight modules wide and six tall (five of preview, one of title),
-// flush side by side so neighbours share an edge, seven to a row, on paper
-// one module in from the cards. The previews are taken as it opens and four
+// Cards are six modules tall (five of preview, one of title) and as wide as
+// their window's preview needs, in whole modules (five to fourteen): flush
+// side by side so neighbours share an edge, as many to a row as fit the
+// screen, on paper one module in from the cards. The previews are taken as it opens and four
 // times a second while it's open: grim captures each window on its own
 // (`grim -T`, by the identifier puter-windows lists, src/windows), since
 // Quickshell can only capture single windows on Hyprland.
@@ -53,10 +54,12 @@ PanelWindow {
         return ids[same.indexOf(window)] ?? "";
     }
 
+    // Before its first preview, a card is eight modules wide.
     readonly property int cardWidth: Theme.module * 8
+    // The widest the cards can run: the screen less a module of paper and a
+    // module of desk each side.
+    readonly property int rowWidth: Math.floor(width / Theme.module - 4) * Theme.module
     readonly property int cardHeight: Theme.module * 6
-    readonly property int perRow: Math.max(1, Math.min(7, windows.length))
-    readonly property int rows: Math.ceil(windows.length / perRow)
 
     function order() {
         const all = ToplevelManager.toplevels.values;
@@ -81,11 +84,24 @@ PanelWindow {
         selected = ((selected + by) % n + n) % n;
     }
 
-    // Up and down a row, staying in the column where there's a card.
+    // Up and down a row: to the card there nearest the one picked.
     function row(by) {
-        const next = selected + by * perRow;
-        if (next >= 0 && next < windows.length)
-            selected = next;
+        const here = cards.itemAt(selected);
+        if (!here)
+            return;
+        let best = -1, distance = Infinity;
+        for (let i = 0; i < cards.count; i++) {
+            const card = cards.itemAt(i);
+            if (card.y !== here.y + by * cardHeight)
+                continue;
+            const d = Math.abs(card.x + card.width / 2 - here.x - here.width / 2);
+            if (d < distance) {
+                best = i;
+                distance = d;
+            }
+        }
+        if (best >= 0)
+            selected = best;
     }
 
     function pick() {
@@ -152,9 +168,10 @@ PanelWindow {
         // Previews of windows closed a while ago go.
         command: ["sh", "-c", `dir="${switcher.shots}"; mkdir -p "$dir"
             find "$dir" -name '*.png' -mmin +10 -delete
-            puter-windows | while IFS="$(printf '\t')" read -r id app title; do
+            # The loop runs in the pipe's subshell, so that's where it waits.
+            puter-windows | { while IFS="$(printf '\t')" read -r id app title; do
                 grim -T "$id" -s 0.5 -l 1 "$dir/$id-${side}.png" 2>/dev/null &
-            done; wait; puter-windows`]
+            done; wait; }; puter-windows`]
         stdout: StdioCollector {
             onStreamFinished: {
                 const map = new Map();
@@ -250,8 +267,8 @@ PanelWindow {
     Rectangle {
         id: sheet
         visible: switcher.shown
-        width: switcher.cardWidth * switcher.perRow + Theme.module * 2
-        height: switcher.cardHeight * switcher.rows + Theme.module * 2
+        width: flow.childrenRect.width + Theme.module * 2
+        height: flow.childrenRect.height + Theme.module * 2
         x: Math.round((switcher.width - width) / 2 / Theme.module) * Theme.module
         y: Math.round((switcher.height - Theme.module - height) / 2 / Theme.module) * Theme.module
         color: Theme.background
@@ -261,12 +278,14 @@ PanelWindow {
             anchors.fill: parent
         }
 
-        Grid {
+        Flow {
+            id: flow
             x: Theme.module
             y: Theme.module
-            columns: switcher.perRow
+            width: switcher.rowWidth
 
             Repeater {
+                id: cards
                 model: switcher.shown ? switcher.windows : []
 
                 Item {
@@ -276,7 +295,12 @@ PanelWindow {
                     readonly property bool current: index === switcher.selected
                     readonly property var entry: DesktopEntries.heuristicLookup(modelData.appId)
 
-                    width: switcher.cardWidth
+                    // The preview at the card's full height (less an inset
+                    // above and below), and the card the whole modules
+                    // around it, an inset either side.
+                    width: shot.implicitHeight > 0
+                        ? Math.max(5, Math.min(14, Math.ceil(((Theme.module * 5 - Theme.inset * 2) * shot.implicitWidth / shot.implicitHeight + Theme.inset * 2) / Theme.module))) * Theme.module
+                        : switcher.cardWidth
                     height: switcher.cardHeight
 
                     // The preview, fitted inside the card one inset from its
@@ -290,6 +314,7 @@ PanelWindow {
                         color: Theme.muted
 
                         Image {
+                            id: shot
                             readonly property string id: switcher.frame >= 0 ? switcher.identifier(card.modelData) : ""
                             anchors.centerIn: parent
                             width: preview.width - Theme.inset * 2
@@ -305,8 +330,8 @@ PanelWindow {
 
                     Chip {
                         y: Theme.module * 5
-                        minModules: 8
-                        maxModules: 8
+                        minModules: card.width / Theme.module
+                        maxModules: card.width / Theme.module
                         text: card.modelData.title || card.entry?.name || card.modelData.appId
                         icon: Quickshell.iconPath(card.entry?.icon ?? card.modelData.appId, true)
                         // The picked one in ink, so every app's square shows on it.
@@ -316,8 +341,8 @@ PanelWindow {
 
                     // Each card's edge; where two meet they share a line.
                     Outline {
-                        edgeLeft: card.index % switcher.perRow === 0
-                        edgeTop: card.index < switcher.perRow
+                        edgeLeft: card.x === 0
+                        edgeTop: card.y === 0
                     }
 
                     // The line between preview and title.
