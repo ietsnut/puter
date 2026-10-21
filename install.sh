@@ -14,7 +14,8 @@ packages() {
   sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
 
   # labwc, patched, wlrctl, qpdfview and JLCONE (packages/). Each is
-  # rebuilt whenever the installed version isn't its recipe's.
+  # rebuilt whenever the installed version is older than its recipe's (a
+  # newer one is bin/puter-update's, from upstream).
   local name want have
   for name in labwc wlrctl qpdfview jlcone-bin; do
     # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
@@ -22,7 +23,7 @@ packages() {
     # Empty when it isn't installed yet (pacman -Q fails, which would end the
     # script under pipefail).
     have="$(pacman -Q "$name" 2>/dev/null | cut -d' ' -f2 || true)"
-    if [[ $have != "$want" ]]; then
+    if [[ $(vercmp "${have:-0}" "$want") -lt 0 ]]; then
       build="$(mktemp -d)"
       cp "$repo/packages/$name/"* "$build/"
       (cd "$build" && makepkg -s --noconfirm && sudo pacman -U --noconfirm "$name"-[0-9]*.pkg.tar.zst)

@@ -212,6 +212,7 @@ puter-network                 actions     connection-signal
 puter-network-off             actions     connection-signal--off
 puter-volume                  actions     volume--up
 puter-volume-muted            actions     volume--mute
+puter-update                  actions     upgrade
 puter-restart                 actions     restart
 puter-power                   actions     power
 # An agent's state on its taskbar tab (config/quickshell/Agents.qml).

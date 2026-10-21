@@ -6,12 +6,16 @@ import Quickshell.Services.Pipewire
 
 // The bottom bar, on the bottom edge: a strip one module tall with the search
 // square standing two modules tall in the left corner, open windows right after it,
-// then the network and volume, the date and time, and restart and shut down
-// in the right corner, each a one-module glyph from puter's icons.
+// then the network and volume, the date and time, updates, and restart and
+// shut down in the right corner, each a one-module glyph from puter's icons.
 PanelWindow {
     id: bar
 
     signal search
+    signal update
+
+    // The update's state (Updates.qml): running, restart, or nothing.
+    property string updates: ""
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool muted: !sink || !sink.audio || sink.audio.muted || sink.audio.volume === 0
@@ -165,11 +169,22 @@ PanelWindow {
 
     Chip {
         id: time
-        anchors.right: restart.left
+        anchors.right: update.left
         y: Theme.module
         text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
         fill: Theme.bar
         ink: Theme.barForeground
+    }
+
+    // Updates (Updates.qml): the glyph turns while one runs, and the button
+    // takes the attention colour when it wants a restart to finish.
+    BarButton {
+        id: update
+        anchors.right: restart.left
+        y: Theme.module
+        icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
+        fill: bar.updates === "restart" ? Theme.attention : Theme.bar
+        onClicked: bar.update()
     }
 
     // Power, in the corner.

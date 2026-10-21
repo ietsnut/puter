@@ -228,6 +228,38 @@ chips. A click takes the default action. A toast goes after its timeout (six
 seconds unless the app says), a critical one stays. No animation, and
 nothing runs while there are none.
 
+## Updates
+
+`bin/puter-update` brings everything to the newest, in steps: Arch (the
+keyring first, then `pacman -Su` with whatever `packages.txt` has gained,
+and `paccache -rk2`), firmware (fwupd), puter itself (`git pull --ff-only`,
+when the checkout has a remote), the four packages in `packages/`, puter's
+apps from `src/` (always rebuilt: a Qt upgrade breaks the style plugin),
+Claude Code (`claude update`), and `install.sh config`. It runs as root
+through sudo, and runs as the user (`runuser`) what mustn't be root:
+makepkg, the builds, git, Claude Code, the settings. A failed step is
+reported and the rest still run, except when Arch's own upgrade fails.
+
+The recipes follow upstream rather than waiting to be bumped by hand: labwc
+to Arch's version (still patched, a release above Arch's so pacman never
+swaps it back; `pacman -Su` ignores the four), wlrctl and qpdfview to the
+AUR's, with the AUR recipe's checksums (read with a regex, never sourced),
+and JLCONE to JLCPCB's own electron-updater feed (`latest-linux.yml`), whose
+sha512 is the checksum. A bumped copy is built; the repo isn't changed, and
+`install.sh` only rebuilds a package older than its recipe, so it doesn't
+undo an update.
+
+`puter-update check` lists what's out of date without root (`checkupdates`
+from pacman-contrib, a copy of the sync database). `Updates.qml` runs it
+each time it opens, then `sudo puter-update run`, reading `::step`,
+`::fail`, `::restart` and `::done` lines; everything else is shown, two
+lines a module, and kept in `~/.local/state/puter/update.log`. If sudo wants
+a password, the panel asks for it and writes it once to sudo's stdin, then
+closes stdin, so a wrong one ends sudo instead of leaving it waiting.
+`::restart` comes when the kernel, systemd, glibc, mesa, Qt, wlroots, labwc
+or Quickshell changed; the bar's button then turns orange and the panel's
+button restarts.
+
 ## Things that took finding out
 
 - **Carbon at 16px**: most icons are drawn on a 32px grid and halved, and

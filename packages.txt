@@ -62,3 +62,8 @@ cmake
 # Building the patched packages
 git
 base-devel
+
+# Updates (bin/puter-update): checkupdates and paccache, and the
+# machine's firmware
+pacman-contrib
+fwupd

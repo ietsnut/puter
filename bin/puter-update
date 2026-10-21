@@ -1,0 +1,324 @@
+#!/bin/bash
+# Updates everything on puter to the newest there is, in one go:
+#
+#   1. Arch: the keyring first, then every package (the kernel, firmware
+#      files, the apps, the build tools, Codex), and any package puter has
+#      added to packages.txt since
+#   2. firmware, through fwupd (the machine's own: disks, the BIOS, docks)
+#   3. puter itself, from its git remote, when this checkout has one
+#   4. the packages puter builds (packages/): labwc to Arch's newest with
+#      puter's patch, wlrctl and qpdfview to the AUR's newest, JLCONE to
+#      JLCPCB's newest
+#   5. puter's own apps (src/), rebuilt against the Qt just installed
+#   6. Claude Code, through its own updater
+#   7. puter's settings, applied again (install.sh config)
+#
+#   puter-update          all of it (through sudo)
+#   puter-update check    what's out of date, a line each: what, tab, by how much
+#
+# The bar's update button (config/quickshell/Updates.qml) runs
+# `sudo puter-update run` and follows lines starting with "::":
+#   ::step 4 10 labwc     a step begins
+#   ::fail labwc          a step failed (the others still run)
+#   ::restart             something running (the kernel, labwc, the shell) changed
+#   ::done                finished
+# Everything else is the steps' own output, also kept in
+# ~/.local/state/puter/update.log.
+set -uo pipefail
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+
+# The packages built from packages/, and what each is called on screen.
+recipes=(labwc wlrctl qpdfview jlcone-bin)
+declare -A names=([labwc]=labwc [wlrctl]=wlrctl [qpdfview]=PDFs [jlcone-bin]=JLCONE)
+# What, upgraded, wants a restart to take effect.
+running=(linux linux-lts linux-zen linux-hardened systemd glibc mesa labwc quickshell qt6-base wlroots0.20)
+
+# A recipe's own version: pkgver-pkgrel.
+recipe_version() {
+  # shellcheck disable=SC1090,SC2154  # pkgver and pkgrel come from the PKGBUILD
+  (source "$repo/packages/$1/PKGBUILD" && echo "$pkgver-$pkgrel")
+}
+
+installed() {
+  pacman -Q "$1" 2>/dev/null | cut -d' ' -f2
+}
+
+# The newest version upstream, without its release: labwc's from Arch (the
+# sync database, so after pacman -Sy), JLCONE's from JLCPCB's own update
+# feed, the others' from the AUR.
+latest() {
+  case $1 in
+    labwc) pacman -Si labwc 2>/dev/null | awk '/^Version/ {print $3; exit}' | sed 's/-[^-]*$//' ;;
+    jlcone-bin) curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml |
+      awk '/^version:/ {print $2; exit}' ;;
+    *) curl -fsSL --max-time 20 "https://aur.archlinux.org/rpc/v5/info?arg[]=$1" | python3 -c '
+import json, sys
+results = json.load(sys.stdin)["results"]
+print(results[0]["Version"].rsplit("-", 1)[0] if results else "")' ;;
+  esac
+}
+
+# The version a recipe builds: its own, or upstream's newest when that's
+# newer (the recipe is then bumped as it's copied to be built).
+target() { # name latest
+  local own; own="$(recipe_version "$1")"
+  if [[ -n $2 && $(vercmp "$2" "${own%-*}") -gt 0 ]]; then
+    # labwc keeps a release above Arch's own, so pacman never swaps it back.
+    if [[ $1 == labwc ]]; then
+      echo "$2-$(pacman -Si labwc | awk '/^Version/ {print $3; exit}' | sed 's/.*-//').1"
+    else
+      echo "$2-1"
+    fi
+  else
+    echo "$own"
+  fi
+}
+
+# The checksums for a bumped recipe, appended to its copy (a later
+# assignment wins when makepkg reads it): JLCONE's from JLCPCB's feed, the
+# AUR packages' from the AUR's recipe for that version (read, not run), as
+# many as the recipe has sources. labwc builds a git tag, which has none.
+sums() { # name dir
+  case $1 in
+    labwc) ;;
+    jlcone-bin)
+      curl -fsSL --max-time 20 https://rs.jlcone.com/static/APP/app_version/latest-linux.yml | python3 -c '
+import base64, re, sys
+sha = re.search(r"^sha512: (\S+)", sys.stdin.read(), re.M).group(1)
+print(f"unset sha256sums; sha512sums=({base64.b64decode(sha).hex()!r})")' ;;
+    *)
+      local count
+      # shellcheck disable=SC1091,SC2154  # source comes from the PKGBUILD
+      count="$(source "$2/PKGBUILD" && echo "${#source[@]}")"
+      curl -fsSL --max-time 20 "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$1" | python3 -c '
+import re, sys
+count, text = int(sys.argv[1]), sys.stdin.read()
+print("unset md5sums sha256sums sha512sums b2sums")
+for name, body in re.findall(r"^((?:md5|sha256|sha512|b2)sums)=\((.*?)\)", text, re.M | re.S):
+    values = re.findall(r"[\x27\"]([^\x27\"]*)[\x27\"]", body)[:count]
+    print(f"{name}=(" + " ".join(repr(v) for v in values) + ")")' "$count" ;;
+  esac
+}
+
+# What's out of date, without changing anything (and without root): Arch's
+# packages through checkupdates (a copy of the sync database), the rest by
+# asking upstream.
+check() {
+  local updates count names_ line name have want
+  updates="$(checkupdates 2>/dev/null)"
+  # labwc is listed with puter's packages (its Arch version is only the
+  # recipe's source).
+  local labwc_latest=""
+  line="$(grep '^labwc ' <<<"$updates")"
+  [[ -n $line ]] && labwc_latest="$(awk '{print $4}' <<<"$line" | sed 's/-[^-]*$//')"
+  updates="$(grep -v -E "^($(IFS='|'; echo "${recipes[*]}")) " <<<"$updates" | grep -v '^$')"
+  count="$(grep -c . <<<"$updates")"
+  if ((count > 0)); then
+    names_="$(awk '{print $1}' <<<"$updates" | head -3 | paste -sd, - | sed 's/,/, /g')"
+    ((count > 3)) && names_+=" and $((count - 3)) more"
+    printf 'Arch Linux\t%s package%s: %s\n' "$count" "$([[ $count == 1 ]] || echo s)" "$names_"
+  fi
+
+  if command -v fwupdmgr >/dev/null; then
+    count="$(timeout 20 fwupdmgr get-updates --json 2>/dev/null | python3 -c '
+import json, sys
+try: print(len(json.load(sys.stdin).get("Devices", [])))
+except Exception: print(0)')"
+    ((count > 0)) && printf 'Firmware\t%s device%s\n' "$count" "$([[ $count == 1 ]] || echo s)"
+  fi
+
+  if git -C "$repo" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+    timeout 20 git -C "$repo" fetch -q 2>/dev/null
+    count="$(git -C "$repo" rev-list --count 'HEAD..@{u}' 2>/dev/null || echo 0)"
+    ((count > 0)) && printf 'puter\t%s new change%s\n' "$count" "$([[ $count == 1 ]] || echo s)"
+  fi
+
+  for name in "${recipes[@]}"; do
+    have="$(installed "$name")"
+    if [[ $name == labwc ]]; then want="$(target labwc "$labwc_latest")"
+    else want="$(target "$name" "$(latest "$name")")"; fi
+    if [[ $(vercmp "${have:-0}" "$want") -lt 0 ]]; then
+      printf '%s\t%s → %s\n' "${names[$name]}" "${have:-not installed}" "${want%-*}"
+    fi
+  done
+
+  local claude="$HOME/.local/bin/claude"
+  if [[ -x $claude ]]; then
+    have="$("$claude" --version 2>/dev/null | awk '{print $1}')"
+    want="$(curl -fsSL --max-time 20 https://registry.npmjs.org/@anthropic-ai/claude-code/latest |
+      python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])' 2>/dev/null)"
+    [[ -n $want && $(vercmp "$have" "$want") -lt 0 ]] && printf 'Claude Code\t%s → %s\n' "$have" "$want"
+  fi
+  true
+}
+
+# Everything below runs as root, with the user who asked (sudo's) for what
+# mustn't: makepkg, the builds, Claude Code and the settings.
+as_user() {
+  runuser -u "$user" -- env HOME="$home" USER="$user" LOGNAME="$user" \
+    XDG_RUNTIME_DIR="/run/user/$uid" DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+    WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}" \
+    PATH="$home/.local/bin:/usr/local/bin:/usr/bin" LANG="${LANG:-C.UTF-8}" "$@"
+}
+
+step=0
+steps=0
+failed=()
+begin() {
+  step=$((step + 1))
+  echo "::step $step $steps $1"
+  echo "== $1"
+}
+fail() {
+  failed+=("$1")
+  echo "::fail $1"
+  echo "!! $1 failed"
+}
+
+system() {
+  begin "Arch Linux"
+  pacman -Sy --needed --noconfirm archlinux-keyring || return 1
+  # Everything in packages.txt, so what puter has added since is installed,
+  # but not the packages puter builds itself (pacman would put Arch's own
+  # labwc back).
+  local pkgs
+  mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$' |
+    grep -v -x -F -f <(printf '%s\n' "${recipes[@]}"))
+  pacman -Su --needed --noconfirm --ignore "$(IFS=,; echo "${recipes[*]}")" "${pkgs[@]}" || return 1
+  # The two newest of each package are kept in pacman's cache.
+  if command -v paccache >/dev/null; then paccache -rk2; fi
+}
+
+firmware() {
+  begin "Firmware"
+  if ! command -v fwupdmgr >/dev/null; then
+    echo "fwupd isn't installed."
+    return 0
+  fi
+  fwupdmgr refresh --force --assume-yes || true
+  # 2: nothing to update.
+  fwupdmgr update --assume-yes --no-reboot-check
+  local status=$?
+  ((status == 0 || status == 2))
+}
+
+puter() {
+  begin "puter"
+  if ! as_user git -C "$repo" rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+    echo "$repo has no git remote to update from."
+    return 0
+  fi
+  as_user git -C "$repo" pull --ff-only
+}
+
+recipe() { # name
+  local name=$1 want have build
+  begin "${names[$name]}"
+  want="$(target "$name" "$(latest "$name")")"
+  have="$(installed "$name")"
+  if [[ $(vercmp "${have:-0}" "$want") -ge 0 ]]; then
+    echo "$name $have is the newest."
+    return 0
+  fi
+  echo "$name ${have:-(not installed)} → $want"
+  build="$(as_user mktemp -d)"
+  as_user cp -r "$repo/packages/$name/." "$build/"
+  if [[ $want != "$(recipe_version "$name")" ]]; then
+    as_user sed -i -e "s/^pkgver=.*/pkgver=${want%-*}/" -e "s/^pkgrel=.*/pkgrel=${want##*-}/" "$build/PKGBUILD"
+    sums "$name" "$build" | as_user tee -a "$build/PKGBUILD" >/dev/null
+  fi
+  # Its dependencies, installed here as root, so makepkg needn't ask for them.
+  local deps
+  mapfile -t deps < <(cd "$build" && as_user makepkg --printsrcinfo | awk -F' = ' '/^\t(make|check)?depends = / {print $2}')
+  ((${#deps[@]} == 0)) || pacman -S --needed --asdeps --noconfirm "${deps[@]}" || return 1
+  (cd "$build" && as_user makepkg --noconfirm --force) || return 1
+  pacman -U --noconfirm "$build/$name"-[0-9]*.pkg.tar.zst || return 1
+  rm -rf "$build"
+}
+
+apps() {
+  begin "puter's apps"
+  local part build
+  for part in style sheet calc; do
+    echo "-- $part"
+    build="$(as_user mktemp -d)"
+    as_user cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release || return 1
+    as_user cmake --build "$build" || return 1
+    cmake --install "$build" || return 1
+    rm -rf "$build"
+  done
+}
+
+claude() {
+  begin "Claude Code"
+  if [[ -x $home/.local/bin/claude ]]; then
+    as_user "$home/.local/bin/claude" update
+  else
+    as_user bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
+  fi
+}
+
+settings() {
+  begin "Settings"
+  as_user "$repo/install.sh" config
+}
+
+run() {
+  user="${SUDO_USER:?run puter-update through sudo}"
+  home="$(getent passwd "$user" | cut -d: -f6)"
+  uid="$(id -u "$user")"
+  local log="$home/.local/state/puter/update.log"
+  as_user mkdir -p "$(dirname "$log")"
+  : >"$log" && chown "$user:" "$log"
+  exec > >(tee -a "$log") 2>&1
+  local tee=$!
+  echo "puter-update, $(date '+%A %-d %B %Y %H:%M')"
+
+  local before after
+  before="$(pacman -Q "${running[@]}" 2>/dev/null)"
+  steps=$((6 + ${#recipes[@]}))
+
+  # Without Arch's packages, nothing else can be trusted to build.
+  if ! system; then
+    fail "Arch Linux"
+    echo "::done"
+    return 1
+  fi
+  firmware || fail "Firmware"
+  puter || fail "puter"
+  local name
+  for name in "${recipes[@]}"; do
+    recipe "$name" || fail "${names[$name]}"
+  done
+  apps || fail "puter's apps"
+  claude || fail "Claude Code"
+  settings || fail "Settings"
+
+  after="$(pacman -Q "${running[@]}" 2>/dev/null)"
+  if [[ $before != "$after" || ! -d /usr/lib/modules/$(uname -r) ]]; then
+    echo "::restart"
+    echo "Restart to finish: $(diff <(echo "$before") <(echo "$after") | awk '/^>/ {print $2}' | paste -sd' ' -)"
+  fi
+  if ((${#failed[@]})); then
+    echo "Done, except: ${failed[*]}. The log: $log"
+  else
+    echo "Everything is up to date."
+  fi
+  echo "::done"
+  # Waits for the log to have it all, so whoever reads the output does too.
+  exec >&- 2>&-
+  wait "$tee"
+  ((${#failed[@]} == 0))
+}
+
+# Read whole before it starts: step 3 may pull a new copy of this file.
+main() {
+  case "${1:-}" in
+    check) check ;;
+    run) run ;;
+    "") if [[ $EUID -eq 0 ]]; then run; else exec sudo "$0" run; fi ;;
+    *) echo "usage: puter-update [check]" >&2; return 1 ;;
+  esac
+}
+main "$@"
+exit

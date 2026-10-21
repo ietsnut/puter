@@ -5,7 +5,9 @@ ShellRoot {
     Desk {}
 
     Bar {
+        updates: updatesPanel.barState
         onSearch: searchPanel.toggle()
+        onUpdate: updatesPanel.toggle()
     }
 
     Dismiss {
@@ -17,6 +19,15 @@ ShellRoot {
         id: searchPanel
     }
 
+    Dismiss {
+        visible: updatesPanel.visible
+        onClicked: updatesPanel.visible = false
+    }
+
+    Updates {
+        id: updatesPanel
+    }
+
     Toasts {}
 
     // Super+Space: `qs ipc call search toggle`.
@@ -25,6 +36,15 @@ ShellRoot {
 
         function toggle(): void {
             searchPanel.toggle();
+        }
+    }
+
+    // `qs ipc call updates toggle`.
+    IpcHandler {
+        target: "updates"
+
+        function toggle(): void {
+            updatesPanel.toggle();
         }
     }
 
