@@ -167,6 +167,12 @@ chmod 440 /mnt/etc/sudoers.d/10-puter
 arch-chroot /mnt runuser -u "$user" -- env HOME="/home/$user" USER="$user" LOGNAME="$user" \
   bash -c 'cd ~/puter && ./install.sh access && ./install.sh config && ./install.sh login'
 
+# What the settings started inside the new system (gvfs and dconf, for
+# gsettings' session bus) outlives them; it goes, so the disk unmounts.
+for proc in /proc/[0-9]*; do
+  [[ $(readlink "$proc/root" 2>/dev/null) == /mnt ]] && kill "${proc#/proc/}" 2>/dev/null
+done
+sleep 1
 umount -R /mnt
 echo "::installed"
 if [[ -n $image ]]; then
