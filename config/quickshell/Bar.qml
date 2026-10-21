@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Shapes
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -8,7 +7,7 @@ import Quickshell.Services.Pipewire
 // The bottom bar, on the bottom edge: a strip one module tall with the search
 // square standing two modules tall in the left corner, open windows right after it,
 // then the network and volume, the date and time, and restart and shut down
-// in the right corner, each a one-module glyph.
+// in the right corner, each a one-module glyph from puter's icons.
 PanelWindow {
     id: bar
 
@@ -113,36 +112,23 @@ PanelWindow {
         }
     }
 
-    // The network: three bars, dim when offline; opens nmtui in the terminal
-    // (networks, Wi-Fi and its passwords).
+    // The network: signal bars, struck through when offline; opens nmtui
+    // in the terminal (networks, Wi-Fi and its passwords).
     BarButton {
         id: network
         anchors.right: volume.left
         y: Theme.module
-        dim: !bar.online
+        icon: bar.online ? "puter-network" : "puter-network-off"
         onClicked: Quickshell.execDetached(["qterminal", "-e", "nmtui"])
-
-        Repeater {
-            model: [[10, 17, 3], [14, 14, 6], [18, 11, 9]]
-
-            Rectangle {
-                required property var modelData
-                x: modelData[0]
-                y: modelData[1]
-                width: 2
-                height: modelData[2]
-                color: network.ink
-            }
-        }
     }
 
-    // Volume: a speaker, with its waves unless muted (then dim); a click
-    // mutes or unmutes, the wheel turns it up or down a tenth at a time.
+    // Volume: a speaker, muted or not; a click mutes or unmutes, the wheel
+    // turns it up or down a tenth at a time.
     BarButton {
         id: volume
         anchors.right: time.left
         y: Theme.module
-        dim: bar.muted
+        icon: bar.muted ? "puter-volume-muted" : "puter-volume"
         onClicked: {
             if (bar.sink?.audio)
                 bar.sink.audio.muted = !bar.sink.audio.muted;
@@ -152,43 +138,6 @@ PanelWindow {
                 return;
             bar.sink.audio.muted = false;
             bar.sink.audio.volume = Math.max(0, Math.min(1, Math.round(bar.sink.audio.volume * 10 + steps) / 10));
-        }
-
-        Shape {
-            anchors.fill: parent
-            preferredRendererType: Shape.CurveRenderer
-
-            // The speaker: a 3 x 4 body and its cone, filled.
-            ShapePath {
-                strokeWidth: 0
-                strokeColor: "transparent"
-                fillColor: volume.ink
-                startX: 10
-                startY: 13
-                PathLine { x: 13; y: 13 }
-                PathLine { x: 16; y: 10 }
-                PathLine { x: 16; y: 20 }
-                PathLine { x: 13; y: 17 }
-                PathLine { x: 10; y: 17 }
-                PathLine { x: 10; y: 13 }
-            }
-
-            // Its wave.
-            ShapePath {
-                strokeColor: bar.muted ? "transparent" : volume.ink
-                strokeWidth: 2
-                fillColor: "transparent"
-                capStyle: ShapePath.FlatCap
-
-                PathAngleArc {
-                    centerX: 15
-                    centerY: 15
-                    radiusX: 4
-                    radiusY: 4
-                    startAngle: -50
-                    sweepAngle: 100
-                }
-            }
         }
     }
 
@@ -201,86 +150,20 @@ PanelWindow {
         ink: Theme.barForeground
     }
 
-    // Power, in the corner. Restart: a ring with an arrowhead at its open
-    // end; shut down: the power sign, a ring open at the top and a bar
-    // through the gap.
+    // Power, in the corner.
     BarButton {
         id: restart
         anchors.right: shutDown.left
         y: Theme.module
+        icon: "puter-restart"
         onClicked: Quickshell.execDetached(["systemctl", "reboot"])
-
-        Shape {
-            anchors.fill: parent
-            preferredRendererType: Shape.CurveRenderer
-
-            ShapePath {
-                strokeColor: restart.ink
-                strokeWidth: 2
-                fillColor: "transparent"
-                capStyle: ShapePath.FlatCap
-
-                PathAngleArc {
-                    centerX: 15
-                    centerY: 15
-                    radiusX: 4
-                    radiusY: 4
-                    startAngle: -60
-                    sweepAngle: 300
-                }
-            }
-
-            ShapePath {
-                strokeWidth: 0
-                strokeColor: "transparent"
-                fillColor: restart.ink
-                startX: 16
-                startY: 9
-                PathLine { x: 21; y: 9 }
-                PathLine { x: 21; y: 14 }
-                PathLine { x: 16; y: 9 }
-            }
-        }
     }
 
     BarButton {
         id: shutDown
         anchors.right: parent.right
         y: Theme.module
+        icon: "puter-power"
         onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
-
-        Shape {
-            anchors.fill: parent
-            preferredRendererType: Shape.CurveRenderer
-
-            ShapePath {
-                strokeColor: shutDown.ink
-                strokeWidth: 2
-                fillColor: "transparent"
-                capStyle: ShapePath.FlatCap
-
-                PathAngleArc {
-                    centerX: 15
-                    centerY: 16
-                    radiusX: 4
-                    radiusY: 4
-                    startAngle: -50
-                    sweepAngle: 280
-                }
-            }
-        }
-
-        Rectangle {
-            x: 14
-            y: 10
-            width: 2
-            height: 6
-            color: shutDown.ink
-        }
-    }
-
-    SystemClock {
-        id: clock
-        precision: SystemClock.Minutes
     }
 }

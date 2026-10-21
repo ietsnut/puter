@@ -115,12 +115,6 @@ config() {
     systemctl --user daemon-reload 2>/dev/null || true
   fi
 
-  # Fonts the repos don't have (theme/fonts: Stack Sans, SIL OFL), for the
-  # palettes that use them.
-  mkdir -p "$HOME/.local/share/fonts"
-  ln -sfn "$repo/theme/fonts" "$HOME/.local/share/fonts/puter"
-  fc-cache -f >/dev/null 2>&1 || true
-
   # The theme: labwc's title bars and window buttons, and GTK apps; and the
   # icon theme.
   mkdir -p "$HOME/.local/share/themes" "$HOME/.local/share/icons"

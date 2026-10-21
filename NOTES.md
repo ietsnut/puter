@@ -70,8 +70,8 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   corner, paper windows under bone title bars, a bone taskbar whose focused
   tab is paper, lilac selection, and one colour per app, shown as a 14px
   square one inset in on its title bar (labwc's `icon` button, which opens
-  the window menu) and its taskbar tab. Set in Stack Sans Text (code in IBM
-  Plex Mono, as Stack Sans has no monospace), from `theme/fonts` (SIL OFL).
+  the window menu) and its taskbar tab. Set in IBM Plex, like mulholland
+  (Stack Sans was tried and dropped, 21 October).
 - **The bar's right end**: network, volume, the clock, restart and shut
   down, each a one-module glyph (`BarButton.qml`) drawn like the window
   buttons. The network's state comes from `nmcli monitor`, which waits for

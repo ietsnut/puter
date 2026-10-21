@@ -1,67 +1,24 @@
 import QtQuick
-import QtQuick.Shapes
+import Quickshell
+import Quickshell.Widgets
 
-// A two-module square in the search colour with a magnifier in its ink and
-// the 1px outline inside its edges; the hover colour under the pointer. The glyph keeps to the
-// 20 x 20 box in the middle, drawn as the window buttons are: 2px vector
-// strokes, the handle clipped square where it meets the box's corner.
+// A two-module square in the search colour with the magnifier from puter's
+// icons (IBM's Carbon) at 32px in its middle; the hover colour under the
+// pointer.
 Rectangle {
     id: button
 
     signal clicked
 
-    readonly property color ink: mouse.containsMouse ? Theme.hoverForeground : Theme.searchForeground
-
     width: Theme.module * 2
     height: Theme.module * 2
     color: mouse.containsMouse ? Theme.hover : Theme.search
 
-    Item {
-        x: 20
-        y: 20
-        width: 20
-        height: 20
-        clip: true
-
-        Shape {
-            x: -20
-            y: -20
-            width: 60
-            height: 60
-            preferredRendererType: Shape.CurveRenderer
-
-            // The lens: the middle of its 2px stroke on a 7px radius, so its
-            // outer edge runs from 20 to 36.
-            ShapePath {
-                strokeColor: button.ink
-                strokeWidth: 2
-                fillColor: "transparent"
-
-                PathAngleArc {
-                    centerX: 28
-                    centerY: 28
-                    radiusX: 7
-                    radiusY: 7
-                    startAngle: 0
-                    sweepAngle: 360
-                }
-            }
-
-            // The handle, from inside the lens's stroke out past the corner.
-            ShapePath {
-                strokeColor: button.ink
-                strokeWidth: 2
-                fillColor: "transparent"
-                capStyle: ShapePath.FlatCap
-                startX: 32
-                startY: 32
-
-                PathLine {
-                    x: 42
-                    y: 42
-                }
-            }
-        }
+    IconImage {
+        x: (button.width - width) / 2
+        y: (button.height - height) / 2
+        implicitSize: 32
+        source: Quickshell.iconPath("puter-search")
     }
 
     // Outlined only where the bar is (palettes whose bar-edge isn't the

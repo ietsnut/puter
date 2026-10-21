@@ -8,8 +8,8 @@ colour of each app).
                                  app is set in, as the palette's fonts
   theme/labwc/themerc            title bars, menus, the window switcher
   theme/labwc/*.svg              the window buttons
-  theme/icons/                   places and file icons, and each app's
-                                 square in its colour
+  theme/icons/                   the icon theme (theme/icons.map, from
+                                 Carbon), and each app's square in its colour
   theme/gtk-3.0/colors.css       the roles, for GTK 3 apps
   theme/qt6ct/puter.qss          the Qt stylesheet, from theme/qt/puter.qss
   theme/qt6ct/puter.conf         the Qt palette
@@ -18,9 +18,9 @@ colour of each app).
   theme/qterminal/puter.colorscheme  the terminal
   theme/firefox/chrome/          Firefox's stylesheet, from theme/firefox
 
-Every glyph is drawn in 2px vector strokes in a 10 x 10 box. Straight strokes
-sit on whole pixels so they are sharp; diagonals and curves are smooth. Run it after
-changing a palette or theme/palette, then dev/sync.
+Icons and glyphs are IBM's Carbon icons (theme/carbon), named in
+theme/icons.map. Run it after changing a palette, theme/palette or the icon
+map, then dev/sync.
 """
 import re
 from pathlib import Path
@@ -151,121 +151,80 @@ snapping.overlay.edge.border.color: {C['ink']}
 """)
 
 
-# labwc: the window buttons. A button is one module (30 x 30); its glyph sits
-# in the 10 x 10 box from 10 to 20.
-def rects(*boxes):
-    return "".join(f'<rect x="{x}" y="{y}" width="{w}" height="{h}"/>' for x, y, w, h in boxes)
+# Icons and glyphs are IBM's Carbon icons (theme/carbon, Apache 2.0): every
+# one in ink, at 16px from Carbon's own 16px drawing where it has one, and
+# from its 32px one halved otherwise (Carbon draws on even pixels, so halved
+# its 2px lines are sharp 1px ones); at 64px the 32px drawing doubled.
+# Carbon's SVGs are plain paths and circles, so Qt's SVG renderer (SVG Tiny,
+# which draws a clip path as a filled square) draws them as they are.
+import xml.etree.ElementTree as ET
+
+CARBON = theme / "carbon"
+ET.register_namespace("", "http://www.w3.org/2000/svg")
 
 
-BUTTONS = {
-    # The window menu: three bars. It also gives the title its inset, since
-    # labwc has no padding for the title text alone.
-    "menu": rects((10, 10, 10, 2), (10, 14, 10, 2), (10, 18, 10, 2)),
-    "iconify": rects((10, 18, 10, 2)),
-    "max": rects((10, 10, 10, 2), (10, 18, 10, 2), (10, 12, 2, 6), (18, 12, 2, 6)),
-    # Restore: a smaller square, with the top and right edges of one behind it.
-    "max_toggled": rects(
-        (10, 12, 8, 2), (10, 18, 8, 2), (10, 14, 2, 4), (16, 14, 2, 4),
-        (12, 10, 8, 2), (18, 12, 2, 6),
-    ),
-    # The cross: two strokes corner to corner, clipped square on the box.
-    "close": (
-        '<clipPath id="box"><rect x="10" y="10" width="10" height="10"/></clipPath>'
-        '<g clip-path="url(#box)" stroke-width="2" fill="none" stroke="{ink}">'
-        '<line x1="9" y1="9" x2="21" y2="21"/><line x1="21" y1="9" x2="9" y2="21"/></g>'
-    ),
-}
-def button(body, ink, fill=None):
-    square = f'<rect width="30" height="30" fill="{fill}"/>' if fill else ""
-    return ('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">'
-            f'{square}<g fill="{ink}">{body.format(ink=ink)}</g></svg>\n')
+def carbon(name, small):
+    """A Carbon icon's shapes, as markup, and the size of the grid they're on:
+    its 16px drawing when small and it has one, its 32px one otherwise."""
+    path = CARBON / "16" / f"{name}.svg"
+    if not (small and path.exists()):
+        path = CARBON / "32" / f"{name}.svg"
+    root = ET.parse(path).getroot()
+    grid = int(float(root.get("viewBox").split()[2]))
+    body = "".join(ET.tostring(e, encoding="unicode").replace(' xmlns="http://www.w3.org/2000/svg"', "")
+                   for e in root)
+    return body, grid
 
 
-# Each button as it sits on a focused or unfocused title bar, and under the
-# pointer: the whole square filled and the glyph turned over, red for close.
-# (labwc draws these hover images in place of its own hover colour.)
-for name, body in BUTTONS.items():
+def glyph(name, canvas, box, ink, fill=None):
+    """A Carbon icon drawn box pixels square in the middle of a canvas pixels
+    square (on whole pixels), in ink, on a filled square if fill is given."""
+    body, grid = carbon(name, small=box <= 16)
+    offset, scale = (canvas - box) // 2, box / grid
+    square = f'<rect width="{canvas}" height="{canvas}" fill="{fill}"/>' if fill else ""
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{canvas}" height="{canvas}" '
+            f'viewBox="0 0 {canvas} {canvas}">{square}'
+            f'<g transform="translate({offset} {offset}) scale({scale:g})" fill="{ink}">{body}</g></svg>\n')
+
+
+# labwc: the window buttons, one module each (30 x 30), their 16px glyph in
+# the middle. Each as it sits on a title bar and under the pointer: the whole
+# square filled and the glyph turned over, the close colour for close. (labwc
+# draws these hover images in place of its own hover colour.) The menu
+# button isn't in the title bar (the app's square is), but is made anyway.
+BUTTONS = {"close": "close", "iconify": "subtract", "max": "maximize",
+           "max_toggled": "minimize", "menu": "menu"}
+for name, icon in BUTTONS.items():
     hover, hover_ink = (C["close-hover"], C["close-hover-ink"]) if name == "close" else (C["button-hover"], C["button-hover-ink"])
-    for state, ink in (("active", C["title-ink"]), ("inactive", C["title-ink"])):
-        (theme / "labwc" / f"{name}-{state}.svg").write_text(button(body, ink))
-        (theme / "labwc" / f"{name}_hover-{state}.svg").write_text(button(body, hover_ink, hover))
+    for state in ("active", "inactive"):
+        (theme / "labwc" / f"{name}-{state}.svg").write_text(glyph(icon, 30, 16, C["title-ink"]))
+        (theme / "labwc" / f"{name}_hover-{state}.svg").write_text(glyph(icon, 30, 16, hover_ink, hover))
 
 
-# Icons. Each is drawn per size on its own box, with lines on whole pixels so
-# a 2px stroke is sharp; curves and diagonals are smooth. Toolbar actions sit
-# in a 14px box (24px icons, in 30px buttons); files and places fill a 20px box
-# at 24px (list rows) and a 16px box at 16px. At 64px (icon view) the 16px
-# drawing is four times larger and the stroke stays 2px. Anything not drawn
-# here comes from Adwaita.
-FILES = {
-    # name: (context, 16px path in a 16 box, 24px path in a 20 box)
-    "folder": ("places", "M2 4H6L7 5H14V13H2Z", "M1 4H8L10 6H19V17H1Z"),
-    "user-home": ("places", "M2 8L8 2L14 8M4 7V14H12V7", "M1 10L10 1L19 10M4 8V19H16V8"),
-    "drive-harddisk": ("devices", "M2 5H14V11H2Z", "M1 6H19V14H1ZM14 10H16"),
-    "text-x-generic": ("mimetypes", "M3 2H9L13 6V14H3ZM9 2V6H13", "M3 1H12L17 6V19H3ZM12 1V6H17"),
-}
-ACTIONS = {
-    # name: path in a 14 box
-    "go-previous": "M9 1L3 7L9 13",
-    "go-next": "M5 1L11 7L5 13",
-    "go-up": "M1 10L7 4L13 10",
-    "go-down": "M1 4L7 10L13 4",
-    "go-home": "M1 7L7 1L13 7M3 5V13H11V5",
-    # The magnifier, as on the search square: a lens and a handle clipped
-    # square at the box's corner.
-    "edit-find": "M11 6A5 5 0 1 1 1 6A5 5 0 1 1 11 6ZM9.5 9.5L15 15",
-}
-ALIASES = {
-    "inode-directory": "folder", "folder-open": "folder", "user-desktop": "folder",
-    "drive-harddisk-system": "drive-harddisk",
-    "unknown": "text-x-generic", "application-octet-stream": "text-x-generic",
-    "system-search": "edit-find",
-}
-
-
-# No clip paths or non-scaling strokes: Qt's SVG renderer (SVG Tiny) draws a
-# clip path as a filled square. The 64px icons scale the path, not the
-# stroke, by drawing the path at 4x in its own coordinates.
-def icon(size, box, path, scale=1):
-    offset = (size - box * scale) // 2
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
-            f'<g transform="translate({offset} {offset}) scale({scale})"><path d="{path}" '
-            f'fill="none" stroke="{C["ink"]}" stroke-width="{2 / scale:g}"/></g></svg>\n')
-
-
+# The icon theme: every name in theme/icons.map at 16 (its glyph sharp at
+# 16px), 24 (the same 16px glyph, centred, rather than a blurred 24px one)
+# and 64 (the 32px drawing doubled, for icon views); the window buttons'
+# glyphs as symbolic icons, in black for GTK to recolour; and each app's
+# square in its colour.
 DRAWN = {}  # (size, context, name): svg
-for name, (context, small, large) in FILES.items():
-    DRAWN[16, context, name] = icon(16, 16, small)
-    DRAWN[24, context, name] = icon(24, 20, large)
-    DRAWN[64, context, name] = icon(64, 16, small, scale=4)
-for name, path in ACTIONS.items():
-    DRAWN[16, "actions", name] = icon(16, 14, path)
-    DRAWN[24, "actions", name] = icon(24, 14, path)
-# The close cross, as on the window buttons: two 2px diagonals corner to corner
-# in a 10 x 10 box, cut square on its edges. At 16px it sits in the middle of
-# a 30px button exactly where the window buttons' cross does. The symbolic
-# form is the same shape as filled bands, since GTK fills symbolic icons with
-# the text colour of whatever they sit on.
-def cross(size, symbolic):
-    o, b, h = (size - 10) // 2, 10, 2 ** 0.5
-    if symbolic:
-        band = lambda pts: "M" + "L".join(f"{x:.3f} {y:.3f}" for x, y in pts) + "Z"
-        a = [(o, o), (o + h, o), (o + b, o + b - h), (o + b, o + b), (o + b - h, o + b), (o, o + h)]
-        mirror = [(2 * o + b - x, y) for x, y in a]
-        body = f'<path d="{band(a)}{band(mirror)}" fill="#000000"/>'
-    else:
-        # The same bands, in ink (no clip path, which Qt draws as a square).
-        band = lambda pts: "M" + "L".join(f"{x:.3f} {y:.3f}" for x, y in pts) + "Z"
-        a = [(o, o), (o + h, o), (o + b, o + b - h), (o + b, o + b), (o + b - h, o + b), (o, o + h)]
-        mirror = [(2 * o + b - x, y) for x, y in a]
-        body = f'<path d="{band(a)}{band(mirror)}" fill="{C["ink"]}"/>'
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
-            f'viewBox="0 0 {size} {size}">{body}</svg>\n')
+for line in (theme / "icons.map").read_text().splitlines():
+    fields = line.split("#", 1)[0].split()
+    if len(fields) != 3:
+        continue
+    name, context, icon = fields
+    DRAWN[16, context, name] = glyph(icon, 16, 16, C["ink"])
+    DRAWN[24, context, name] = glyph(icon, 24, 16, C["ink"])
+    DRAWN[64, context, name] = glyph(icon, 64, 64, C["ink"])
+for name, icon in (("window-close", "close"), ("window-minimize", "subtract"),
+                   ("window-maximize", "maximize"), ("window-restore", "minimize"),
+                   ("open-menu", "menu")):
+    DRAWN[16, "actions", name] = glyph(icon, 16, 16, C["ink"])
+    DRAWN[16, "actions", f"{name}-symbolic"] = glyph(icon, 16, 16, "#000000")
+    DRAWN[24, "actions", name] = glyph(icon, 24, 16, C["ink"])
 
 
-# Apps: a solid square in the app's colour, the size of a glyph's box (10px at
-# 16, 14px at 24), so a title bar, a taskbar tab and search show which app is
-# which by colour.
+# Apps: a solid square in the app's colour, 10px at 16 and 14px at 24, so a
+# title bar, a taskbar tab and search show which app is which by colour.
 def square(size, side, color):
     o = (size - side) // 2
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
@@ -277,35 +236,19 @@ for name, color in APPS.items():
     DRAWN[24, "apps", name] = square(24, 14, color)
     DRAWN[64, "apps", name] = square(64, 40, color)
 
-for size in (16, 24):
-    DRAWN[size, "actions", "window-close"] = cross(size, False)
-    DRAWN[size, "actions", "window-close-symbolic"] = cross(size, True)
-# The other window buttons, for apps that draw their own title bar (GTK 4):
-# the labwc glyphs, moved from their 30px button into the middle of a 16px
-# icon, so they land on the same pixels when GTK centres the icon in a 30px
-# button.
-for name, button_name in (("window-minimize", "iconify"), ("window-maximize", "max"),
-                          ("window-restore", "max_toggled"), ("open-menu", "menu")):
-    DRAWN[16, "actions", f"{name}-symbolic"] = (
-        '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'
-        f'<g transform="translate(-7 -7)" fill="#000000">{BUTTONS[button_name]}</g></svg>\n')
-SIZES = (16, 24, 64)
-
 
 icons = theme / "icons"
 for old in icons.glob("[0-9]*x[0-9]*"):
     for f in sorted(old.rglob("*"), reverse=True):
         f.unlink() if f.is_file() else f.rmdir()
     old.rmdir()
-contexts = sorted({context for _, context, _ in DRAWN})
 for (size, context, name), svg in DRAWN.items():
     folder = icons / f"{size}x{size}" / context
     folder.mkdir(parents=True, exist_ok=True)
-    for n in [name] + [a for a, t in ALIASES.items() if t == name]:
-        (folder / f"{n}.svg").write_text(svg)
+    (folder / f"{name}.svg").write_text(svg)
 dirs = sorted({f"{size}x{size}/{context}" for size, context, _ in DRAWN})
-index = ["[Icon Theme]", "Name=puter", "Comment=2px line icons", "Inherits=breeze,hicolor",
-         "Directories=" + ",".join(dirs), ""]
+index = ["[Icon Theme]", "Name=puter", "Comment=IBM Carbon icons in the palette's ink",
+         "Inherits=breeze,hicolor", "Directories=" + ",".join(dirs), ""]
 for d in dirs:
     size = int(d.split("x")[0])
     index += [f"[{d}]", f"Size={size}", f"Context={d.split('/')[1].capitalize()}"]

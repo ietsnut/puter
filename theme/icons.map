@@ -1,0 +1,162 @@
+# puter's icons: each freedesktop icon name apps ask for, its context, and
+# the Carbon icon (IBM's, theme/carbon, Apache 2.0) drawn for it. theme/make
+# builds the icon theme from this: every icon in ink, at 16px from Carbon's
+# own 16px drawing where it has one and from its 32px one halved otherwise
+# (Carbon draws on even pixels, so halved its 2px lines are sharp 1px ones);
+# 24 and 64 from the 32. Names not here fall back to Breeze.
+#
+# name                        context     carbon
+
+# Files and places.
+folder                        places      folder
+folder-open                   places      folder--open
+inode-directory               places      folder
+user-home                     places      home
+user-desktop                  places      screen
+user-trash                    places      trash-can
+user-trash-full               places      trash-can
+folder-documents              places      document
+folder-download               places      download
+folder-downloads              places      download
+folder-music                  places      music
+folder-pictures               places      image
+folder-videos                 places      video
+folder-remote                 places      folder--shared
+network-workgroup             places      network--3
+network-server                places      bare-metal-server
+computer                      devices     laptop
+drive-harddisk                devices     data--base
+drive-harddisk-system         devices     data--base
+drive-removable-media         devices     usb
+drive-optical                 devices     radio-button
+media-optical                 devices     radio-button
+text-x-generic                mimetypes   document
+text-plain                    mimetypes   document
+unknown                       mimetypes   document--blank
+application-octet-stream      mimetypes   document--blank
+image-x-generic               mimetypes   image
+video-x-generic               mimetypes   video
+audio-x-generic               mimetypes   music
+application-pdf               mimetypes   document--pdf
+package-x-generic             mimetypes   zip
+application-zip               mimetypes   zip
+application-x-archive         mimetypes   zip
+text-html                     mimetypes   html
+text-x-script                 mimetypes   script
+application-x-executable      mimetypes   terminal
+application-x-shellscript     mimetypes   script
+x-office-document             mimetypes   document
+x-office-presentation         mimetypes   presentation-file
+text-x-csrc                   mimetypes   code
+text-x-python                 mimetypes   code
+text-x-makefile               mimetypes   code
+
+# Actions.
+document-new                  actions     document--add
+document-open                 actions     folder--open
+document-open-recent          actions     recently-viewed
+document-save                 actions     save
+document-save-as              actions     save
+document-print                actions     printer
+document-print-preview        actions     view
+document-properties           actions     information
+document-revert               actions     reset
+document-close                actions     close
+edit-copy                     actions     copy
+edit-cut                      actions     cut
+edit-paste                    actions     paste
+edit-delete                   actions     trash-can
+edit-undo                     actions     undo
+edit-redo                     actions     redo
+edit-find                     actions     search
+edit-find-replace             actions     search
+edit-select-all               actions     checkbox--checked
+edit-clear                    actions     erase
+edit-rename                   actions     text--creation
+system-search                 actions     search
+go-previous                   actions     arrow--left
+go-next                       actions     arrow--right
+go-up                         actions     arrow--up
+go-down                       actions     arrow--down
+go-home                       actions     home
+go-first                      actions     skip--back
+go-last                       actions     skip--forward
+go-jump                       actions     jump-link
+view-refresh                  actions     renew
+view-list-details             actions     list
+view-list-icons               actions     grid
+view-list-text                actions     list--bulleted
+view-preview                  actions     view
+view-fullscreen               actions     maximize
+view-restore                  actions     minimize
+view-sort-ascending           actions     sort--ascending
+view-sort-descending          actions     sort--descending
+zoom-in                       actions     zoom--in
+zoom-out                      actions     zoom--out
+zoom-original                 actions     zoom--reset
+zoom-fit-best                 actions     zoom--fit
+list-add                      actions     add
+list-remove                   actions     subtract
+folder-new                    actions     folder--add
+tab-new                       actions     new-tab
+tab-close                     actions     close
+window-new                    actions     launch
+application-exit              actions     logout
+system-shutdown               actions     power
+system-reboot                 actions     restart
+system-log-out                actions     logout
+help-about                    actions     information
+help-contents                 actions     help
+preferences-system            actions     settings
+configure                     actions     settings
+settings-configure            actions     settings
+object-rotate-left            actions     rotate--counterclockwise
+object-rotate-right           actions     rotate--clockwise
+object-flip-horizontal        actions     direction--loop-left
+object-flip-vertical          actions     direction--loop-right
+media-playback-start          actions     play
+media-playback-pause          actions     pause
+media-playback-stop           actions     stop
+media-skip-backward           actions     skip--back
+media-skip-forward            actions     skip--forward
+process-stop                  actions     stop--outline
+dialog-ok                     actions     checkmark
+dialog-cancel                 actions     close
+dialog-close                  actions     close
+bookmark-new                  actions     bookmark--add
+bookmarks                     actions     bookmark
+mail-send                     actions     send
+insert-text                   actions     text--creation
+format-text-bold              actions     text--bold
+format-text-italic            actions     text--italic
+format-text-underline         actions     text--underline
+format-justify-left           actions     text--align--left
+format-justify-center         actions     text--align--center
+format-justify-right          actions     text--align--right
+format-indent-more            actions     text--indent--more
+format-indent-less            actions     text--indent--less
+system-run                    actions     play
+open-menu                     actions     overflow-menu--vertical
+application-menu              actions     overflow-menu--vertical
+
+# Message boxes and status.
+dialog-information            status      information
+dialog-warning                status      warning
+dialog-error                  status      error
+dialog-question               status      help
+emblem-important              status      warning--alt
+security-high                 status      locked
+security-low                  status      unlocked
+audio-volume-high             status      volume--up
+audio-volume-muted            status      volume--mute
+network-wired                 status      network--3
+network-offline               status      network--1
+
+# puter's own: the bar's glyphs (config/quickshell), by these names.
+puter-search                  actions     search
+puter-network                 actions     connection-signal
+puter-network-off             actions     connection-signal--off
+puter-volume                  actions     volume--up
+puter-volume-muted            actions     volume--mute
+puter-restart                 actions     restart
+puter-power                   actions     power

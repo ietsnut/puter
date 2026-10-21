@@ -1,8 +1,8 @@
 # Stack: after Koto's identity for Stack Overflow (2026) and Butterfly's
 # Pond. A brown desk dotted on the grid, paper windows under bone title
 # bars, and a few strong colours that mark rather than fill: every app has
-# its own, shown as a square on its title bar and taskbar tab. Set in Stack
-# Sans, Koto's typeface for it (theme/fonts, SIL OFL).
+# its own, shown as a square on its title bar and taskbar tab. Set in IBM
+# Plex Sans.
 # Roles on the left, the palette's colours on the right. `theme/make` writes
 # every app's colours from the palette named in theme/palette.
 
@@ -132,9 +132,9 @@ sch-hidden        sand
 3d-silk           white
 
 [fonts]
-sans      Stack Sans Text
+sans      IBM Plex Sans
 mono      IBM Plex Mono
-headline  Stack Sans Headline
+headline  IBM Plex Sans
 
 # Each app's square, by its icon name.
 [apps]
