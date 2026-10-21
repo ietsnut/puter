@@ -154,7 +154,7 @@ PanelWindow {
     implicitWidth: Theme.module * columns
     implicitHeight: Theme.module * (1 + bodyRows + (output ? 1 : 0) + 1)
     exclusionMode: ExclusionMode.Ignore
-    color: Theme.background
+    color: Colors.paper
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "puter-updates"
 
@@ -163,7 +163,7 @@ PanelWindow {
         id: strip
         width: parent.width
         height: Theme.module
-        color: Theme.title
+        color: Colors.title
 
         IconImage {
             x: (Theme.module - width) / 2
@@ -175,13 +175,13 @@ PanelWindow {
         Label {
             x: Theme.module
             text: "Updates"
-            color: Theme.titleForeground
+            color: Colors.titleInk
         }
 
         Label {
             anchors.right: close.left
             anchors.rightMargin: Theme.inset
-            color: Theme.mutedForeground
+            color: Colors.mutedInk
             text: panel.phase === "checking" ? "Looking"
                 : panel.phase === "ready" ? (panel.items.length === 0 ? "Up to date" : panel.items.length + (panel.items.length === 1 ? " update" : " updates"))
                 : panel.phase === "running" ? panel.minutes
@@ -200,7 +200,7 @@ PanelWindow {
             y: Theme.module - 1
             width: parent.width
             height: 1
-            color: Theme.outline
+            color: Colors.outline
         }
     }
 
@@ -216,7 +216,7 @@ PanelWindow {
             height: Theme.module
 
             Label {
-                color: Theme.mutedForeground
+                color: Colors.mutedInk
                 text: panel.phase === "checking" ? "Looking for updates…" : "Everything is up to date."
             }
         }
@@ -239,7 +239,7 @@ PanelWindow {
                     x: Theme.module * 6 + Theme.inset
                     width: parent.width - x - Theme.inset
                     elide: Text.ElideRight
-                    color: Theme.mutedForeground
+                    color: Colors.mutedInk
                     text: modelData.detail
                 }
             }
@@ -264,7 +264,7 @@ PanelWindow {
                 text: modelData
                 textFormat: Text.PlainText
                 elide: Text.ElideRight
-                color: modelData.startsWith("!! ") ? Theme.attention : modelData.startsWith("== ") ? Theme.foreground : Theme.mutedForeground
+                color: modelData.startsWith("!! ") ? Colors.attention : modelData.startsWith("== ") ? Colors.ink : Colors.mutedInk
                 font.family: "puter-mono"
                 font.pixelSize: Theme.textSize
                 font.weight: modelData.startsWith("== ") ? Font.DemiBold : Font.Normal
@@ -279,12 +279,12 @@ PanelWindow {
         y: Theme.module * (1 + panel.outputRows)
         width: parent.width
         height: Theme.module
-        color: Theme.muted
+        color: Colors.muted
 
         Rectangle {
             width: Math.round(panel.progress * panel.columns) * Theme.module
             height: Theme.module
-            color: panel.phase === "done" && panel.failed.length > 0 ? Theme.attention : Theme.primary
+            color: panel.phase === "done" && panel.failed.length > 0 ? Colors.attention : Colors.accent
         }
 
         Label {
@@ -298,7 +298,7 @@ PanelWindow {
         Rectangle {
             width: parent.width
             height: 1
-            color: Theme.outline
+            color: Colors.outline
         }
     }
 
@@ -311,7 +311,7 @@ PanelWindow {
         Label {
             width: parent.width - button.width - Theme.inset * 2
             elide: Text.ElideRight
-            color: Theme.mutedForeground
+            color: Colors.mutedInk
             text: panel.output ? "~/.local/state/puter/update.log" : "Arch, firmware, puter, its apps and Claude Code"
         }
 
@@ -320,8 +320,8 @@ PanelWindow {
             anchors.right: parent.right
             minModules: 8
             maxModules: 8
-            fill: panel.phase === "running" || panel.phase === "checking" ? Theme.muted : panel.phase === "done" && panel.restart ? Theme.attention : Theme.primary
-            ink: panel.phase === "running" || panel.phase === "checking" ? Theme.mutedForeground : Theme.primaryForeground
+            fill: panel.phase === "running" || panel.phase === "checking" ? Colors.muted : panel.phase === "done" && panel.restart ? Colors.attention : Colors.accent
+            ink: panel.phase === "running" || panel.phase === "checking" ? Colors.mutedInk : Colors.accentInk
             hoverable: panel.phase === "ready" || panel.phase === "done"
             text: panel.phase === "running" ? "Updating…"
                 : panel.phase === "done" ? (panel.restart ? "Restart" : "Close")
@@ -340,14 +340,14 @@ PanelWindow {
             Rectangle {
                 width: 1
                 height: parent.height
-                color: Theme.outline
+                color: Colors.outline
             }
         }
 
         Rectangle {
             width: parent.width
             height: 1
-            color: Theme.outline
+            color: Colors.outline
         }
     }
 

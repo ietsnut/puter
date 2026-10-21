@@ -310,7 +310,7 @@ PanelWindow {
                         id: preview
                         width: parent.width
                         height: Theme.module * 5
-                        color: card.current ? Theme.primary : Theme.muted
+                        color: card.current ? Colors.accent : Colors.muted
 
                         Image {
                             id: shot
@@ -338,8 +338,8 @@ PanelWindow {
                         text: card.modelData.title || card.entry?.name || card.modelData.appId
                         icon: Quickshell.iconPath(card.entry?.icon ?? card.modelData.appId, true)
                         // The picked one in ink, so every app's square shows on it.
-                        fill: card.current ? Theme.foreground : Theme.title
-                        ink: card.current ? Theme.background : Theme.titleForeground
+                        fill: card.current ? Colors.ink : Colors.title
+                        ink: card.current ? Colors.paper : Colors.titleInk
                     }
 
                     // Each card's edge; where two meet they share a line.
@@ -353,7 +353,7 @@ PanelWindow {
                         y: Theme.module * 5
                         width: parent.width
                         height: 1
-                        color: Theme.outline
+                        color: Colors.outline
                         z: 2
                     }
 

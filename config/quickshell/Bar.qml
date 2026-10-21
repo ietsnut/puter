@@ -14,6 +14,19 @@ PanelWindow {
     signal search
     signal update
 
+    // Each agent window's state, by its title: working, waiting or done (set
+    // by the agents' hooks over IPC, shell.qml).
+    property var agents: ({})
+
+    function setAgent(title, state) {
+        const next = Object.assign({}, agents);
+        if (state)
+            next[title] = state;
+        else
+            delete next[title];
+        agents = next;
+    }
+
     // The update's state (Updates.qml): running, restart, or nothing.
     property string updates: ""
 
@@ -45,7 +58,7 @@ PanelWindow {
         y: Theme.module
         width: bar.width
         height: Theme.module
-        color: Theme.bar
+        color: Colors.bar
     }
 
     // The strip's top edge: a 1px line in bar-edge, drawn over the top pixel
@@ -53,18 +66,32 @@ PanelWindow {
     // where the palette gives it the bar's own colour (a dark bar needs none).
     // The search square has its own edge, so the line starts beside it.
     Rectangle {
-        visible: Theme.barEdge !== Theme.bar
+        visible: Colors.barEdge !== Colors.bar
         x: searchButton.width
         y: Theme.module
         z: 1
         width: bar.width - x
         height: 1
-        color: Theme.barEdge
+        color: Colors.barEdge
     }
 
-    SearchButton {
+    // Search: a two-module square in the search colour, the magnifier at
+    // 32px, outlined only where the bar is (palettes whose bar-edge isn't the
+    // bar's own colour); a coloured square stands on the desk without one.
+    BarButton {
         id: searchButton
+        width: Theme.module * 2
+        height: Theme.module * 2
+        iconSize: 32
+        icon: "puter-search"
+        fill: Colors.search
         onClicked: bar.search()
+
+        Outline {
+            visible: Colors.barEdge !== Colors.bar
+            edgeBottom: false
+            edgeLeft: false
+        }
     }
 
     // Windows sit flush, side by side, straight after the search square: each
@@ -80,10 +107,10 @@ PanelWindow {
             Chip {
                 id: tab
                 required property var modelData
-                // An agent's state (Agents.qml): its glyph in the tab's last
+                // An agent's state (bar.agents): its glyph in the tab's last
                 // module, and the whole tab in the attention colour while it
                 // waits for you. "done" shows until you've been to the window.
-                readonly property string agent: Agents.states[modelData.title] ?? ""
+                readonly property string agent: bar.agents[modelData.title] ?? ""
                 readonly property bool waiting: agent === "waiting"
                 text: modelData.title
                 // The app's icon from its desktop file, or, without one, the icon
@@ -93,8 +120,8 @@ PanelWindow {
                 minModules: 3
                 maxModules: 8
                 hoverable: true
-                fill: waiting ? Theme.attention : modelData.activated ? Theme.tabActive : Theme.tab
-                ink: waiting ? Theme.attentionForeground : modelData.activated ? Theme.tabActiveForeground : Theme.tabForeground
+                fill: waiting ? Colors.attention : modelData.activated ? Colors.tabActive : Colors.tab
+                ink: waiting ? Colors.attentionInk : modelData.activated ? Colors.tabActiveInk : Colors.tabInk
                 onClicked: modelData.activate()
 
                 Connections {
@@ -102,7 +129,7 @@ PanelWindow {
 
                     function onActivatedChanged() {
                         if (!tab.modelData.activated && tab.agent === "done")
-                            Agents.set(tab.modelData.title, "");
+                            bar.setAgent(tab.modelData.title, "");
                     }
                 }
             }
@@ -172,8 +199,8 @@ PanelWindow {
         anchors.right: update.left
         y: Theme.module
         text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
-        fill: Theme.bar
-        ink: Theme.barForeground
+        fill: Colors.bar
+        ink: Colors.barInk
     }
 
     // Updates (Updates.qml): the glyph turns while one runs, and the button
@@ -183,7 +210,7 @@ PanelWindow {
         anchors.right: restart.left
         y: Theme.module
         icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
-        fill: bar.updates === "restart" ? Theme.attention : Theme.bar
+        fill: bar.updates === "restart" ? Colors.attention : Colors.bar
         onClicked: bar.update()
     }
 

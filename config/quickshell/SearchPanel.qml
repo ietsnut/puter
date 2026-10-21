@@ -86,7 +86,7 @@ PanelWindow {
     implicitWidth: Theme.module * 16
     implicitHeight: Theme.module * (results.length + 1)
     exclusionMode: ExclusionMode.Ignore
-    color: Theme.background
+    color: Colors.paper
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
@@ -114,7 +114,7 @@ PanelWindow {
 
                 width: parent.width
                 height: Theme.module
-                color: current ? Theme.primary : Theme.background
+                color: current ? Colors.accent : Colors.paper
 
                 Text {
                     x: Theme.inset
@@ -122,7 +122,7 @@ PanelWindow {
                     anchors.verticalCenter: parent.verticalCenter
                     text: modelData.name
                     elide: Text.ElideRight
-                    color: current ? Theme.primaryForeground : Theme.foreground
+                    color: current ? Colors.accentInk : Colors.ink
                     font.family: Theme.font
                     renderType: Text.CurveRendering
                     font.pixelSize: Theme.textSize
@@ -140,16 +140,16 @@ PanelWindow {
         Rectangle {
             width: parent.width
             height: Theme.module
-            color: Theme.foreground
+            color: Colors.ink
 
             TextInput {
                 id: input
                 x: Theme.inset
                 width: parent.width - Theme.inset * 2
                 anchors.verticalCenter: parent.verticalCenter
-                color: Theme.background
-                selectionColor: Theme.background
-                selectedTextColor: Theme.foreground
+                color: Colors.paper
+                selectionColor: Colors.paper
+                selectedTextColor: Colors.ink
                 font.family: Theme.font
                 font.pixelSize: Theme.textSize
                 onTextChanged: panel.query = text
@@ -165,7 +165,7 @@ PanelWindow {
                 Text {
                     visible: !input.text
                     text: panel.recentApps.length > 0 ? "Search, or pick a recent app" : "Search"
-                    color: Theme.muted
+                    color: Colors.muted
                     font: input.font
                 }
             }

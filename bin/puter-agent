@@ -11,7 +11,7 @@
 # and the bar give it the agent's square, and a locked title, "Claude ·
 # folder", the same for the whole session (the agents would otherwise retitle
 # it as they go). The hooks report under that title, which the bar matches to
-# the window's tab (config/quickshell/Agents.qml).
+# the window's tab (config/quickshell/Bar.qml).
 set -euo pipefail
 
 hook() {

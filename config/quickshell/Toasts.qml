@@ -53,7 +53,7 @@ PanelWindow {
         for (const name of [entry?.icon, notification.desktopEntry, notification.appIcon, notification.appName.toLowerCase()])
             if (name && Colors.apps[name])
                 return Colors.apps[name];
-        return Theme.primary;
+        return Colors.accent;
     }
 
     Column {
@@ -75,7 +75,7 @@ PanelWindow {
 
                 width: stack.width
                 height: Theme.module + textHeight + (actions.length > 0 ? Theme.module : 0)
-                color: Theme.background
+                color: Colors.paper
 
                 // Gone after its timeout; a critical one stays until closed.
                 Timer {
@@ -100,7 +100,7 @@ PanelWindow {
                     width: parent.width
                     height: Theme.module
                     // Critical ones in the attention colour, whatever the app.
-                    color: toast.critical ? Theme.attention : toasts.color(toast.modelData)
+                    color: toast.critical ? Colors.attention : toasts.color(toast.modelData)
 
                     IconImage {
                         x: (Theme.module - width) / 2
@@ -151,7 +151,7 @@ PanelWindow {
                         wrapMode: Text.Wrap
                         maximumLineCount: 2
                         elide: Text.ElideRight
-                        color: Theme.foreground
+                        color: Colors.ink
                         font.family: Theme.font
                         font.pixelSize: Theme.textSize
                         font.weight: Font.DemiBold
@@ -166,7 +166,7 @@ PanelWindow {
                         wrapMode: Text.Wrap
                         maximumLineCount: 4
                         elide: Text.ElideRight
-                        color: Theme.foreground
+                        color: Colors.ink
                         font.family: Theme.font
                         font.pixelSize: Theme.textSize
                         renderType: Text.CurveRendering
@@ -184,8 +184,8 @@ PanelWindow {
                         Chip {
                             required property var modelData
                             text: modelData.text
-                            fill: Theme.muted
-                            ink: Theme.foreground
+                            fill: Colors.muted
+                            ink: Colors.ink
                             hoverable: true
                             divider: true
                             onClicked: modelData.invoke()
@@ -199,7 +199,7 @@ PanelWindow {
                     y: Theme.module + toast.textHeight
                     width: parent.width
                     height: 1
-                    color: Theme.outline
+                    color: Colors.outline
                 }
 
                 // Its edge; the top one is left to the toast above, so two
@@ -213,7 +213,7 @@ PanelWindow {
                     y: Theme.module - 1
                     width: parent.width
                     height: 1
-                    color: Theme.outline
+                    color: Colors.outline
                 }
             }
         }

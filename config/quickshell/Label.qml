@@ -4,7 +4,7 @@ import QtQuick
 Text {
     x: Theme.inset
     anchors.verticalCenter: parent.verticalCenter
-    color: Theme.foreground
+    color: Colors.ink
     font.family: Theme.font
     font.pixelSize: Theme.textSize
     renderType: Text.CurveRendering

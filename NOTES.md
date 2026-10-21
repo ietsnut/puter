@@ -143,7 +143,7 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   libfm-qt's `filedialog.ui`; the file type row only shows with a choice of
   types.
 - `config/quickshell/Theme.qml` holds the geometry (module 30, inset 8, IBM Plex Sans
-  15px).
+  15px); colours are `Colors.qml`'s roles, by the palette's names.
 - `theme/gtk-3.0/gtk.css` restyles Adwaita for the GTK 3 apps that remain
   (KiCad). Most of it is overriding Adwaita rules that are more specific than
   a plain selector; the `:not(.puter-a):not(.puter-b)` selectors exist only to
@@ -173,7 +173,7 @@ Code", file-manager actions that install.sh writes).
   agents run `puter-agent hook` on their events (`config/agents/hooks.json`;
   Claude Code and Codex read the same format, merged by install.sh into
   `~/.claude/settings.json` and `~/.codex/hooks.json`). The hook tells the
-  shell over IPC (`qs ipc call agents set TITLE STATE`, `Agents.qml`) and the
+  shell over IPC (`qs ipc call agents set TITLE STATE`, kept by `Bar.qml`) and the
   tab with that title shows it in its last module: working (a prompt or a
   tool ran), waiting for a permission (the whole tab in `attention`, orange)
   or done (a check, until you've been to the window). Nothing is polled.
@@ -302,9 +302,9 @@ to Arch's version (still patched, a release above Arch's so pacman never
 swaps it back; `pacman -Su` ignores the four), wlrctl and qpdfview to the
 AUR's, with the AUR recipe's checksums (read with a regex, never sourced),
 and JLCONE to JLCPCB's own electron-updater feed (`latest-linux.yml`), whose
-sha512 is the checksum. A bumped copy is built; the repo isn't changed, and
-`install.sh` only rebuilds a package older than its recipe, so it doesn't
-undo an update.
+sha512 is the checksum. A bumped copy is built; the repo isn't changed.
+`install.sh packages` is `puter-update run` too: a first install is an
+update from nothing.
 
 `puter-update check` lists what's out of date without root (`checkupdates`
 from pacman-contrib, a copy of the sync database). `Updates.qml` runs it
@@ -388,7 +388,7 @@ button restarts.
   family puter at size mono: `theme/make` writes the family's own name.
 - **Without a GPU** (only in the VM), wlroots crashes on native-Wayland OpenGL
   apps: see `dev/devbox/README.md` for the workarounds.
-- **At rest** (`dev/idle`, VM, 21 October): every process 0.0% CPU over a
+- **At rest** (VM, 21 October): every process 0.0% CPU over a
   minute, with nothing open and with every app open (the system 0.01-0.02%
   busy). Memory (PSS) with nothing open, about 213 MB in all: Quickshell
   116, labwc 38, the portals 21, PipeWire and WirePlumber 16, gvfs 14
@@ -407,11 +407,8 @@ Edit on the Mac in `~/Desktop/puter`, then:
 - `dev/sync`: copy to the VM, run `install.sh config`, reload labwc
   (Quickshell reloads itself).
 - `dev/shot`: screenshot to `dev/shots/shot.png`.
-- `dev/idle`: CPU and memory per process at rest, with nothing open and with
-  every app open.
 - `dev/grid`: check a screenshot against the grid (every window's edges,
-  from its own corner); `dev/tour`: open every app and dialog and check each,
-  into `dev/shots/tour/`. A step is an app and the keys that open a window.
+  from its own corner).
 - `dev/click X Y`, `dev/run CMD`: click and launch on the VM's desktop.
 - `dev/screen`: use the desktop live in Screen Sharing; `dev/screen stop`.
 

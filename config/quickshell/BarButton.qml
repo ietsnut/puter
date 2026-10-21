@@ -2,26 +2,28 @@ import QtQuick
 import Quickshell
 import Quickshell.Widgets
 
-// A one-module square in the bar's colours holding a 16px glyph from puter's
-// icons (IBM's Carbon, theme/icons.map); the hover colour under the pointer.
+// A square in the bar's colours, a module unless told otherwise, holding a
+// glyph from puter's icons (IBM's Carbon, theme/icons.map) in its middle,
+// 16px unless told otherwise; the hover colour under the pointer.
 Rectangle {
     id: button
 
     // An icon name in puter's theme.
     property string icon: ""
     // Its colour at rest: the bar's, or whatever it stands on.
-    property color fill: Theme.bar
+    property color fill: Colors.bar
+    property int iconSize: 16
     signal clicked
     signal scrolled(int steps)
 
     width: Theme.module
     height: Theme.module
-    color: mouse.containsMouse ? Theme.hover : fill
+    color: mouse.containsMouse ? Colors.buttonHover : fill
 
     IconImage {
-        x: (Theme.module - width) / 2
-        y: (Theme.module - height) / 2
-        implicitSize: 16
+        x: (button.width - width) / 2
+        y: (button.height - height) / 2
+        implicitSize: button.iconSize
         source: Quickshell.iconPath(button.icon)
     }
 

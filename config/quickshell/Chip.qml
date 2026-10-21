@@ -13,12 +13,12 @@ Rectangle {
     property string icon: ""
     // A 16px glyph (an icon path) in a module of its own at the right end.
     property string badge: ""
-    property color fill: Theme.muted
-    property color ink: Theme.mutedForeground
+    property color fill: Colors.muted
+    property color ink: Colors.mutedInk
     // Chips you can click light up under the pointer, like the window buttons.
     property bool hoverable: false
-    property color hoverFill: Theme.hover
-    property color hoverInk: Theme.hoverForeground
+    property color hoverFill: Colors.buttonHover
+    property color hoverInk: Colors.buttonHoverInk
     // A 1px line in the outline colour down the right edge, inside the chip,
     // where chips stand side by side.
     property bool divider: false
@@ -69,7 +69,7 @@ Rectangle {
         anchors.right: parent.right
         width: 1
         height: parent.height
-        color: Theme.outline
+        color: Colors.outline
     }
 
     MouseArea {
