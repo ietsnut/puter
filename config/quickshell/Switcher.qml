@@ -301,14 +301,15 @@ PanelWindow {
                     height: switcher.cardHeight
 
                     // The preview, fitted inside the card one inset from its
-                    // edges, on the bar's colour (and only that, until the
-                    // first one's taken). Loaded in step, so a new frame
-                    // replaces the last without a gap.
+                    // edges, on the bar's colour, or the accent for the
+                    // picked card (and only that, until the first one's
+                    // taken). Loaded in step, so a new frame replaces the
+                    // last without a gap.
                     Rectangle {
                         id: preview
                         width: parent.width
                         height: Theme.module * 5
-                        color: Theme.muted
+                        color: card.current ? Theme.primary : Theme.muted
 
                         Image {
                             id: shot
@@ -352,17 +353,6 @@ PanelWindow {
                         width: parent.width
                         height: 1
                         color: Theme.outline
-                        z: 2
-                    }
-
-                    // The picked card: a second line inside its edge.
-                    Rectangle {
-                        visible: card.current
-                        anchors.fill: parent
-                        anchors.margins: 1
-                        color: "transparent"
-                        border.width: 1
-                        border.color: Theme.outline
                         z: 2
                     }
 
