@@ -2,6 +2,12 @@
 // it in ext-foreign-toplevel-list (what `grim -T` captures), its app ID and
 // its title, between tabs. The switcher (config/quickshell/Switcher.qml)
 // matches these to its own windows to take their previews.
+//
+// puter-windows trim FILE.ppm...: cuts off the pure black a capture can
+// have around its window. labwc captures everything a window has, and some
+// apps keep a surface outside the window itself (Firefox, above and left of
+// it), so the capture is larger and the rest is filled with black, #000000,
+// which no window's whole edge is (puter's darkest ink is #060606).
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,7 +80,80 @@ static void print_field(const char *value) {
 		putchar(*c == '\t' || *c == '\n' ? ' ' : *c);
 }
 
-int main(void) {
+// A binary PPM (P6, 8 bits, as grim writes it), cropped in place to the
+// smallest box whose every edge row and column has something not pure black.
+static int trim(const char *path) {
+	FILE *file = fopen(path, "rb");
+	if (!file)
+		return 1;
+	int width, height, max;
+	if (fscanf(file, "P6 %d %d %d", &width, &height, &max) != 3 || max != 255 || fgetc(file) == EOF ||
+			width <= 0 || height <= 0) {
+		fclose(file);
+		return 1;
+	}
+	size_t stride = (size_t)width * 3;
+	unsigned char *pixels = malloc(stride * height);
+	if (!pixels || fread(pixels, stride, height, file) != (size_t)height) {
+		free(pixels);
+		fclose(file);
+		return 1;
+	}
+	fclose(file);
+
+	#define BLACK(x, y) (!pixels[(y) * stride + (x) * 3] && !pixels[(y) * stride + (x) * 3 + 1] && \
+		!pixels[(y) * stride + (x) * 3 + 2])
+	int top = 0, bottom = height - 1, left = 0, right = width - 1, x, y;
+	for (; top <= bottom; top++) {
+		for (x = 0; x < width && BLACK(x, top); x++) {}
+		if (x < width)
+			break;
+	}
+	for (; bottom > top; bottom--) {
+		for (x = 0; x < width && BLACK(x, bottom); x++) {}
+		if (x < width)
+			break;
+	}
+	for (; left <= right; left++) {
+		for (y = top; y <= bottom && BLACK(left, y); y++) {}
+		if (y <= bottom)
+			break;
+	}
+	for (; right > left; right--) {
+		for (y = top; y <= bottom && BLACK(right, y); y++) {}
+		if (y <= bottom)
+			break;
+	}
+	// All black (a window not drawn yet), or nothing to cut: as it is.
+	if (top > bottom || left > right || (top == 0 && left == 0 && bottom == height - 1 && right == width - 1)) {
+		free(pixels);
+		return 0;
+	}
+	// Written beside it and moved over it, so it's never read half-written.
+	char temporary[4096];
+	snprintf(temporary, sizeof temporary, "%s.trim", path);
+	file = fopen(temporary, "wb");
+	if (!file) {
+		free(pixels);
+		return 1;
+	}
+	fprintf(file, "P6\n%d %d\n255\n", right - left + 1, bottom - top + 1);
+	for (y = top; y <= bottom; y++)
+		fwrite(pixels + y * stride + left * 3, 3, right - left + 1, file);
+	free(pixels);
+	if (fclose(file) != 0)
+		return 1;
+	return rename(temporary, path) != 0;
+}
+
+int main(int argc, char **argv) {
+	if (argc > 1 && strcmp(argv[1], "trim") == 0) {
+		int failed = 0;
+		for (int i = 2; i < argc; i++)
+			failed |= trim(argv[i]);
+		return failed;
+	}
+
 	struct wl_display *display = wl_display_connect(NULL);
 	if (!display) {
 		fprintf(stderr, "puter-windows: no Wayland display\n");

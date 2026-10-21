@@ -241,7 +241,11 @@ ordered by use, tracked from each toplevel's `activated`.
   through Hyprland's protocol, so they're taken with `grim -T <identifier>`
   (ext-image-copy-capture, uncompressed PPM at full size, scaled down once
   as it loads with `sourceSize`, which smooths where drawing it smaller or
-  grim's own `-s` only sample, so text came out jagged), every window
+  grim's own `-s` only sample, so text came out jagged). labwc captures all of a window's
+  surfaces, and Firefox keeps one above and left of its window, so its
+  capture was 1480 x 1172 for a 1280 x 972 window, the rest pure black;
+  `puter-windows trim` cuts pure-black (#000000) edge rows and columns off
+  each capture, which no window's whole edge is (puter's ink is #060606), every window
   at once as it opens and four times a second while it's up. The
   identifiers come from ext-foreign-toplevel-list, which Quickshell doesn't
   expose; `src/windows` (`puter-windows`) lists them with app ID and title,

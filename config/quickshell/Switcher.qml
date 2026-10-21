@@ -169,7 +169,8 @@ PanelWindow {
             find "$dir" -type f -mmin +10 -delete
             # The loop runs in the pipe's subshell, so that's where it waits.
             puter-windows | { while IFS="$(printf '\t')" read -r id app title; do
-                grim -T "$id" -t ppm "$dir/$id-${side}.ppm" 2>/dev/null &
+                # Without the black some apps' captures have around them.
+                { grim -T "$id" -t ppm "$dir/$id-${side}.ppm" && puter-windows trim "$dir/$id-${side}.ppm"; } 2>/dev/null &
             done; wait; }; puter-windows`]
         stdout: StdioCollector {
             onStreamFinished: {
