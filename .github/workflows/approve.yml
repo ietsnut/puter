@@ -1,0 +1,21 @@
+name: approve
+
+# Approves a PR opened and pushed by Marijn or Sam. Never checks out or runs PR code.
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  approve:
+    if: contains(fromJSON('["ietsnut","tikituna"]'), github.event.pull_request.user.login) && contains(fromJSON('["ietsnut","tikituna"]'), github.event.sender.login)
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh pr review --approve "$PR" --repo "$REPO"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
