@@ -228,6 +228,36 @@ chips. A click takes the default action. A toast goes after its timeout (six
 seconds unless the app says), a critical one stays. No animation, and
 nothing runs while there are none.
 
+## Alt+Tab
+
+`Switcher.qml` replaces labwc's window switcher, which can show previews
+too, but in its own layout: a grey selection, the icon drawn over the
+preview, padding off the grid. labwc binds Alt+Tab and Alt+Shift+Tab to
+`qs ipc call switcher next`/`previous` (about 35 ms); the switcher takes
+the keyboard and goes to the picked window when Alt comes up. Windows are
+ordered by use, tracked from each toplevel's `activated`.
+
+- **Previews**: Quickshell's ScreencopyView only captures single windows
+  through Hyprland's protocol, so they're taken with `grim -T <identifier>`
+  (ext-image-copy-capture, about 25 ms a window at half size), every window
+  at once as it opens and four times a second while it's up. The
+  identifiers come from ext-foreign-toplevel-list, which Quickshell doesn't
+  expose; `src/windows` (`puter-windows`) lists them with app ID and title,
+  and the switcher matches those to its own windows. They're written to two
+  files in turn (A and B) and loaded synchronously, so a new frame never
+  shows half-written or leaves a gap.
+- **Alt let go**: a real keyboard sends Alt's release to whatever has the
+  keyboard by then, even when Alt went down before. The switcher's surface
+  stays mapped while closed (empty, with an empty input mask) so getting
+  the keyboard is only a focus change; a tap quicker than that (IPC and a
+  frame) would leave it open, but taps at 30 ms in testing didn't. Any key
+  released without Alt held picks too.
+- **Quick taps**: the cards show only after 120 ms (or a second Tab), so
+  Alt+Tab tapped goes back to the last window without a flash.
+- **Testing it**: `wtype -M alt` only sets the modifier state and sends no
+  Alt key, so nothing ever sees Alt let go; `wtype -M alt -P Alt_L -k Tab
+  -s 80 -p Alt_L -m alt` is a real tap.
+
 ## No passwords
 
 puter is for workshops and machines with nothing sensitive on them, so,

@@ -17,7 +17,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
-| `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor) and `calc/` (the calculator) |
+| `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), wlrctl, qpdfview, JLCONE from JLCPCB's .deb |
 | `dev/` | work from the Mac: `sync`, `shot`, `grid`, `tour`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
@@ -76,6 +76,9 @@ the output and progress as it goes.
 ## Keys
 
 Super+Return terminal, Super+Space search, Super+Escape menu (or right-click
-the desktop), Super+Q close, Super+F maximise, Alt+Tab switch windows.
+the desktop), Super+Q close, Super+F maximise. Alt+Tab switches windows:
+a quick tap goes back to the last one; held, it shows every window as a
+card with a live preview (Tab and Shift+Tab or the arrows to pick, let go
+of Alt to go there, Delete to close one, Escape to stay).
 Super+Left/Right snap a window to half the screen and Super+Up maximises;
 dragging a title bar to an edge does the same, and corners give quarters.

@@ -240,7 +240,7 @@ recipe() { # name
 apps() {
   begin "puter's apps"
   local part build
-  for part in style sheet calc; do
+  for part in style sheet calc windows; do
     echo "-- $part"
     build="$(as_user mktemp -d)"
     as_user cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release || return 1

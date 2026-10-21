@@ -49,6 +49,10 @@ Where things stood at the end of the 20 October 2026 session.
   bump: a recipe
   rebuilt (forced) and bumped copies' checksums verified, not a real new
   labwc with the patch applied to it. Firmware is untested on hardware.
+- **Alt+Tab** (21 October): tested on the VM with wtype (taps down to
+  30 ms, holding and stepping, letting go); not yet with a real keyboard,
+  nor with many windows (two rows) or minimised ones (grim can't capture a
+  window that isn't drawn; its card shows the last preview, or none).
 - **No passwords** (21 October): `install.sh access` (sudo and polkit) is
   tested on the VM; the greetd part (labwc straight away, no login screen)
   isn't, since the VM keeps its own greetd config (pixman rendering).

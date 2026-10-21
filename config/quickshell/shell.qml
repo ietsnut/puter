@@ -30,12 +30,30 @@ ShellRoot {
 
     Toasts {}
 
+    Switcher {
+        id: switcher
+    }
+
     // Super+Space: `qs ipc call search toggle`.
     IpcHandler {
         target: "search"
 
         function toggle(): void {
             searchPanel.toggle();
+        }
+    }
+
+    // Alt+Tab and Alt+Shift+Tab (config/labwc/rc.xml):
+    // `qs ipc call switcher next`.
+    IpcHandler {
+        target: "switcher"
+
+        function next(): void {
+            switcher.step(1);
+        }
+
+        function previous(): void {
+            switcher.step(-1);
         }
     }
 

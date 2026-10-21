@@ -50,7 +50,10 @@ pipewire
 pipewire-pulse
 wireplumber
 wl-clipboard
+# Screenshots, and the switcher's previews (grim -T, by the identifiers
+# src/windows lists, which wayland-protocols builds)
 grim
+wayland-protocols
 slurp
 
 # Qt: the apps' settings, the icons they fall back on, and building

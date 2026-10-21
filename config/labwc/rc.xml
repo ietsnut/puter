@@ -43,6 +43,10 @@
     <keybind key="W-Return"><action name="Execute" command="qterminal" /></keybind>
     <keybind key="W-space"><action name="Execute" command="qs ipc call search toggle" /></keybind>
     <keybind key="W-Escape"><action name="ShowMenu" menu="root-menu" /></keybind>
+    <!-- Alt+Tab: the shell's switcher (config/quickshell/Switcher.qml), in
+         place of labwc's. -->
+    <keybind key="A-Tab"><action name="Execute" command="qs ipc call switcher next" /></keybind>
+    <keybind key="A-S-Tab"><action name="Execute" command="qs ipc call switcher previous" /></keybind>
     <keybind key="W-q"><action name="Close" /></keybind>
     <keybind key="W-f"><action name="ToggleMaximize" /></keybind>
     <!-- Super+arrows snap to a half; a second press the other way makes a quarter. -->

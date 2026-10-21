@@ -33,9 +33,9 @@ packages() {
     fi
   done
 
-  # puter's Qt widget style, its table editor (Sheets) and its calculator,
-  # built from src/.
-  for part in style sheet calc; do
+  # puter's Qt widget style, its table editor (Sheets), its calculator and
+  # the window lister the switcher's previews need, built from src/.
+  for part in style sheet calc windows; do
     build="$(mktemp -d)"
     cmake -S "$repo/src/$part" -B "$build" -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
     cmake --build "$build"
