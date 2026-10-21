@@ -4,6 +4,12 @@ Where things stood at the end of the 20 October 2026 session.
 
 ## Open edges
 
+- **Mail with a real account** (21 October): the main window, folders,
+  list, message and the account hub are styled and measured with local
+  mail, but no account has been signed in, so the compose window, account
+  settings and Thunderbird's settings tab haven't been seen yet; the
+  account central page (an account's own page) keeps its watermark.
+
 - **The agents, signed in** (21 October): the windows, search, the folder
   menu, the tab states (driven by hand over IPC and through `puter-agent
   hook`) and `puter-desktop` (over stdio, and Claude Code's `mcp list`) are

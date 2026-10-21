@@ -42,6 +42,7 @@ Singleton {
         "eeschema": "#583127",
         "mpv": "#e88fb0",
         "xdg-desktop-portal-lxqt": "#e0a9df",
+        "org.mozilla.Thunderbird": "#b28600",
         "qpdfview": "#c8372d",
         "lxqt-archiver": "#7a52c4",
         "accessories-calculator": "#5552c4",

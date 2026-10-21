@@ -23,6 +23,7 @@ featherpad
 lximage-qt
 mpv
 firefox
+thunderbird
 # Archives and the system monitor (PDFs: qpdfview, built from packages/),
 # and the calculator's arithmetic (src/calc)
 lxqt-archiver

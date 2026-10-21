@@ -38,6 +38,7 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | Tables | Sheet (`src/sheet`, puter's own) | No maintained small Qt table editor exists |
 | Photos | LXImage-Qt | |
 | Video | mpv | No interface of its own |
+| Mail | Thunderbird | Google, Microsoft (OAuth) and plain IMAP; Firefox's engine, so its whole interface is restyled by one stylesheet (`theme/thunderbird`, from the palette), like Firefox's. About 430 MB at rest |
 | PDFs | qpdfview (`packages/qpdfview`, the AUR's recipe) | Qt Widgets on poppler, tabs only for two or more; pages on bone with a 1px edge |
 | Archives | LXQt's archiver | Qt, the list alone as in Files; 7-Zip, unzip and zip do the work |
 | Calculator | Calculator (`src/calc`, puter's own) on libqalculate | Qalculate's arithmetic (units, currencies, functions) under a grid of our own; SpeedCrunch 1.0 draws its own dark, rounded interface, and Qalculate's Qt app keeps its menus in a toolbar |
@@ -180,6 +181,23 @@ Code", file-manager actions that install.sh writes).
   itself), Codex from extra (`openai-codex`). Signing in is each agent's own
   first screen.
 
+## Mail
+
+Thunderbird, set up like Firefox: `config/thunderbird/user.js` (its own
+title bar off, so labwc's; three columns; the message list a table; no start
+page, Thundermail, chat, donation or news popups, telemetry; new mail as a
+toast) and `theme/thunderbird/userChrome.css`, from which `theme/make`
+writes `chrome/` with the palette's colours and Carbon icons for the
+folders. Both are linked into its profile in `~/.config/thunderbird`. The
+window is 48 x 26 modules: the menu bar, then folders (9 modules), the list
+(18) and the message (21), meeting on 1px rules. Every row is one module:
+the list's height comes from Thunderbird's own sum, ceil(font size × 1.4) +
+7 at normal density, which `mail.uifontsize` 16 makes 30 (the sheet keeps
+the text at 15px). No unified toolbar, spaces column, pane headers, status
+bar, message header buttons or avatars: their commands are in the menus.
+The list shows the subject, who and when. The message header is three
+one-module rows. Account setup is the account hub, flattened.
+
 ## The calculator
 
 `src/calc`, twelve modules wide and twenty tall: the menu bar, seven
@@ -254,6 +272,13 @@ nothing runs while there are none.
   installed, a desktop file rewritten): holding one (search's recent apps,
   from `DesktopEntries.byId`) crashed the shell the next time search opened.
   Search finds them again among the apps, so they're looked up afresh.
+- **Thunderbird's about:3pane and about:message** take the profile's
+  userChrome.css too. Its panes are a grid sized by variables on their
+  `<body>` (`--folderPaneSplitter-width`, `--messagePaneSplitter-width`),
+  the window's content is moved in by `--spaces-total-width` unless the
+  spaces column is really hidden, the list header draws a second rule as
+  `thead::after`, and Gecko draws a grey 1px line along the window's top
+  that nothing names (the toolbox is lifted over it).
 - **Window rules size apps that keep their own size** (`rc.xml`): labwc's
   `ResizeTo` when a window first maps, only for `type="normal"` (else their
   dialogs are blown up too). qpdfview's app ID is `qpdfview.local.qpdfview`.

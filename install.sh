@@ -73,8 +73,9 @@ path.write_text("\n".join(out) + "\n")
 PY
 }
 
-# The folder of the Firefox profile this install opens, from its
-# profiles.ini: the [Install...] section's Default, else the default profile.
+# The folder of the Firefox (or Thunderbird) profile this install opens,
+# from its profiles.ini: the [Install...] section's Default, else the
+# default profile.
 firefox_profile() {
   python3 - "$1" <<'PROFILE'
 import configparser, sys
@@ -228,6 +229,18 @@ CONF
     if [[ -n $profile && -d $ff/$profile ]]; then
       ln -sfn "$repo/config/firefox/user.js" "$ff/$profile/user.js"
       ln -sfn "$repo/theme/firefox/chrome" "$ff/$profile/chrome"
+    fi
+  fi
+
+  # Thunderbird, the same way (config/thunderbird/user.js and
+  # theme/thunderbird/chrome); its profile is in ~/.config/thunderbird.
+  if command -v thunderbird >/dev/null; then
+    local tb="$HOME/.config/thunderbird"
+    [[ -f $tb/profiles.ini ]] || timeout 30 thunderbird --headless >/dev/null 2>&1 || true
+    profile="$(firefox_profile "$tb/profiles.ini")"
+    if [[ -n $profile && -d $tb/$profile ]]; then
+      ln -sfn "$repo/config/thunderbird/user.js" "$tb/$profile/user.js"
+      ln -sfn "$repo/theme/thunderbird/chrome" "$tb/$profile/chrome"
     fi
   fi
 

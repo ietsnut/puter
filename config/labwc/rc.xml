@@ -57,11 +57,12 @@
   </mouse>
 
   <!-- Apps that open at the size they last had (seldom on the grid) are
-       sized when their first window maps: 24 x 18 modules; only main windows, not their dialogs. The others are set in
+       sized when their first window maps: 24 x 18 modules, mail 48 x 26; only main windows, not their dialogs. The others are set in
        their own settings (install.sh). -->
   <windowRules>
     <windowRule type="normal" identifier="qpdfview*"><action name="ResizeTo" width="720" height="540" /></windowRule>
     <windowRule type="normal" identifier="lxqt-archiver"><action name="ResizeTo" width="720" height="540" /></windowRule>
+    <windowRule type="normal" identifier="org.mozilla.Thunderbird"><action name="ResizeTo" width="1440" height="780" /></windowRule>
     <windowRule type="normal" identifier="qps"><action name="ResizeTo" width="720" height="540" /></windowRule>
   </windowRules>
 </labwc_config>

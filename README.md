@@ -54,7 +54,7 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt),
 Notepad (FeatherPad, syntax colours from the palette), Photos (LXImage-Qt),
-Video (mpv), Terminal (QTerminal), Browser (Firefox), Sheets (puter's own),
+Video (mpv), Terminal (QTerminal), Browser (Firefox), Mail (Thunderbird), Sheets (puter's own),
 PDFs (qpdfview), Archives (LXQt's archiver), Calculator (puter's own) and
 System Monitor (qps); KiCad and JLCONE (PCB orders) keep their own names; helpers that come with a package (foot's server, CMake, the Qt test
 tools) are kept out of search.

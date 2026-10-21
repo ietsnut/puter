@@ -10,6 +10,7 @@ qterminal.desktop                 Terminal
 lximage-qt.desktop                Photos
 mpv.desktop                       Video
 firefox.desktop                   Browser
+org.mozilla.Thunderbird.desktop   Mail
 puter-sheet.desktop               Sheets
 qpdfview.desktop                  PDFs
 lxqt-archiver.desktop             Archives

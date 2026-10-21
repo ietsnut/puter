@@ -19,6 +19,7 @@ colour of each app).
   theme/foot/foot.ini            the agents' terminal
   theme/qpdfview/colors          the PDF viewer's page colours
   theme/firefox/chrome/          Firefox's stylesheet, from theme/firefox
+  theme/thunderbird/chrome/      Thunderbird's, from theme/thunderbird
 
 Icons and glyphs are IBM's Carbon icons (theme/carbon), named in
 theme/icons.map. Run it after changing a palette, theme/palette or the icon
@@ -88,15 +89,17 @@ SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "sear
 )
 
 
-# Firefox: theme/firefox/userChrome.css with its @roles filled in, into
-# theme/firefox/chrome/, which install.sh links into Firefox's profile.
-(theme / "firefox" / "chrome").mkdir(parents=True, exist_ok=True)
-css = (theme / "firefox" / "userChrome.css").read_text().split("*/", 1)[1].lstrip("\n")
-css = re.sub(r"@([a-z][a-z0-9-]*)", lambda m: C.get(m.group(1), m.group(0)), css)
-(theme / "firefox" / "chrome" / "userChrome.css").write_text(
-    "/* Written by theme/make from theme/firefox/userChrome.css and theme/palette;\n"
-    "   edit those, not this. */\n" + css
-)
+# Firefox and Thunderbird: theme/<app>/userChrome.css with its @roles
+# filled in, into theme/<app>/chrome/, which install.sh links into the app's
+# profile.
+for app in ("firefox", "thunderbird"):
+    (theme / app / "chrome").mkdir(parents=True, exist_ok=True)
+    css = (theme / app / "userChrome.css").read_text().split("*/", 1)[1].lstrip("\n")
+    css = re.sub(r"@([a-z][a-z0-9-]*)", lambda m: C.get(m.group(1), m.group(0)), css)
+    (theme / app / "chrome" / "userChrome.css").write_text(
+        f"/* Written by theme/make from theme/{app}/userChrome.css and theme/palette;\n"
+        "   edit those, not this. */\n" + css
+    )
 
 
 # labwc: title bars and menus.
@@ -295,6 +298,18 @@ for d in dirs:
     index += ["Type=Scalable", "MinSize=25", "MaxSize=256"] if size == 64 else ["Type=Fixed"]
     index.append("")
 (icons / "index.theme").write_text("\n".join(index))
+
+
+# Thunderbird's folders and twisties, from Carbon like every other icon:
+# 16px glyphs in ink beside its stylesheet (theme/thunderbird/chrome/icons/),
+# which points its folder types at them.
+MAIL_ICONS = {"folder": "folder", "account": "email", "inbox": "mail--all", "drafts": "edit",
+              "sent": "send", "outbox": "send--alt", "archive": "archive", "trash": "trash-can",
+              "junk": "misuse", "templates": "template", "virtual": "filter", "rss": "rss",
+              "tag": "tag", "news": "globe", "collapsed": "chevron--right", "expanded": "chevron--down"}
+(theme / "thunderbird" / "chrome" / "icons").mkdir(parents=True, exist_ok=True)
+for name, icon in MAIL_ICONS.items():
+    (theme / "thunderbird" / "chrome" / "icons" / f"{name}.svg").write_text(glyph(icon, 16, 16, C["ink"]))
 
 
 # GTK apps.
