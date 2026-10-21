@@ -18,8 +18,8 @@ Where things stood at the end of the 20 October 2026 session.
   actually driving the desktop through the `puter` tools.
 
 - **The grid in dialogs** (20-21 October): every Qt dialog is laid out by
-  the style; `dev/tour` passes 9 of its 17 windows, and most of the rest
-  look right but trip the checker. Left: the About box's icon, PCManFM's file properties
+  the style; checked with `dev/grid`, 9 of 17 windows pass, and most of the
+  rest look right but trip the checker. Left: the About box's icon, PCManFM's file properties
   (the icon button), message boxes' colour Breeze icons (the question mark),
   QTerminal's colour scheme showing as BlackOnLightYellow in its settings.
 - **dev/grid** finds a dialog by what changed on screen (`--before`), which

@@ -19,7 +19,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | Arch recipes it builds: labwc with `snap.patch` (windows meet on one line), wlrctl, qpdfview, JLCONE from JLCPCB's .deb |
-| `dev/` | work from the Mac: `sync`, `shot`, `grid`, `tour`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
+| `dev/` | work from the Mac: `sync`, `shot`, `grid`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
 ## Installing
 
@@ -44,8 +44,7 @@ run `theme/make`, then `dev/sync`.
 The desktop runs in an Arch VM on the devbox (`ssh archvm`). Edit here, then
 `dev/sync` copies the checkout to `~/puter` on the VM, runs `install.sh config`
 and reloads. `dev/shot` saves a screenshot to `dev/shots/shot.png`;
-`dev/grid` checks one against the grid, and `dev/tour` opens every app and
-dialog and checks each. `dev/screen` opens the VM's desktop live in Screen
+`dev/grid` checks one against the grid. `dev/screen` opens the VM's desktop live in Screen
 Sharing (`dev/screen stop` closes the tunnel), `dev/run qterminal` opens a
 window on it and `dev/click X Y` clicks at a point in screenshot pixels.
 

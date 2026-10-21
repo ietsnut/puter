@@ -388,7 +388,7 @@ button restarts.
   family puter at size mono: `theme/make` writes the family's own name.
 - **Without a GPU** (only in the VM), wlroots crashes on native-Wayland OpenGL
   apps: see `dev/devbox/README.md` for the workarounds.
-- **At rest** (`dev/idle`, VM, 21 October): every process 0.0% CPU over a
+- **At rest** (VM, 21 October): every process 0.0% CPU over a
   minute, with nothing open and with every app open (the system 0.01-0.02%
   busy). Memory (PSS) with nothing open, about 213 MB in all: Quickshell
   116, labwc 38, the portals 21, PipeWire and WirePlumber 16, gvfs 14
@@ -407,11 +407,8 @@ Edit on the Mac in `~/Desktop/puter`, then:
 - `dev/sync`: copy to the VM, run `install.sh config`, reload labwc
   (Quickshell reloads itself).
 - `dev/shot`: screenshot to `dev/shots/shot.png`.
-- `dev/idle`: CPU and memory per process at rest, with nothing open and with
-  every app open.
 - `dev/grid`: check a screenshot against the grid (every window's edges,
-  from its own corner); `dev/tour`: open every app and dialog and check each,
-  into `dev/shots/tour/`. A step is an app and the keys that open a window.
+  from its own corner).
 - `dev/click X Y`, `dev/run CMD`: click and launch on the VM's desktop.
 - `dev/screen`: use the desktop live in Screen Sharing; `dev/screen stop`.
 
