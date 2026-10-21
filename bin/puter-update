@@ -14,6 +14,8 @@
 #   puter-update          all of it (through sudo, which on puter never asks
 #                         for a password: install.sh's access)
 #   puter-update check    what's out of date, a line each: what, tab, by how much
+#   puter-update repo     only trust and list [puter] (what the USB installer,
+#                         iso/, runs offline on the new disk)
 #
 # The bar's update button (config/quickshell/Updates.qml) runs
 # `sudo puter-update run` and follows lines starting with "::":
@@ -207,8 +209,9 @@ main() {
   case "${1:-}" in
     check) check ;;
     run) run ;;
+    repo) puter_repo ;;
     "") if [[ $EUID -eq 0 ]]; then run; else exec sudo "$0" run; fi ;;
-    *) echo "usage: puter-update [check]" >&2; return 1 ;;
+    *) echo "usage: puter-update [check|repo]" >&2; return 1 ;;
   esac
 }
 main "$@"

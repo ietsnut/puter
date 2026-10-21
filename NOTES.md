@@ -297,6 +297,15 @@ step is reported and the rest still run, except when the packages fail.
 `install.sh packages` is `puter-update run` too: a first install is an
 update from nothing.
 
+`puter-update check` lists what's out of date without root (`checkupdates`
+from pacman-contrib, a copy of the sync database). `Updates.qml` runs it
+each time it opens, then `sudo -n puter-update run`, reading `::step`,
+`::fail`, `::restart` and `::done` lines; everything else is shown, a
+line a module, and kept in `~/.local/state/puter/update.log`.
+`::restart` comes when the kernel, systemd, glibc, mesa, Qt, wlroots, labwc
+or Quickshell changed; the bar's button then turns orange and the panel's
+button restarts.
+
 ## [puter], the pacman repository
 
 Nothing is compiled on a puter machine. puter's own packages (labwc and
@@ -327,14 +336,36 @@ every run, so a new key only needs committing (and the secret replacing),
 and lists `[puter]` above `[core]` in `/etc/pacman.conf`, so its labwc and
 qps are the ones pacman picks even before CI has caught up with Arch.
 
-`puter-update check` lists what's out of date without root (`checkupdates`
-from pacman-contrib, a copy of the sync database). `Updates.qml` runs it
-each time it opens, then `sudo -n puter-update run`, reading `::step`,
-`::fail`, `::restart` and `::done` lines; everything else is shown, a
-line a module, and kept in `~/.local/state/puter/update.log`.
-`::restart` comes when the kernel, systemd, glibc, mesa, Qt, wlroots, labwc
-or Quickshell changed; the bar's button then turns orange and the panel's
-button restarts.
+## The USB installer
+
+`iso/build` makes `puter.iso` from Arch's own install medium (archiso's
+`releng` profile) with three things added: every package puter installs,
+with all they need, as a pacman repository at `/opt/puter/offline`
+(`offline.db`, about 1.8 GB, KiCad's 3D models included); puter itself as
+a git checkout at `/opt/puter/puter`, whose remote is GitHub, so
+`puter-update` pulls it later; and `puter-install`, started on tty1. It
+asks only which disk (the stick itself isn't offered), then: a 1 GB EFI
+partition and ext4 for the rest, `pacstrap` from the stick (the stick's
+packages bind-mounted as the new system's cache, so they aren't copied),
+systemd-boot with no menu, UTC and en_US, the user `puter` with no
+password, `puter-update repo` ([puter] and its key), and `install.sh`'s
+`access`, `config` and `login`. Then it restarts into the desktop. Claude
+Code comes with the first update, online. UEFI only.
+
+Borrowed from Omarchy's ISO (omacom/omarchy-iso): the offline repository
+isn't checked again on install (`SigLevel = Never`: `pacstrap` checks
+against the stick's keyring, which hasn't puter's key; the build checked
+each package as it downloaded it); the live system in zstd rather than xz,
+the packages left uncompressed in it; and the build failing if anything
+doesn't resolve from the stick alone.
+
+`.github/workflows/iso.yml` builds it weekly, on pushes touching `iso/`
+and by hand, then installs it in QEMU (the stick's kernel started directly
+with `puter.disk=/dev/vda`, which installs without asking and powers off),
+starts the installed disk and takes a screenshot (the run's artifact), and
+only then pushes it to `ghcr.io/ietsnut/puter-iso:latest` (an OCI
+artifact: GitHub's releases stop at 2 GiB a file), deleting the version
+before. `iso/download` fetches it with curl alone and checks its digest.
 
 ## Things that took finding out
 

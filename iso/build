@@ -1,0 +1,73 @@
+#!/bin/bash
+# Builds puter's USB installer: Arch's own install medium (archiso's releng
+# profile) with puter's installer (airootfs/usr/local/bin/puter-install,
+# started on tty1), every package puter installs as a pacman repository on
+# the stick (/opt/puter/offline), and puter itself as a git checkout
+# (/opt/puter/puter), so it installs without a network. Runs as root in a
+# privileged Arch container (.github/workflows/iso.yml):
+#
+#   iso/build WORK OUT    builds in WORK, writes OUT/puter.iso
+set -euo pipefail
+repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+work="$(readlink -f "${1:?usage: iso/build WORK OUT}")"
+out="$(readlink -f "${2:?usage: iso/build WORK OUT}")"
+mkdir -p "$work" "$out"
+
+pacman -Syu --noconfirm --needed archiso git
+
+profile="$work/profile"
+rm -rf "$profile"
+cp -r /usr/share/archiso/configs/releng "$profile"
+cp -r "$repo/iso/airootfs/." "$profile/airootfs/"
+# The live system in zstd rather than xz (read about nine times faster,
+# every boot), and the packages left as they are, being zstd already.
+# shellcheck disable=SC2016  # profiledef.sh expands these itself
+sed -i -e 's/^iso_name=.*/iso_name="puter"/' \
+  -e 's/^iso_label=.*/iso_label="PUTER_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"/' \
+  -e 's|^iso_publisher=.*|iso_publisher="puter <https://github.com/ietsnut/puter>"|' \
+  -e 's/^iso_application=.*/iso_application="puter installer"/' \
+  -e '/^file_permissions=(/a \  ["/usr/local/bin/puter-install"]="0:0:755"' \
+  -e "s|^airootfs_image_tool_options=.*|airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '19' '-b' '1M' '-action' 'uncompressed@subpathname(opt/puter/offline)')|" \
+  "$profile/profiledef.sh"
+# The installer starts once the live system has logged in on tty1.
+# shellcheck disable=SC2016  # for zsh, on the stick
+echo '[[ $(tty) == /dev/tty1 ]] && puter-install' >>"$profile/airootfs/root/.zlogin"
+
+# Every package puter installs, and everything they need: downloaded into
+# an empty database's view, so nothing counts as installed already. [puter]
+# is listed first, so its labwc and qps are the ones taken.
+offline="$profile/airootfs/opt/puter/offline"
+mkdir -p "$offline"
+conf="$work/pacman.conf"
+sed '/^\[core\]/i [puter]\nSigLevel = Required\nServer = https://github.com/ietsnut/puter/releases/download/repo\n' \
+  /etc/pacman.conf >"$conf"
+pacman-key --add "$repo/packages/puter.gpg"
+pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" | awk -F: '/^fpr/ {print $10; exit}')"
+mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
+db="$work/db"
+mkdir -p "$db"
+pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
+  base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}"
+repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.zst
+# Everything resolves from the stick alone, or the build fails here rather
+# than an install.
+cat >"$work/offline.conf" <<CONF
+[options]
+Architecture = auto
+[offline]
+SigLevel = Never
+Server = file://$offline
+CONF
+mkdir -p "$work/empty"
+pacman -Sy --config "$work/offline.conf" --dbpath "$work/empty" >/dev/null
+pacman -Sp --config "$work/offline.conf" --dbpath "$work/empty" \
+  base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}" >/dev/null
+
+# puter itself, as a git checkout of what's being built (puter-update
+# pulls it later).
+git clone -q --no-hardlinks "$repo" "$profile/airootfs/opt/puter/puter"
+git -C "$profile/airootfs/opt/puter/puter" remote set-url origin https://github.com/ietsnut/puter.git
+
+mkarchiso -v -w "$work/archiso" -o "$work/iso" "$profile"
+mv "$work"/iso/puter-*.iso "$out/puter.iso"
+ls -lh "$out/puter.iso"

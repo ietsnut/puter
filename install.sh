@@ -8,6 +8,9 @@
 #                         dev/sync runs after copying a change over)
 #   ./install.sh packages only the packages, builds and settings (as an update)
 #   ./install.sh access   only stop sudo and polkit asking for a password
+#   ./install.sh login    only start straight into the desktop on boot (what
+#                         the USB installer runs, iso/, beside access and
+#                         config, having installed the packages itself)
 set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
@@ -440,6 +443,9 @@ case "${1:-all}" in
   access)
     access
     ;;
+  login)
+    login
+    ;;
   all)
     # First, so nothing after it asks for the password again.
     access
@@ -448,7 +454,7 @@ case "${1:-all}" in
     echo "Done. Reboot to log in to puter."
     ;;
   *)
-    echo "usage: $0 [config|packages|access]" >&2
+    echo "usage: $0 [config|packages|access|login]" >&2
     exit 1
     ;;
 esac

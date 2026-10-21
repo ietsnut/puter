@@ -19,6 +19,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
+| `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
 | `dev/` | work from the Mac: `sync`, `shot`, `grid`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
 ## Installing

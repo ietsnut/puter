@@ -1,0 +1,29 @@
+#!/bin/bash
+# Downloads puter's newest USB installer, puter.iso, from GitHub's container
+# registry (ghcr.io/ietsnut/puter-iso, where .github/workflows/iso.yml
+# puts it), with only curl, and checks it against the registry's digest.
+# Then write it to a stick with any USB writer (balenaEtcher, Raspberry Pi
+# Imager, dd).
+#
+#   iso/download [FILE]    FILE is puter.iso unless given
+#
+# Or, with oras: oras pull ghcr.io/ietsnut/puter-iso:latest
+set -euo pipefail
+file="${1:-puter.iso}"
+image=ietsnut/puter-iso
+
+token="$(curl -fsSL "https://ghcr.io/token?scope=repository:$image:pull" | sed 's/.*"token":"\([^"]*\)".*/\1/')"
+digest="$(curl -fsSL -H "Authorization: Bearer $token" \
+  -H "Accept: application/vnd.oci.image.manifest.v1+json" \
+  "https://ghcr.io/v2/$image/manifests/latest" |
+  tr ',' '\n' | sed -n '/"layers"/,$p' | grep -o 'sha256:[0-9a-f]*' | head -1)"
+echo "Downloading puter.iso ($digest) to $file"
+curl -fL --progress-bar -H "Authorization: Bearer $token" -o "$file" \
+  "https://ghcr.io/v2/$image/blobs/$digest"
+
+if command -v sha256sum >/dev/null; then sum="$(sha256sum "$file")"; else sum="$(shasum -a 256 "$file")"; fi
+if [[ sha256:${sum%% *} != "$digest" ]]; then
+  echo "The download doesn't match its digest; try again." >&2
+  exit 1
+fi
+echo "Done: $file"

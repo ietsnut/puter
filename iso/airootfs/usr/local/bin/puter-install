@@ -1,0 +1,148 @@
+#!/bin/bash
+# puter's installer, run on the USB stick's live system as soon as it has
+# started (iso/build adds it to root's .zlogin on tty1). It asks only which
+# disk to erase, then installs puter on it without a network: every package
+# is on the stick (/opt/puter/offline, a pacman repository iso/build made),
+# and so is puter itself (/opt/puter/puter, a git checkout). The machine then
+# restarts straight into the desktop, with no password anywhere
+# (install.sh's access and login).
+#
+# puter.disk=/dev/X on the kernel command line installs there without
+# asking and powers off afterwards (how CI tests the stick, in QEMU).
+set -euo pipefail
+src=/opt/puter
+user=puter
+
+disk="$(sed -n 's/.*puter\.disk=\([^ ]*\).*/\1/p' /proc/cmdline)"
+unattended=${disk:+1}
+# Unattended, everything goes to the serial console too, for CI to read.
+if [[ -n $unattended && -w /dev/ttyS0 ]]; then
+  exec > >(tee /dev/ttyS0) 2>&1
+fi
+
+failed() {
+  local status=$?
+  ((status == 0)) && return
+  echo "!! The install stopped (see above)."
+  if [[ -n $unattended ]]; then poweroff; fi
+}
+trap failed EXIT
+
+if [[ ! -d /sys/firmware/efi ]]; then
+  echo "puter starts through UEFI, and this machine started the stick without it."
+  echo "Turn on UEFI (or turn off legacy/CSM) in its firmware settings, and try again."
+  exit 1
+fi
+
+if [[ -z $disk ]]; then
+  # The disks, without the stick itself.
+  stick="$(lsblk -no PKNAME "$(findmnt -no SOURCE /run/archiso/bootmnt 2>/dev/null)" 2>/dev/null || true)"
+  mapfile -t disks < <(lsblk -dpno NAME,TYPE,SIZE,MODEL | awk -v stick="/dev/$stick" \
+    '$2 == "disk" && $1 != stick && $1 !~ /zram/ {name = $1; $1 = $2 = ""; print name " " $0}')
+  if ((${#disks[@]} == 0)); then
+    echo "There's no disk to install puter on."
+    exit 1
+  fi
+  echo
+  echo "puter installs on a disk of its own, erasing everything on it."
+  echo
+  PS3="Which disk? "
+  select line in "${disks[@]}"; do
+    [[ -n $line ]] && break
+  done
+  disk="${line%% *}"
+  read -r -p "Erase everything on $disk and install puter? Type yes: " answer
+  [[ $answer == yes ]] || exit 1
+fi
+
+echo "== The disk: $disk"
+umount -R /mnt 2>/dev/null || true
+swapoff -a
+wipefs -af "$disk"
+sgdisk --zap-all "$disk"
+sgdisk -n1:0:+1G -t1:ef00 -c1:boot -n2:0:0 -t2:8304 -c2:puter "$disk"
+partprobe "$disk"
+udevadm settle
+# The partitions, whatever they're called (sda1, nvme0n1p1, vda1).
+mapfile -t parts < <(lsblk -pnlo NAME,TYPE "$disk" | awk '$2 == "part" {print $1}')
+mkfs.fat -F 32 -n BOOT "${parts[0]}"
+mkfs.ext4 -F -L puter "${parts[1]}"
+mount "${parts[1]}" /mnt
+mount --mkdir -o umask=0077 "${parts[0]}" /mnt/boot
+
+echo "== The packages, from the stick"
+conf="$(mktemp)"
+cat >"$conf" <<CONF
+[options]
+Architecture = auto
+ParallelDownloads = 5
+
+# Not checked again: pacstrap checks against the stick's own keyring,
+# which hasn't puter's key, and the stick is what's trusted anyway (iso/build
+# checked every package as it downloaded them).
+[offline]
+SigLevel = Never
+Server = file://$src/offline
+CONF
+mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$src/puter/packages.txt" | grep -v '^$')
+# The stick's packages stand in for the new system's package cache, so
+# they aren't copied onto the disk as well.
+mkdir -p /mnt/var/cache/pacman/pkg
+mount --bind -o ro "$src/offline" /mnt/var/cache/pacman/pkg
+pacstrap -C "$conf" -K /mnt base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}"
+umount /mnt/var/cache/pacman/pkg
+genfstab -U /mnt >>/mnt/etc/fstab
+# Arch's own mirrors from now on (its worldwide CDN), and [puter].
+# shellcheck disable=SC2016  # pacman's own variables
+echo 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch' >/mnt/etc/pacman.d/mirrorlist
+
+echo "== The system"
+root_uuid="$(blkid -s UUID -o value "${parts[1]}")"
+arch-chroot /mnt bash -s <<CHROOT
+set -euo pipefail
+ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+hwclock --systohc || true
+sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
+locale-gen
+echo LANG=en_US.UTF-8 >/etc/locale.conf
+echo puter >/etc/hostname
+# No password at all: greetd starts the desktop as $user, and sudo and
+# polkit never ask (install.sh's access). root can't log in.
+useradd -m -G wheel -s /bin/bash $user
+passwd -d $user
+passwd -l root
+bootctl install
+cat >/boot/loader/loader.conf <<LOADER
+default puter.conf
+timeout 0
+editor no
+LOADER
+cat >/boot/loader/entries/puter.conf <<ENTRY
+title puter
+linux /vmlinuz-linux
+initrd /initramfs-linux.img
+options root=UUID=$root_uuid rw quiet
+ENTRY
+CHROOT
+
+echo "== puter"
+cp -a "$src/puter" "/mnt/home/$user/puter"
+arch-chroot /mnt chown -R "$user:" "/home/$user/puter"
+arch-chroot /mnt "/home/$user/puter/bin/puter-update" repo
+# install.sh's access, which sudo needs before it can run without a
+# password (it's put in place again, the same, by access itself).
+echo "$user ALL=(ALL:ALL) NOPASSWD: ALL" >/mnt/etc/sudoers.d/10-puter
+chmod 440 /mnt/etc/sudoers.d/10-puter
+arch-chroot /mnt runuser -u "$user" -- env HOME="/home/$user" USER="$user" LOGNAME="$user" \
+  bash -c 'cd ~/puter && ./install.sh access && ./install.sh config && ./install.sh login'
+
+umount -R /mnt
+echo "::installed"
+if [[ -n $unattended ]]; then
+  poweroff
+else
+  echo
+  echo "puter is installed. Take the stick out; restarting in 10 seconds."
+  sleep 10
+  reboot
+fi
