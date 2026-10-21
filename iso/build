@@ -2,8 +2,9 @@
 # Builds puter's USB installer: Arch's own install medium (archiso's releng
 # profile) with puter's installer (airootfs/usr/local/bin/puter-install,
 # started on tty1), every package puter installs as a pacman repository on
-# the stick (/opt/puter/offline), and puter itself as a git checkout
-# (/opt/puter/puter), so it installs without a network. Runs as root in a
+# the stick (/opt/puter/offline), puter itself as a git checkout
+# (/opt/puter/puter) and Claude Code (/opt/puter/claude), so it installs
+# without a network. Runs as root in a
 # privileged Arch container (.github/workflows/iso.yml):
 #
 #   iso/build WORK OUT    builds in WORK, writes OUT/puter.iso
@@ -66,6 +67,15 @@ mkdir -p "$work/empty"
 pacman -Sy --config "$work/offline.conf" --dbpath "$work/empty" >/dev/null
 pacman -Sp --config "$work/offline.conf" --dbpath "$work/empty" \
   base linux linux-firmware intel-ucode amd-ucode sudo "${pkgs[@]}" >/dev/null
+
+# Claude Code, which comes from Anthropic's own installer rather than
+# pacman: installed here for a user of the build's own, and its one file
+# (versions/VERSION) put on the stick for puter-install to place where the
+# installer would have, so that `claude update` keeps it current after.
+id claude >/dev/null 2>&1 || useradd -m claude
+runuser -u claude -- bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
+mkdir -p "$profile/airootfs/opt/puter/claude"
+cp /home/claude/.local/share/claude/versions/* "$profile/airootfs/opt/puter/claude/"
 
 # puter itself, as a git checkout of what's being built (puter-update
 # pulls it later).

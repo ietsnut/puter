@@ -64,29 +64,35 @@ jobs:
           tail -40 install.log
           grep -q '::installed' install.log
 
+      # The test reaches the installed system over SSH: sshd and a key for
+      # puter are added to the disk for the test alone.
       - name: Start what it installed
         run: |
           cd /mnt/iso
+          ssh-keygen -q -t ed25519 -N '' -f key
+          sudo modprobe nbd max_part=8
+          sudo qemu-nbd -c /dev/nbd0 disk.qcow2
+          sleep 2
+          mkdir -p root && sudo mount /dev/nbd0p2 root
+          uid="$(awk -F: '$1 == "puter" {print $3}' root/etc/passwd)"
+          sudo install -d -m 700 -o "$uid" -g "$uid" root/home/puter/.ssh
+          sudo install -m 600 -o "$uid" -g "$uid" key.pub root/home/puter/.ssh/authorized_keys
+          sudo ln -sf /usr/lib/systemd/system/sshd.service root/etc/systemd/system/multi-user.target.wants/sshd.service
+          sudo umount root && sudo qemu-nbd -d /dev/nbd0
           qemu-system-x86_64 -enable-kvm -machine q35 -cpu host -smp 4 -m 6G \
             -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
             -drive if=pflash,format=raw,file=vars.fd \
             -drive file=disk.qcow2,if=virtio -device virtio-vga \
+            -nic user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:2222-:22 \
             -display none -serial file:boot.log -monitor unix:monitor.sock,server,nowait &
-          sleep 150
+          mkdir -p ~/.ssh
+          printf 'Host vm\n  HostName 127.0.0.1\n  Port 2222\n  User puter\n  IdentityFile /mnt/iso/key\n  StrictHostKeyChecking no\n  UserKnownHostsFile /dev/null\n  LogLevel ERROR\n' >>~/.ssh/config
+          for i in $(seq 60); do ssh -o ConnectTimeout=5 vm true 2>/dev/null && break; sleep 5; done
+          ssh vm true
+          # The desktop has had the time it takes sshd to come up, and some.
+          sleep 30
           echo "screendump /mnt/iso/desktop.png -f png" | socat - UNIX-CONNECT:monitor.sock
-          sleep 2
-          echo quit | socat - UNIX-CONNECT:monitor.sock || true
-          ls -l desktop.png
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: test
-          path: |
-            /mnt/iso/install.log
-            /mnt/iso/boot.log
-            /mnt/iso/desktop.png
-          retention-days: 1
+          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version'
 
       - uses: oras-project/setup-oras@v1
 
@@ -106,3 +112,26 @@ jobs:
           package-name: puter-iso
           package-type: container
           min-versions-to-keep: 1
+
+      # The installed system's first update, online, as the bar's update
+      # button runs it: Arch's mirrors and [puter], firmware, git, Claude
+      # Code, the settings. After publishing, so a mirror having a bad day
+      # doesn't hold the stick back, but it still fails the run.
+      - name: Update it
+        run: |
+          cd /mnt/iso
+          ssh vm 'sudo ~/puter/bin/puter-update run' | tee update.log
+          echo "screendump /mnt/iso/updated.png -f png" | socat - UNIX-CONNECT:monitor.sock
+          grep -q '^Everything is up to date' update.log
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: test
+          path: |
+            /mnt/iso/install.log
+            /mnt/iso/boot.log
+            /mnt/iso/update.log
+            /mnt/iso/desktop.png
+            /mnt/iso/updated.png
+          retention-days: 1

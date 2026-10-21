@@ -3,7 +3,8 @@
 # started (iso/build adds it to root's .zlogin on tty1). It asks only which
 # disk to erase, then installs puter on it without a network: every package
 # is on the stick (/opt/puter/offline, a pacman repository iso/build made),
-# and so is puter itself (/opt/puter/puter, a git checkout). The machine then
+# and so are puter itself (/opt/puter/puter, a git checkout) and Claude
+# Code (/opt/puter/claude). The machine then
 # restarts straight into the desktop, with no password anywhere
 # (install.sh's access and login).
 #
@@ -133,6 +134,13 @@ arch-chroot /mnt chown -R "$user:" "/home/$user/puter"
 # mkarchiso copies the stick's files without their modes, so the scripts
 # have lost being executable; git puts back what it recorded.
 arch-chroot /mnt runuser -u "$user" -- git -C "/home/$user/puter" reset -q --hard
+# Claude Code, where Anthropic's installer puts it (executable again, for
+# the same reason), before install.sh config gives it the desktop.
+version="$(basename "$(ls "$src"/claude/*)")"
+install -D -m 755 "$src/claude/$version" "/mnt/home/$user/.local/share/claude/versions/$version"
+mkdir -p "/mnt/home/$user/.local/bin"
+ln -sfn "/home/$user/.local/share/claude/versions/$version" "/mnt/home/$user/.local/bin/claude"
+arch-chroot /mnt chown -R "$user:" "/home/$user/.local"
 arch-chroot /mnt "/home/$user/puter/bin/puter-update" repo
 # install.sh's access, which sudo needs before it can run without a
 # password (it's put in place again, the same, by access itself).

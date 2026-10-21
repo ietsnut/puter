@@ -350,7 +350,9 @@ packages bind-mounted as the new system's cache, so they aren't copied),
 systemd-boot with no menu, UTC and en_US, the user `puter` with no
 password, `puter-update repo` ([puter] and its key), and `install.sh`'s
 `access`, `config` and `login`. Then it restarts into the desktop. Claude
-Code comes with the first update, online. UEFI only.
+Code is on the stick too (`iso/build` runs Anthropic's installer and keeps
+its one file; `puter-install` puts it where that installer would, so
+`claude update` keeps it current). UEFI only.
 
 Borrowed from Omarchy's ISO (omacom/omarchy-iso): the offline repository
 isn't checked again on install (`SigLevel = Never`: `pacstrap` checks
