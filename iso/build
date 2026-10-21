@@ -14,6 +14,8 @@ out="$(readlink -f "${2:?usage: iso/build WORK OUT}")"
 mkdir -p "$work" "$out"
 
 pacman -Syu --noconfirm --needed archiso git
+# The checkout belongs to someone else in the container.
+git config --global --add safe.directory "$repo"
 
 profile="$work/profile"
 rm -rf "$profile"

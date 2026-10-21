@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: |
           docker run --rm --privileged -v "$PWD:/puter:ro" -v /mnt/iso:/work archlinux:latest \
-            bash -c 'git config --global --add safe.directory "*" && /puter/iso/build /work/build /work/out'
+            /puter/iso/build /work/build /work/out
           sudo rm -rf /mnt/iso/build
 
       - name: Install it, in QEMU
