@@ -32,6 +32,7 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | Shell | Quickshell (QML) | Desk, bottom bar, search, settings drawn exactly to the grid; reloads live; Qt's software renderer (a third of the memory) |
 | Apps | Qt Widgets | One style and one stylesheet make every app uniform, and they're light (about 20 MB each) |
 | Terminal | QTerminal | |
+| Agents | Claude Code, Codex, each in foot | See "Agents" below |
 | Files | PCManFM-Qt | |
 | Text and code | FeatherPad | |
 | Tables | Sheet (`src/sheet`, puter's own) | No maintained small Qt table editor exists |
@@ -86,7 +87,7 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
 - `theme/make` writes everything from it: `config/quickshell/Colors.qml`, labwc's
   `themerc` and window buttons (with hover images), the icon theme, the GTK 3
   colours (KiCad), the Qt stylesheet and palette (`theme/qt6ct/`), FeatherPad's
-  syntax colours, QTerminal's colours, and KiCad's theme. Generated files say
+  syntax colours, QTerminal's and foot's colours, and KiCad's theme. Generated files say
   so at the top; edit the palette, not them.
 - **Qt apps** are styled in two parts, both read through qt6ct
   (`QT_QPA_PLATFORMTHEME` in `config/labwc/environment`):
@@ -139,6 +140,42 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   options (FeatherPad, PCManFM-Qt, QTerminal) in their ini files, and applies
   gsettings (GTK reads its theme from gsettings on Wayland) and KiCad's.
 
+## Agents
+
+Claude Code and Codex are apps (21 October): `bin/puter-agent claude|codex
+[folder]` opens a session in a window of its own, from search ("Claude
+Code", "Codex", in home) or a folder's menu in PCManFM-Qt ("Open in Claude
+Code", file-manager actions that install.sh writes).
+
+- **The window is foot**, not QTerminal: it can give each window the agent's
+  app ID (so labwc and the bar show the agent's square: Claude coral-dark,
+  Codex cyan), lock its title, and it has what the agents' TUIs lean on:
+  synchronized output (no flicker while they redraw), the kitty keyboard
+  protocol (Shift+Enter for a new line) and truecolor. Its colours are the
+  terminal's, written by `theme/make` (`theme/foot/foot.ini`), as its light
+  theme, so both agents pick their light looks; Claude Code is set to
+  `light-ansi`, drawing in those colours. 10 MB, no CPU at rest.
+- **The bar shows what each agent is doing.** The window's title is locked
+  to "Claude · folder" (a second one in the same folder is "… 2"), and both
+  agents run `puter-agent hook` on their events (`config/agents/hooks.json`;
+  Claude Code and Codex read the same format, merged by install.sh into
+  `~/.claude/settings.json` and `~/.codex/hooks.json`). The hook tells the
+  shell over IPC (`qs ipc call agents set TITLE STATE`, `Agents.qml`) and the
+  tab with that title shows it in its last module: working (a prompt or a
+  tool ran), waiting for a permission (the whole tab in `attention`, orange)
+  or done (a check, until you've been to the window). Nothing is polled.
+  Codex asks once to trust new hooks ("Hooks need review").
+- **They can use the desktop**: `bin/puter-desktop`, an MCP server
+  (standard-library Python, registered with both as `puter`): screenshot,
+  windows, focus, click, move, scroll, type, key, open, through grim, wlrctl
+  (built from the AUR's recipe, `packages/wlrctl`) and wtype. Each is asked
+  for as any tool is. `config/agents/AGENTS.md` tells them about puter,
+  linked as `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` unless there are
+  instructions of the user's own.
+- Claude Code comes from Anthropic's installer (`~/.local/bin`, it updates
+  itself), Codex from extra (`openai-codex`). Signing in is each agent's own
+  first screen.
+
 ## Things that took finding out
 
 - **Carbon at 16px**: most icons are drawn on a 32px grid and halved, and
@@ -179,6 +216,11 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   `Colors.qml`.
 - **labwc draws `*_hover` button images instead of its hover colour**, so
   hover is drawn into those images.
+- **Quickshell reads the app folders it finds at start**: one made later
+  (`~/.local/share/applications`, on a desktop already running) shows in
+  search only after the shell restarts.
+- **foot reads its font as fontconfig does**, so `puter-mono` would be the
+  family puter at size mono: `theme/make` writes the family's own name.
 - **Without a GPU** (only in the VM), wlroots crashes on native-Wayland OpenGL
   apps: see `dev/devbox/README.md` for the workarounds.
 - **At rest** (`dev/idle`, VM, 21 October): every process 0.0% CPU over a

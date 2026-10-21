@@ -16,6 +16,7 @@ colour of each app).
   theme/featherpad/              the text editor's syntax colours
   theme/kicad/puter.json         KiCad's board, schematic and 3D colours
   theme/qterminal/puter.colorscheme  the terminal
+  theme/foot/foot.ini            the agents' terminal
   theme/firefox/chrome/          Firefox's stylesheet, from theme/firefox
 
 Icons and glyphs are IBM's Carbon icons (theme/carbon), named in
@@ -56,7 +57,7 @@ C, FONTS, APPS = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "search-ink", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink")
+SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "search-ink", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "rule", "title", "title-ink", "button-hover", "button-hover-ink", "attention", "attention-ink")
 (repo / "config" / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"
@@ -349,6 +350,32 @@ for i in range(8):
                f"[Color{i}Intense]", f"Color={rgb3(f'ansi{i + 8}')}", ""]
 (theme / "qterminal").mkdir(exist_ok=True)
 (theme / "qterminal" / "puter.colorscheme").write_text("\n".join(scheme))
+
+
+# The agents' terminal (foot, bin/puter-agent): the same paper, ink and
+# sixteen ANSI colours, as its light theme, which it tells apps it is in (so
+# Claude Code and Codex pick their light looks); puter-mono at QTerminal's
+# size, one inset around the text, 24 x 18 modules. No scroll bar, no
+# window decorations of its own (labwc's title bar), no blinking, and the
+# bell marks the window urgent rather than making a sound.
+def hex6(role):
+    return C[role].lstrip("#").lower()
+foot = ["# Written by theme/make from theme/palette; edit those, not this.",
+        # The family by name: fontconfig would read "puter-mono" as puter at size mono.
+        "[main]", f"font={FONTS['mono']}:size=11", "pad=8x8", "initial-window-size-pixels=720x540",
+        "initial-color-theme=light", "resize-by-cells=no", "",
+        "[bell]", "urgent=yes", "notify=no", "visual=no", "",
+        "[scrollback]", "lines=10000", "",
+        "[cursor]", "style=block", "blink=no", "",
+        "[mouse]", "hide-when-typing=yes", "",
+        "[csd]", "preferred=server", "",
+        "[colors-light]", f"background={hex6('paper')}", f"foreground={hex6('ink')}",
+        f"selection-background={hex6('accent')}", f"selection-foreground={hex6('accent-ink')}",
+        f"urls={hex6('ansi4')}"]
+foot += [f"regular{i}={hex6(f'ansi{i}')}" for i in range(8)]
+foot += [f"bright{i}={hex6(f'ansi{i + 8}')}" for i in range(8)]
+(theme / "foot").mkdir(exist_ok=True)
+(theme / "foot" / "foot.ini").write_text("\n".join(foot) + "\n")
 
 
 

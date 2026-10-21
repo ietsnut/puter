@@ -25,4 +25,14 @@ ShellRoot {
             searchPanel.toggle();
         }
     }
+
+    // The agents' hooks (bin/puter-agent hook):
+    // `qs ipc call agents set "Claude · puter" working`.
+    IpcHandler {
+        target: "agents"
+
+        function set(title: string, state: string): void {
+            Agents.set(title, state);
+        }
+    }
 }

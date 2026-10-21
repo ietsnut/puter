@@ -1,0 +1,69 @@
+#!/bin/bash
+# Coding agents as apps: each session in a window of its own.
+#
+#   puter-agent claude [folder]   Claude Code, in the folder (else home)
+#   puter-agent codex [folder]    Codex
+#   puter-agent hook              what the agents' hooks run (install.sh
+#                                 sets them up): tells the bar what the
+#                                 agent is doing, from the event on stdin
+#
+# The window is foot (theme/foot/foot.ini) with the agent's app ID, so labwc
+# and the bar give it the agent's square, and a locked title, "Claude ·
+# folder", the same for the whole session (the agents would otherwise retitle
+# it as they go). The hooks report under that title, which the bar matches to
+# the window's tab (config/quickshell/Agents.qml).
+set -euo pipefail
+
+hook() {
+  # Only agents started here have a window to mark.
+  [[ -n ${PUTER_AGENT:-} ]] || exit 0
+  local event state
+  event="$(sed -n 's/.*"hook_event_name" *: *"\([A-Za-z]*\)".*/\1/p' | head -1)"
+  case "$event" in
+    UserPromptSubmit | PostToolUse) state=working ;;
+    PermissionRequest) state=waiting ;;
+    Stop) state=done ;;
+    SessionStart | SessionEnd) state="" ;;
+    *) exit 0 ;;
+  esac
+  # Nothing on stdout: an agent reads a hook's output as instructions.
+  qs ipc call agents set "$PUTER_AGENT" "$state" >/dev/null 2>&1 || true
+}
+
+open() {
+  local agent="$1" dir="${2:-$HOME}" name
+  case "$agent" in
+    claude) name=Claude ;;
+    codex) name=Codex ;;
+    *) echo "usage: puter-agent claude|codex [folder]" >&2; exit 1 ;;
+  esac
+  dir="$(cd "$dir" && pwd)"
+  local where="${dir##*/}"
+  [[ $dir == "$HOME" ]] && where="~"
+
+  # A second session in the same folder is "Claude · puter 2", and so on:
+  # each title is claimed by the process holding it, in the runtime folder.
+  local claims="${XDG_RUNTIME_DIR:-/tmp}/puter-agents" title n=1 claim
+  mkdir -p "$claims"
+  while :; do
+    title="$name · $where"
+    ((n > 1)) && title+=" $n"
+    claim="$claims/${title//\//_}"
+    if [[ ! -f $claim ]] || ! kill -0 "$(cat "$claim")" 2>/dev/null; then
+      break
+    fi
+    ((n++))
+  done
+  echo $$ >"$claim"
+
+  # Claude Code installs itself to ~/.local/bin.
+  export PUTER_AGENT="$title" PATH="$HOME/.local/bin:$PATH"
+  exec foot --app-id="$agent" --title="$title" -o locked-title=yes \
+    --working-directory="$dir" "$agent"
+}
+
+case "${1:-}" in
+  hook) hook ;;
+  claude | codex) open "$@" ;;
+  *) echo "usage: puter-agent claude|codex [folder] | hook" >&2; exit 1 ;;
+esac

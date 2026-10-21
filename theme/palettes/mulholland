@@ -36,6 +36,9 @@ button-hover      gray-30
 button-hover-ink  gray-100
 close-hover       gray-30
 close-hover-ink   gray-100
+# An agent's taskbar tab while it waits for you (bin/puter-agent).
+attention         gray-30
+attention-ink     gray-100
 
 # Syntax highlighting in the text editor, on paper.
 code-comment   gray-60
@@ -148,6 +151,9 @@ pcbnew                gray-100
 eeschema              gray-100
 mpv                   gray-100
 xdg-desktop-portal-lxqt  gray-100
+# The agents (bin/puter-agent), each in its own terminal window.
+claude                gray-100
+codex                 gray-100
 
 [colors]
 black        #000000

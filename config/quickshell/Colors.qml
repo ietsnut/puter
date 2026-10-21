@@ -27,4 +27,6 @@ Singleton {
     readonly property color titleInk: "#060606"
     readonly property color buttonHover: "#4a4446"
     readonly property color buttonHoverInk: "#ffffff"
+    readonly property color attention: "#e4722c"
+    readonly property color attentionInk: "#060606"
 }

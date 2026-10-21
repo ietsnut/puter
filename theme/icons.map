@@ -214,3 +214,7 @@ puter-volume                  actions     volume--up
 puter-volume-muted            actions     volume--mute
 puter-restart                 actions     restart
 puter-power                   actions     power
+# An agent's state on its taskbar tab (config/quickshell/Agents.qml).
+puter-agent-working           status      in-progress
+puter-agent-waiting           status      help
+puter-agent-done              status      checkmark

@@ -2,15 +2,14 @@
 
 Where things stood at the end of the 20 October 2026 session.
 
-## Asked for, not done yet
-
-- **Settings as a 2x2 square.** Mirror the search square: a 60x60 ink square
-  in the bottom-right corner with the sliders glyph, the clock moved to its
-  left on the strip, and the settings panel standing on the square, flush right
-  (`margins.bottom: Theme.module * 2`). The bar's input `mask` needs the new
-  square added, as the search square is.
-
 ## Open edges
+
+- **The agents, signed in** (21 October): the windows, search, the folder
+  menu, the tab states (driven by hand over IPC and through `puter-agent
+  hook`) and `puter-desktop` (over stdio, and Claude Code's `mcp list`) are
+  tested, but not a signed-in session: that the hooks fire as expected
+  (Claude Code's PermissionRequest, Codex trusting them), and an agent
+  actually driving the desktop through the `puter` tools.
 
 - **The grid in dialogs** (20-21 October): every Qt dialog is laid out by
   the style; `dev/tour` passes 9 of its 17 windows, and most of the rest

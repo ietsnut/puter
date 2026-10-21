@@ -1,0 +1,188 @@
+#!/usr/bin/env python3
+"""The desktop, for agents: an MCP server (stdio) that lets Claude Code and
+Codex see and use puter's screen. install.sh registers it with both as
+"puter".
+
+  screenshot   the whole screen, as an image
+  windows      the open windows: app ID and title
+  focus        bring a window to the front, by title or app ID
+  click        click (or double-click) at a point in screenshot pixels
+  move         move the pointer there
+  scroll       turn the wheel
+  type         type text
+  key          press a key or combination: Return, ctrl+s, super+Up
+  open         open a file, folder or URL in its app
+
+Built on grim (screenshots), wlrctl (the pointer and windows, through
+wlroots' virtual pointer and foreign toplevel protocols) and wtype (the
+keyboard). Python's standard library only; nothing runs between calls.
+"""
+import base64
+import json
+import os
+import subprocess
+import sys
+import tempfile
+
+PROTOCOL = "2025-06-18"
+
+
+def run(*command):
+    done = subprocess.run(command, capture_output=True, text=True, timeout=30)
+    if done.returncode:
+        raise RuntimeError((done.stderr or done.stdout).strip() or f"{command[0]} failed")
+    return done.stdout
+
+
+def screenshot():
+    with tempfile.TemporaryDirectory() as folder:
+        path = os.path.join(folder, "screen.png")
+        run("grim", path)
+        with open(path, "rb") as f:
+            png = f.read()
+    width, height = int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")
+    return [{"type": "image", "data": base64.b64encode(png).decode(), "mimeType": "image/png"},
+            {"type": "text", "text": f"{width} x {height} pixels; click and move take points in these."}]
+
+
+def windows():
+    return run("wlrctl", "toplevel", "list").strip() or "No windows are open."
+
+
+def match(window):
+    """A wlrctl matcher: an app ID if no window has it as its title."""
+    titles = [line.split(": ", 1)[-1] for line in run("wlrctl", "toplevel", "list").splitlines()]
+    return f"title:{window}" if window in titles else f"app_id:{window}"
+
+
+def focus(window):
+    run("wlrctl", "toplevel", "focus", match(window))
+    return f"Focused {window}."
+
+
+def move(x, y):
+    # wlrctl moves by an offset: parked in the top-left corner first, the
+    # offset is the point.
+    run("wlrctl", "pointer", "move", "-10000", "-10000")
+    run("wlrctl", "pointer", "move", str(int(x)), str(int(y)))
+    return f"The pointer is at {int(x)}, {int(y)}."
+
+
+def click(x, y, button="left", double=False):
+    move(x, y)
+    for _ in range(2 if double else 1):
+        run("wlrctl", "pointer", "click", button)
+    return f"{'Double-clicked' if double else 'Clicked'} {button} at {int(x)}, {int(y)}."
+
+
+def scroll(x, y, down=3):
+    move(x, y)
+    run("wlrctl", "pointer", "scroll", str(int(down) * 15), "0")
+    return f"Scrolled {'down' if down > 0 else 'up'} {abs(int(down))} at {int(x)}, {int(y)}."
+
+
+def type_text(text):
+    run("wtype", "--", text)
+    return f"Typed {len(text)} characters."
+
+
+MODIFIERS = {"ctrl", "shift", "alt", "super", "logo", "altgr", "win"}
+
+
+def key(keys):
+    """ctrl+shift+t: modifiers held around the last key, by xkb name."""
+    *held, last = keys.split("+")
+    held = ["logo" if m in ("super", "win") else m for m in (m.lower() for m in held)]
+    if any(m not in MODIFIERS for m in held):
+        raise ValueError(f"Unknown modifier in {keys}; use ctrl, shift, alt or super.")
+    command = ["wtype"]
+    for m in held:
+        command += ["-M", m]
+    command += ["-k", last]
+    for m in reversed(held):
+        command += ["-m", m]
+    run(*command)
+    return f"Pressed {keys}."
+
+
+def open_target(target):
+    subprocess.Popen(["xdg-open", target], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                     start_new_session=True)
+    return f"Opening {target}."
+
+
+def number(description):
+    return {"type": "number", "description": description}
+
+
+def text(description):
+    return {"type": "string", "description": description}
+
+
+TOOLS = {
+    "screenshot": (screenshot, "See the whole screen as it is now.", {}, []),
+    "windows": (windows, "List the open windows, one per line as app ID: title.", {}, []),
+    "focus": (focus, "Bring a window to the front.",
+              {"window": text("Its title, or its app ID, as windows lists them.")}, ["window"]),
+    "click": (click, "Click at a point on the screen, in screenshot pixels.",
+              {"x": number("Pixels from the left."), "y": number("Pixels from the top."),
+               "button": {"type": "string", "enum": ["left", "right", "middle"]},
+               "double": {"type": "boolean", "description": "Double-click."}}, ["x", "y"]),
+    "move": (move, "Move the pointer to a point, in screenshot pixels (to hover).",
+             {"x": number("Pixels from the left."), "y": number("Pixels from the top.")}, ["x", "y"]),
+    "scroll": (scroll, "Turn the mouse wheel over a point.",
+               {"x": number("Pixels from the left."), "y": number("Pixels from the top."),
+                "down": number("Notches down; negative for up.")}, ["x", "y"]),
+    "type": (type_text, "Type text into the focused window.", {"text": text("What to type.")}, ["text"]),
+    "key": (key, "Press a key or a combination in the focused window.",
+            {"keys": text("An xkb key name, with modifiers joined by +: Return, Escape, ctrl+s, super+Up.")},
+            ["keys"]),
+    "open": (open_target, "Open a file, folder or URL in the app puter opens it with.",
+             {"target": text("A path or URL.")}, ["target"]),
+}
+
+
+def handle(request):
+    method, params = request.get("method"), request.get("params") or {}
+    if method == "initialize":
+        return {"protocolVersion": params.get("protocolVersion", PROTOCOL),
+                "capabilities": {"tools": {}},
+                "serverInfo": {"name": "puter", "version": "1"},
+                "instructions": "puter's desktop (labwc, Wayland). Take a screenshot before acting "
+                                "and after, to see what changed. Points are screenshot pixels."}
+    if method == "ping":
+        return {}
+    if method == "tools/list":
+        return {"tools": [{"name": name, "description": description,
+                           "inputSchema": {"type": "object", "properties": properties, "required": required}}
+                          for name, (_, description, properties, required) in TOOLS.items()]}
+    if method == "tools/call":
+        name = params.get("name")
+        if name not in TOOLS:
+            raise KeyError(f"No tool named {name}.")
+        try:
+            result = TOOLS[name][0](**(params.get("arguments") or {}))
+        except Exception as error:  # noqa: BLE001  a failed tool is reported, not fatal
+            return {"content": [{"type": "text", "text": str(error)}], "isError": True}
+        content = result if isinstance(result, list) else [{"type": "text", "text": result}]
+        return {"content": content}
+    raise KeyError(f"No method {method}.")
+
+
+def main():
+    for line in sys.stdin:
+        if not line.strip():
+            continue
+        request = json.loads(line)
+        if "id" not in request:
+            continue  # a notification
+        try:
+            reply = {"jsonrpc": "2.0", "id": request["id"], "result": handle(request)}
+        except Exception as error:  # noqa: BLE001
+            reply = {"jsonrpc": "2.0", "id": request["id"], "error": {"code": -32601, "message": str(error)}}
+        sys.stdout.write(json.dumps(reply) + "\n")
+        sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    main()

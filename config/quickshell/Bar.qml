@@ -74,17 +74,33 @@ PanelWindow {
             model: ToplevelManager.toplevels
 
             Chip {
+                id: tab
                 required property var modelData
+                // An agent's state (Agents.qml): its glyph in the tab's last
+                // module, and the whole tab in the attention colour while it
+                // waits for you. "done" shows until you've been to the window.
+                readonly property string agent: Agents.states[modelData.title] ?? ""
+                readonly property bool waiting: agent === "waiting"
                 text: modelData.title
                 // The app's icon from its desktop file, or, without one, the icon
                 // named after the app (as labwc does for its title bar).
                 icon: Quickshell.iconPath(DesktopEntries.heuristicLookup(modelData.appId)?.icon ?? modelData.appId, true)
+                badge: agent && !(agent === "done" && modelData.activated) ? Quickshell.iconPath("puter-agent-" + agent) : ""
                 minModules: 3
                 maxModules: 8
                 hoverable: true
-                fill: modelData.activated ? Theme.tabActive : Theme.tab
-                ink: modelData.activated ? Theme.tabActiveForeground : Theme.tabForeground
+                fill: waiting ? Theme.attention : modelData.activated ? Theme.tabActive : Theme.tab
+                ink: waiting ? Theme.attentionForeground : modelData.activated ? Theme.tabActiveForeground : Theme.tabForeground
                 onClicked: modelData.activate()
+
+                Connections {
+                    target: tab.modelData
+
+                    function onActivatedChanged() {
+                        if (!tab.modelData.activated && tab.agent === "done")
+                            Agents.set(tab.modelData.title, "");
+                    }
+                }
             }
         }
     }
@@ -139,6 +155,12 @@ PanelWindow {
             bar.sink.audio.muted = false;
             bar.sink.audio.volume = Math.max(0, Math.min(1, Math.round(bar.sink.audio.volume * 10 + steps) / 10));
         }
+    }
+
+    // The clock ticks once a minute.
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
     }
 
     Chip {

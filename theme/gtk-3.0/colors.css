@@ -26,6 +26,8 @@
 @define-color button_hover_ink #ffffff;
 @define-color close_hover #e4722c;
 @define-color close_hover_ink #060606;
+@define-color attention #e4722c;
+@define-color attention_ink #060606;
 @define-color code_comment #6b6459;
 @define-color code_keyword #5552c4;
 @define-color code_string #5f7a1e;

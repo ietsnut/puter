@@ -13,10 +13,10 @@ packages() {
   mapfile -t pkgs < <(sed -e 's/#.*//' -e 's/[[:space:]]*$//' "$repo/packages.txt" | grep -v '^$')
   sudo pacman -Syu --needed --noconfirm "${pkgs[@]}"
 
-  # labwc, patched, and JLCONE (packages/). Each is
+  # labwc, patched, wlrctl and JLCONE (packages/). Each is
   # rebuilt whenever the installed version isn't its recipe's.
   local name want have
-  for name in labwc jlcone-bin; do
+  for name in labwc wlrctl jlcone-bin; do
     # shellcheck disable=SC2154  # pkgver and pkgrel come from the PKGBUILD
     want="$(source "$repo/packages/$name/PKGBUILD" && echo "$pkgver-$pkgrel")"
     # Empty when it isn't installed yet (pacman -Q fails, which would end the
@@ -38,6 +38,12 @@ packages() {
     sudo cmake --install "$build"
     rm -rf "$build"
   done
+
+  # Claude Code, from Anthropic's installer (to ~/.local/bin; it keeps
+  # itself up to date).
+  if [[ ! -x $HOME/.local/bin/claude ]]; then
+    curl -fsSL https://claude.ai/install.sh | bash
+  fi
 }
 
 # Sets one key in an ini file (Qt's settings files), making the file and the
@@ -114,6 +120,10 @@ config() {
   if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then
     systemctl --user daemon-reload 2>/dev/null || true
   fi
+
+  # The agents' terminal, foot: its settings and colours (theme/foot, from
+  # theme/make).
+  ln -sfn "$repo/theme/foot" "$HOME/.config/foot"
 
   # The theme: labwc's title bars and window buttons, and GTK apps; and the
   # icon theme.
@@ -250,7 +260,87 @@ CONF
   # Which app opens what.
   ln -sfn "$repo/config/mimeapps.list" "$HOME/.config/mimeapps.list"
 
+  agents
+
   on_bus bash -c "$(declare -f settings); settings"
+}
+
+# Coding agents (bin/puter-agent): each opens in its own foot window, from
+# search or a folder's menu in PCManFM-Qt; their hooks tell the bar what
+# they're doing; both get the desktop through puter-desktop (an MCP server)
+# and are told about puter (config/agents/AGENTS.md).
+agents() {
+  local apps="$HOME/.local/share/applications" actions="$HOME/.local/share/file-manager/actions"
+  mkdir -p "$apps" "$actions"
+  local agent name
+  for agent in claude codex; do
+    name=${agent^}
+    [[ $agent == claude ]] && name="Claude Code"
+    cat >"$apps/$agent.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=$name
+Comment=A coding agent, in its own window
+Exec=$repo/bin/puter-agent $agent
+Icon=$agent
+Terminal=false
+Categories=Development;
+DESKTOP
+    cat >"$actions/$agent.desktop" <<ACTION
+[Desktop Entry]
+Type=Action
+Name=Open in $name
+Icon=$agent
+Profiles=folder;
+
+[X-Action-Profile folder]
+MimeTypes=inode/directory;
+Exec=$repo/bin/puter-agent $agent %f
+ACTION
+  done
+
+  # The hooks (config/agents/hooks.json), merged into each agent's own: any
+  # other hooks stay.
+  python3 - "$repo" <<'HOOKS'
+import json, pathlib, sys
+repo = pathlib.Path(sys.argv[1])
+ours = json.loads((repo / "config/agents/hooks.json").read_text().replace("@puter-agent", str(repo / "bin/puter-agent")))
+home = pathlib.Path.home()
+for path in (home / ".claude/settings.json", home / ".codex/hooks.json"):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    settings = json.loads(path.read_text()) if path.exists() else {}
+    hooks = settings.setdefault("hooks", {})
+    for event, entries in ours["hooks"].items():
+        kept = [e for e in hooks.get(event, [])
+                if not any("puter-agent hook" in h.get("command", "") for h in e.get("hooks", []))]
+        hooks[event] = kept + entries
+    path.write_text(json.dumps(settings, indent=2) + "\n")
+# Claude Code in its light theme, in the terminal's own colours (the palette's).
+config = home / ".claude.json"
+settings = json.loads(config.read_text()) if config.exists() else {}
+settings["theme"] = "light-ansi"
+config.write_text(json.dumps(settings, indent=2) + "\n")
+HOOKS
+
+  # The desktop, for both.
+  local claude="$HOME/.local/bin/claude"
+  if [[ -x $claude ]]; then
+    "$claude" mcp remove --scope user puter >/dev/null 2>&1 || true
+    "$claude" mcp add --scope user puter -- "$repo/bin/puter-desktop" >/dev/null
+  fi
+  if command -v codex >/dev/null; then
+    codex mcp remove puter >/dev/null 2>&1 || true
+    codex mcp add puter -- "$repo/bin/puter-desktop" >/dev/null
+  fi
+
+  # What they're told about puter, unless there are instructions of the
+  # user's own already.
+  local file
+  for file in "$HOME/.claude/CLAUDE.md" "$HOME/.codex/AGENTS.md"; do
+    if [[ ! -e $file || -L $file ]]; then
+      ln -sfn "$repo/config/agents/AGENTS.md" "$file"
+    fi
+  done
 }
 
 login() {

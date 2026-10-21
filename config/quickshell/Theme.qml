@@ -37,4 +37,6 @@ Singleton {
     readonly property color titleForeground: Colors.titleInk
     readonly property color hover: Colors.buttonHover
     readonly property color hoverForeground: Colors.buttonHoverInk
+    readonly property color attention: Colors.attention
+    readonly property color attentionForeground: Colors.attentionInk
 }

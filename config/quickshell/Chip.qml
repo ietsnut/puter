@@ -11,6 +11,8 @@ Rectangle {
     property alias text: label.text
     // An icon path (from Quickshell.iconPath); empty for none.
     property string icon: ""
+    // A 16px glyph (an icon path) in a module of its own at the right end.
+    property string badge: ""
     property color fill: Theme.muted
     property color ink: Theme.mutedForeground
     // Chips you can click light up under the pointer, like the window buttons.
@@ -25,7 +27,8 @@ Rectangle {
     signal clicked
 
     readonly property int lead: icon ? Theme.module : Theme.inset
-    readonly property int modules: Math.ceil((lead + label.implicitWidth + Theme.inset) / Theme.module)
+    readonly property int tail: badge ? Theme.module : 0
+    readonly property int modules: Math.ceil((lead + label.implicitWidth + Theme.inset) / Theme.module) + (badge ? 1 : 0)
 
     color: hoverable && mouse.containsMouse ? hoverFill : fill
     implicitHeight: Theme.module
@@ -41,10 +44,18 @@ Rectangle {
         implicitSize: 24
     }
 
+    IconImage {
+        visible: chip.badge !== ""
+        source: chip.badge
+        x: chip.width - Theme.module + (Theme.module - width) / 2
+        y: (Theme.module - height) / 2
+        implicitSize: 16
+    }
+
     Text {
         id: label
         x: chip.lead
-        width: chip.width - chip.lead - Theme.inset
+        width: chip.width - chip.lead - chip.tail - Theme.inset
         anchors.verticalCenter: parent.verticalCenter
         color: chip.hoverable && mouse.containsMouse ? chip.hoverInk : chip.ink
         elide: Text.ElideRight

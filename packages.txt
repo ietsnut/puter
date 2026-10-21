@@ -1,6 +1,6 @@
 # Everything puter installs from the Arch repos. The apps are Qt Widgets ones,
 # styled by puter's Qt style and stylesheet through qt6ct. Then labwc is
-# rebuilt with puter's patch, JLCONE (JLCPCB's ordering app) built from
+# rebuilt with puter's patch, wlrctl built from the AUR's recipe, JLCONE (JLCPCB's ordering app) built from
 # JLCPCB's .deb (packages/), and puter's Qt style and table editor (src/)
 # built from this repo (install.sh).
 
@@ -23,6 +23,13 @@ featherpad
 lximage-qt
 mpv
 firefox
+
+# Agents (bin/puter-agent): Codex, and foot for their windows; Claude Code
+# comes from Anthropic's installer (install.sh). Typing for puter-desktop
+# (wlrctl, for the pointer, is built from packages/).
+foot
+openai-codex
+wtype
 
 # Fonts
 ttf-ibm-plex
