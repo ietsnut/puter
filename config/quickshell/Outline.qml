@@ -17,26 +17,26 @@ Item {
         visible: parent.edgeTop
         width: parent.width
         height: 1
-        color: Theme.outline
+        color: Colors.outline
     }
     Rectangle {
         visible: parent.edgeRight
         x: parent.width - 1
         width: 1
         height: parent.height
-        color: Theme.outline
+        color: Colors.outline
     }
     Rectangle {
         visible: parent.edgeBottom
         y: parent.height - 1
         width: parent.width
         height: 1
-        color: Theme.outline
+        color: Colors.outline
     }
     Rectangle {
         visible: parent.edgeLeft
         width: 1
         height: parent.height
-        color: Theme.outline
+        color: Colors.outline
     }
 }

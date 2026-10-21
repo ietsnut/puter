@@ -143,7 +143,7 @@ but Plasma costs an estimated 300-600 MB more than labwc and Quickshell.
   libfm-qt's `filedialog.ui`; the file type row only shows with a choice of
   types.
 - `config/quickshell/Theme.qml` holds the geometry (module 30, inset 8, IBM Plex Sans
-  15px).
+  15px); colours are `Colors.qml`'s roles, by the palette's names.
 - `theme/gtk-3.0/gtk.css` restyles Adwaita for the GTK 3 apps that remain
   (KiCad). Most of it is overriding Adwaita rules that are more specific than
   a plain selector; the `:not(.puter-a):not(.puter-b)` selectors exist only to
@@ -173,7 +173,7 @@ Code", file-manager actions that install.sh writes).
   agents run `puter-agent hook` on their events (`config/agents/hooks.json`;
   Claude Code and Codex read the same format, merged by install.sh into
   `~/.claude/settings.json` and `~/.codex/hooks.json`). The hook tells the
-  shell over IPC (`qs ipc call agents set TITLE STATE`, `Agents.qml`) and the
+  shell over IPC (`qs ipc call agents set TITLE STATE`, kept by `Bar.qml`) and the
   tab with that title shows it in its last module: working (a prompt or a
   tool ran), waiting for a permission (the whole tab in `attention`, orange)
   or done (a check, until you've been to the window). Nothing is polled.

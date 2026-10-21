@@ -5,23 +5,22 @@ ShellRoot {
     Desk {}
 
     Bar {
+        id: bar
         updates: updatesPanel.barState
         onSearch: searchPanel.toggle()
         onUpdate: updatesPanel.toggle()
     }
 
     Dismiss {
-        visible: searchPanel.visible
-        onClicked: searchPanel.visible = false
+        visible: searchPanel.visible || updatesPanel.visible
+        onClicked: {
+            searchPanel.visible = false;
+            updatesPanel.visible = false;
+        }
     }
 
     SearchPanel {
         id: searchPanel
-    }
-
-    Dismiss {
-        visible: updatesPanel.visible
-        onClicked: updatesPanel.visible = false
     }
 
     Updates {
@@ -72,7 +71,7 @@ ShellRoot {
         target: "agents"
 
         function set(title: string, state: string): void {
-            Agents.set(title, state);
+            bar.setAgent(title, state);
         }
     }
 }
