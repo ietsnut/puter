@@ -140,6 +140,10 @@ version="$(basename "$(ls "$src"/claude/*)")"
 install -D -m 755 "$src/claude/$version" "/mnt/home/$user/.local/share/claude/versions/$version"
 mkdir -p "/mnt/home/$user/.local/bin"
 ln -sfn "/home/$user/.local/share/claude/versions/$version" "/mnt/home/$user/.local/bin/claude"
+# What Anthropic's installer records about itself (without it `claude
+# update` warns its install method is unknown); install.sh config adds to it.
+echo '{"installMethod": "native", "autoUpdates": false}' >"/mnt/home/$user/.claude.json"
+arch-chroot /mnt chown "$user:" "/home/$user/.claude.json"
 arch-chroot /mnt chown -R "$user:" "/home/$user/.local"
 arch-chroot /mnt "/home/$user/puter/bin/puter-update" repo
 # install.sh's access, which sudo needs before it can run without a

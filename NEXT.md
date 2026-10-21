@@ -7,11 +7,13 @@ Where things stood at the end of the 20 October 2026 session.
 - **The USB installer** (21 October): built, installed and started in
   QEMU by CI (`iso.yml`: KVM, OVMF, virtio), which boots straight to the
   desktop; not yet on real hardware or from a real stick (the disk picker
-  and the `yes` have only been read, not used). UEFI only. Claude Code
-  isn't on the stick: it comes with the first update, online. 3.7 GB.
-- **[puter]** (21 October): built, signed and published by CI, and read by
-  pacman in a container; `puter-update` against it hasn't run on a puter
-  machine yet (the installer runs only its `repo` step, offline).
+  and the `yes` have only been read, not used). UEFI only. 3.7 GB, Claude Code included.
+- **[puter]** (21 October): built, signed and published by CI; CI's
+  install test runs the first `puter-update` online on the installed
+  system and it ends "Everything is up to date" (firmware, git, Claude
+  Code and the settings too). But a fresh stick is already current, so no
+  package was actually upgraded from [puter] or Arch; that, and a machine
+  set up before [puter] taking over its cmake-installed apps, are untested.
 
 - **Mail with a real account** (21 October): the main window, folders,
   list, message and the account hub are styled and measured with local
