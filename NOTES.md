@@ -239,7 +239,9 @@ ordered by use, tracked from each toplevel's `activated`.
 
 - **Previews**: Quickshell's ScreencopyView only captures single windows
   through Hyprland's protocol, so they're taken with `grim -T <identifier>`
-  (ext-image-copy-capture, about 25 ms a window at half size), every window
+  (ext-image-copy-capture, uncompressed PPM at full size, scaled down once
+  as it loads with `sourceSize`, which smooths where drawing it smaller or
+  grim's own `-s` only sample, so text came out jagged), every window
   at once as it opens and four times a second while it's up. The
   identifiers come from ext-foreign-toplevel-list, which Quickshell doesn't
   expose; `src/windows` (`puter-windows`) lists them with app ID and title,

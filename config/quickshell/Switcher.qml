@@ -14,7 +14,7 @@ import Quickshell.Wayland
 // Cards are six modules tall (five of preview, one of title) and as wide as
 // their window's preview needs, in whole modules (five to fourteen): flush
 // side by side so neighbours share an edge, as many to a row as fit the
-// screen, on paper one module in from the cards. The previews are taken as it opens and four
+// screen, straight on the desk. The previews are taken as it opens and four
 // times a second while it's open: grim captures each window on its own
 // (`grim -T`, by the identifier puter-windows lists, src/windows), since
 // Quickshell can only capture single windows on Hyprland.
@@ -56,9 +56,8 @@ PanelWindow {
 
     // Before its first preview, a card is eight modules wide.
     readonly property int cardWidth: Theme.module * 8
-    // The widest the cards can run: the screen less a module of paper and a
-    // module of desk each side.
-    readonly property int rowWidth: Math.floor(width / Theme.module - 4) * Theme.module
+    // The widest the cards can run: the screen less a module each side.
+    readonly property int rowWidth: Math.floor(width / Theme.module - 2) * Theme.module
     readonly property int cardHeight: Theme.module * 6
 
     function order() {
@@ -167,10 +166,10 @@ PanelWindow {
         readonly property string side: switcher.side === "A" ? "B" : "A"
         // Previews of windows closed a while ago go.
         command: ["sh", "-c", `dir="${switcher.shots}"; mkdir -p "$dir"
-            find "$dir" -name '*.png' -mmin +10 -delete
+            find "$dir" -type f -mmin +10 -delete
             # The loop runs in the pipe's subshell, so that's where it waits.
             puter-windows | { while IFS="$(printf '\t')" read -r id app title; do
-                grim -T "$id" -s 0.5 -l 1 "$dir/$id-${side}.png" 2>/dev/null &
+                grim -T "$id" -t ppm "$dir/$id-${side}.ppm" 2>/dev/null &
             done; wait; }; puter-windows`]
         stdout: StdioCollector {
             onStreamFinished: {
@@ -262,16 +261,16 @@ PanelWindow {
 
     onOpenChanged: if (open) keys.forceActiveFocus()
 
-    // The paper the cards lie on: one module around them, its edges (and so
-    // every card's) on the grid, the whole in the middle of the screen.
+    // The cards together, in the middle of the screen with every edge on
+    // the grid.
     Rectangle {
         id: sheet
         visible: switcher.shown
-        width: flow.childrenRect.width + Theme.module * 2
-        height: flow.childrenRect.height + Theme.module * 2
+        width: flow.childrenRect.width
+        height: flow.childrenRect.height
         x: Math.round((switcher.width - width) / 2 / Theme.module) * Theme.module
         y: Math.round((switcher.height - Theme.module - height) / 2 / Theme.module) * Theme.module
-        color: Theme.background
+        color: "transparent"
 
         // Takes clicks between the cards, so they don't go back.
         MouseArea {
@@ -280,8 +279,6 @@ PanelWindow {
 
         Flow {
             id: flow
-            x: Theme.module
-            y: Theme.module
             width: switcher.rowWidth
 
             Repeater {
@@ -322,9 +319,13 @@ PanelWindow {
                             fillMode: Image.PreserveAspectFit
                             asynchronous: false
                             cache: false
+                            // Captured whole and scaled down once, as it loads, to
+                            // the height it's shown at: Qt's smooth scaling
+                            // averages the pixels (drawing it smaller would
+                            // only sample them, which shimmers and jags).
+                            sourceSize.height: height
                             smooth: true
-                            mipmap: true
-                            source: id ? "file://" + switcher.shots + "/" + id + "-" + switcher.side + ".png" : ""
+                            source: id ? "file://" + switcher.shots + "/" + id + "-" + switcher.side + ".ppm" : ""
                         }
                     }
 
@@ -376,6 +377,5 @@ PanelWindow {
             }
         }
 
-        Outline {}
     }
 }
