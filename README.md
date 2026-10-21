@@ -4,13 +4,15 @@
 
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
 search, and Qt Widgets apps, all on a 30px module, square and flat, with IBM's
-Carbon icons. Two looks, one palette file each: `stack` (a
+Carbon icons. Made for workshops and machines with nothing sensitive on
+them: nothing asks for a password (sudo, polkit, the login), like Kali.
+Two looks, one palette file each: `stack` (a
 dotted brown desk, bone title bars, a colour for every app)
 and `mulholland` (black, white and gray, IBM Plex).
 
 | Path | What it is |
 | --- | --- |
-| `install.sh` | sets up a plain Arch install: packages, builds, configs, login screen |
+| `install.sh` | sets up a plain Arch install: packages, builds, configs, no passwords, straight into the desktop |
 | `packages.txt` | everything it installs from the Arch repos |
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |

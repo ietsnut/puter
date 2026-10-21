@@ -9,7 +9,6 @@ labwc
 quickshell
 xorg-xwayland
 greetd
-greetd-tuigreet
 xdg-desktop-portal-wlr
 # The file dialog every app gets: libfm-qt's, through the portal
 # (config/xdg-desktop-portal/)

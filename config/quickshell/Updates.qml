@@ -9,17 +9,16 @@ import Quickshell.Widgets
 // builds, its own apps, Claude Code). It stands on the strip in the right
 // corner, over the bar's update button, twenty-four modules wide: a title
 // strip, then what's out of date, a row each (looked up every time it opens),
-// and a row with the button that starts it all, after a password if sudo
-// wants one. Once started, the rows give way to the updater's output, two
-// lines to a module, with a row of progress over it filling a module at a
-// time. Closing it leaves the update running; the bar's button shows it.
+// and a row with the button that starts it all (sudo never asks for a
+// password on puter: install.sh's access). Once started, the rows give way
+// to the updater's output, two lines to a module, with a row of progress
+// over it filling a module at a time. Closing it leaves the update running; the bar's button shows it.
 PanelWindow {
     id: panel
 
     // checking, ready, running or done.
     property string phase: "ready"
     property var items: []
-    property bool needsPassword: false
     property var lines: []
     property int step: 0
     property int steps: 0
@@ -28,7 +27,6 @@ PanelWindow {
     property real stepPart: 0
     property var failed: []
     property bool restart: false
-    property bool wrongPassword: false
     property date started: new Date()
     property date now: new Date()
 
@@ -54,18 +52,12 @@ PanelWindow {
         phase = "checking";
         items = [];
         checker.running = true;
-        sudoCheck.running = true;
     }
 
     function start() {
-        if (needsPassword && password.text === "") {
-            password.forceActiveFocus();
-            return;
-        }
         lines = [];
         failed = [];
         restart = false;
-        wrongPassword = false;
         step = 0;
         steps = 0;
         stepName = "";
@@ -73,8 +65,6 @@ PanelWindow {
         started = new Date();
         now = started;
         phase = "running";
-        updater.stdinEnabled = true;
-        updater.command = needsPassword ? ["sudo", "-S", "-p", "", script, "run"] : ["sudo", "-n", script, "run"];
         updater.running = true;
     }
 
@@ -106,8 +96,6 @@ PanelWindow {
         const count = line.match(/^\((\d+)\/(\d+)\) /);
         if (count)
             stepPart = Math.min(1, Number(count[1]) / Number(count[2]));
-        if (line.includes("incorrect password") || line.startsWith("Sorry, try again"))
-            wrongPassword = true;
         lines = lines.concat([line]).slice(-outputRows * 2);
     }
 
@@ -115,8 +103,6 @@ PanelWindow {
     onVisibleChanged: {
         if (visible && phase !== "running" && phase !== "done")
             check();
-        if (visible && phase === "ready" && needsPassword)
-            password.forceActiveFocus();
     }
 
     Process {
@@ -135,22 +121,9 @@ PanelWindow {
     }
 
     Process {
-        id: sudoCheck
-        command: ["sudo", "-n", "true"]
-        onExited: code => panel.needsPassword = code !== 0
-    }
-
-    Process {
         id: updater
-        stdinEnabled: true
-        // The password, once, then stdin closes: a wrong one ends sudo
-        // rather than leaving it waiting for another.
-        onStarted: {
-            if (panel.needsPassword)
-                write(password.text + "\n");
-            password.text = "";
-            stdinEnabled = false;
-        }
+        // -n: were sudo to want a password after all, it fails rather than waits.
+        command: ["sudo", "-n", panel.script, "run"]
         stdout: SplitParser {
             onRead: data => panel.read(data)
         }
@@ -158,14 +131,9 @@ PanelWindow {
             onRead: data => panel.read(data)
         }
         onExited: code => {
-            if (panel.wrongPassword && panel.step === 0) {
-                panel.phase = "ready";
-                password.forceActiveFocus();
-            } else {
-                panel.phase = "done";
-                if (code !== 0 && panel.failed.length === 0 && panel.step === 0)
-                    panel.failed = ["sudo"];
-            }
+            panel.phase = "done";
+            if (code !== 0 && panel.failed.length === 0 && panel.step === 0)
+                panel.failed = ["sudo"];
         }
     }
 
@@ -189,7 +157,6 @@ PanelWindow {
     color: Theme.background
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "puter-updates"
-    WlrLayershell.keyboardFocus: visible && phase === "ready" && needsPassword ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     // The title strip.
     Rectangle {
@@ -335,44 +302,13 @@ PanelWindow {
         }
     }
 
-    // The button, and the password if sudo wants one.
+    // The button, and what it does.
     Item {
         y: parent.height - Theme.module
         width: parent.width
         height: Theme.module
 
-        Rectangle {
-            visible: panel.phase === "ready" && panel.needsPassword
-            width: parent.width - button.width
-            height: Theme.module
-            color: Theme.foreground
-
-            TextInput {
-                id: password
-                x: Theme.inset
-                width: parent.width - Theme.inset * 2
-                anchors.verticalCenter: parent.verticalCenter
-                echoMode: TextInput.Password
-                color: Theme.background
-                selectionColor: Theme.background
-                selectedTextColor: Theme.foreground
-                font.family: Theme.font
-                font.pixelSize: Theme.textSize
-                onTextChanged: if (text !== "") panel.wrongPassword = false
-                Keys.onReturnPressed: panel.start()
-                Keys.onEscapePressed: panel.visible = false
-
-                Text {
-                    visible: !password.text
-                    text: panel.wrongPassword ? "Wrong password, try again" : "Your password, for sudo"
-                    color: panel.wrongPassword ? Theme.attention : Theme.muted
-                    font: password.font
-                }
-            }
-        }
-
         Label {
-            visible: !(panel.phase === "ready" && panel.needsPassword)
             width: parent.width - button.width - Theme.inset * 2
             elide: Text.ElideRight
             color: Theme.mutedForeground

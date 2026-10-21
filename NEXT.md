@@ -45,12 +45,13 @@ Where things stood at the end of the 20 October 2026 session.
 - **Wi-Fi** is untested: the VM has none (nmtui, from the network glyph). Connecting only
   works for open and already-saved networks; there's no password prompt yet.
 - **Restart and shut down** in the bar haven't been pressed.
-- **Updates** (21 October) ran end to end on the VM (passwordless sudo, so
-  the password field is untested), but with nothing to bump: a recipe
+- **Updates** (21 October) ran end to end on the VM, but with nothing to
+  bump: a recipe
   rebuilt (forced) and bumped copies' checksums verified, not a real new
   labwc with the patch applied to it. Firmware is untested on hardware.
-- **The login screen step** of `install.sh` (greetd + tuigreet) is untested:
-  the VM uses its own auto-login.
+- **No passwords** (21 October): `install.sh access` (sudo and polkit) is
+  tested on the VM; the greetd part (labwc straight away, no login screen)
+  isn't, since the VM keeps its own greetd config (pixman rendering).
 - **The search square overlaps windows**: windows stop at the strip (one
   module), so a snapped window's bottom-left 60x30 sits under the square.
   Making windows stop above the square would waste a row along the bottom.

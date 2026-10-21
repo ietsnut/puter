@@ -13,7 +13,8 @@
 #   6. Claude Code, through its own updater
 #   7. puter's settings, applied again (install.sh config)
 #
-#   puter-update          all of it (through sudo)
+#   puter-update          all of it (through sudo, which on puter never asks
+#                         for a password: install.sh's access)
 #   puter-update check    what's out of date, a line each: what, tab, by how much
 #
 # The bar's update button (config/quickshell/Updates.qml) runs

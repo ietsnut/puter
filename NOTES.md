@@ -45,7 +45,7 @@ from what was learned rather than repeating it. `README.md` says what's where;
 | System monitor | qps | Qt Widgets; only your programs, their processor and memory, without its meters |
 | Web | Firefox | A normal browser (tabs, an address field), its whole interface restyled by one stylesheet (`theme/firefox`, from the palette) and its settings a web page |
 | PCB orders | JLCONE | JLCPCB's Electron app, from their .deb (`packages/jlcone-bin`, the AUR's recipe) |
-| Login | greetd + tuigreet | Text login that starts labwc |
+| Login | greetd | None: labwc as the user, on boot and after logging out |
 | Fonts | IBM Plex Sans, IBM Plex Mono | The dental desk's and its reports' font; `ttf-ibm-plex` from extra |
 
 Tried and dropped: Hyprland, niri and sway (tiling), KDE Plasma (heavy, its
@@ -228,6 +228,18 @@ chips. A click takes the default action. A toast goes after its timeout (six
 seconds unless the app says), a critical one stays. No animation, and
 nothing runs while there are none.
 
+## No passwords
+
+puter is for workshops and machines with nothing sensitive on them, so,
+like Kali's live images, nothing asks for a password. `install.sh access`
+(the first thing a full install does) gives the user sudo with `NOPASSWD:
+ALL` (`/etc/sudoers.d/10-puter`, checked with `visudo -c` before it's put in
+place) and a polkit rule that allows them every action
+(`/etc/polkit-1/rules.d/10-puter.rules`: Wi-Fi, disks, power), and greetd
+starts labwc as them with no login screen, on boot and after logging out.
+So anything that runs as the user can become root: fine for a workshop
+machine, not for one with your own data on it.
+
 ## Updates
 
 `bin/puter-update` brings everything to the newest, in steps: Arch (the
@@ -251,11 +263,9 @@ undo an update.
 
 `puter-update check` lists what's out of date without root (`checkupdates`
 from pacman-contrib, a copy of the sync database). `Updates.qml` runs it
-each time it opens, then `sudo puter-update run`, reading `::step`,
+each time it opens, then `sudo -n puter-update run`, reading `::step`,
 `::fail`, `::restart` and `::done` lines; everything else is shown, two
-lines a module, and kept in `~/.local/state/puter/update.log`. If sudo wants
-a password, the panel asks for it and writes it once to sudo's stdin, then
-closes stdin, so a wrong one ends sudo instead of leaving it waiting.
+lines a module, and kept in `~/.local/state/puter/update.log`.
 `::restart` comes when the kernel, systemd, glibc, mesa, Qt, wlroots, labwc
 or Quickshell changed; the bar's button then turns orange and the panel's
 button restarts.

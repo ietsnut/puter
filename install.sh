@@ -2,10 +2,12 @@
 # Installs puter on a plain Arch install (archinstall, minimal profile, a user
 # with sudo). Safe to run again.
 #
-#   ./install.sh          everything: packages, fonts, configs, login screen
+#   ./install.sh          everything: packages, fonts, configs, no passwords,
+#                         straight into the desktop on boot
 #   ./install.sh config   only link the configs and apply settings (what
 #                         dev/sync runs after copying a change over)
 #   ./install.sh packages only install the packages
+#   ./install.sh access   only stop sudo and polkit asking for a password
 set -euo pipefail
 repo="$(cd "$(dirname "$0")" && pwd)"
 
@@ -422,15 +424,40 @@ HOOKS
   done
 }
 
+# puter is for workshops and other machines with nothing sensitive on them,
+# so nothing ever asks for a password: sudo doesn't, polkit (Wi-Fi, disks,
+# power) doesn't, and the machine starts straight into the desktop.
+access() {
+  # sudo: anything, without a password (checked before it's put in place,
+  # since a broken sudoers file locks sudo out).
+  local rule
+  rule="$(mktemp)"
+  echo "$USER ALL=(ALL:ALL) NOPASSWD: ALL" >"$rule"
+  sudo visudo -cqf "$rule"
+  sudo install -m 440 -o root -g root "$rule" /etc/sudoers.d/10-puter
+  rm -f "$rule"
+
+  # polkit: every action allowed, for this user.
+  sudo install -d -m 755 /etc/polkit-1/rules.d
+  sudo tee /etc/polkit-1/rules.d/10-puter.rules >/dev/null <<RULES
+// puter (install.sh): nothing asks $USER for a password.
+polkit.addRule(function (action, subject) {
+    if (subject.user == "$USER")
+        return polkit.Result.YES;
+});
+RULES
+}
+
 login() {
-  # greetd with tuigreet: a text login screen that starts labwc.
-  sudo tee /etc/greetd/config.toml >/dev/null <<'TOML'
+  # greetd: no login screen, labwc as this user on boot and again after
+  # logging out.
+  sudo tee /etc/greetd/config.toml >/dev/null <<TOML
 [terminal]
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --asterisks --cmd labwc"
-user = "greeter"
+command = "labwc"
+user = "$USER"
 TOML
   sudo systemctl enable greetd.service NetworkManager.service
 }
@@ -442,14 +469,19 @@ case "${1:-all}" in
   packages)
     packages
     ;;
+  access)
+    access
+    ;;
   all)
+    # First, so nothing after it asks for the password again.
+    access
     packages
     config
     login
     echo "Done. Reboot to log in to puter."
     ;;
   *)
-    echo "usage: $0 [config|packages]" >&2
+    echo "usage: $0 [config|packages|access]" >&2
     exit 1
     ;;
 esac
