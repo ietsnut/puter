@@ -54,9 +54,8 @@ there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
 
 Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt),
 Notepad (FeatherPad, syntax colours from the palette), Photos (LXImage-Qt),
-Video (mpv), Terminal (QTerminal), Browser (Firefox), Sheets (puter's own),
-PCB Orders (JLCONE), and KiCad's as Electronics, Schematics, PCB Editor and
-so on; helpers that come with a package (foot's server, CMake, the Qt test
+Video (mpv), Terminal (QTerminal), Browser (Firefox) and Sheets (puter's
+own); KiCad and JLCONE (PCB orders) keep their own names; helpers that come with a package (foot's server, CMake, the Qt test
 tools) are kept out of search.
 Claude Code and Codex, each session in a window of its own (search, or
 right-click a folder: Open in Claude Code); its taskbar tab shows whether

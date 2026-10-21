@@ -11,13 +11,6 @@ lximage-qt.desktop                Photos
 mpv.desktop                       Video
 firefox.desktop                   Browser
 puter-sheet.desktop               Sheets
-jlcone.desktop                    PCB Orders
-org.kicad.kicad.desktop           Electronics
-org.kicad.eeschema.desktop        Schematics
-org.kicad.pcbnew.desktop          PCB Editor
-org.kicad.gerbview.desktop        Gerber Viewer
-org.kicad.pcbcalculator.desktop   PCB Calculator
-org.kicad.bitmap2component.desktop  Image to Footprint
 foot.desktop                      hide
 foot-server.desktop               hide
 footclient.desktop                hide
