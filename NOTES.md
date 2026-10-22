@@ -2,7 +2,7 @@
 
 A record of the decisions so far (October 2026), so the next session starts
 from what was learned rather than repeating it. `README.md` says what's where;
-`NEXT.md` says what's left; `dev/devbox/README.md` covers the dev VM.
+`dev/devbox/README.md` covers the dev VM.
 
 ## The rules
 

@@ -1,6 +1,6 @@
 # puter
 
-> How it's built and why: `NOTES.md`. What's left: `NEXT.md`. The dev VM: `dev/devbox/README.md`.
+> How it's built and why: `NOTES.md`. The dev VM: `dev/devbox/README.md`.
 
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
 search, and Qt Widgets apps, all on a 30px module, square and flat, with IBM's
