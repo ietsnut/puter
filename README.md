@@ -42,11 +42,11 @@ run `theme/make`, then `./install.sh config` on the machine.
 ## Working on it
 
 On a Mac with Apple silicon, `vm/try` runs puter (the ARM build) in a
-window at the Mac's own speed, with this checkout shared in as its
-`~/puter`, so it runs what you edit. Leave `vm/try watch` running beside
-it: saving a QML file restarts Quickshell, saving labwc's config reloads
-it. After `theme/make`, or changing what `install.sh` sets up, `vm/try
-apply`. `vm/try do CMD` runs a command in its session, `vm/try shot` saves
+window at the Mac's own speed, with this checkout copied in as its
+`~/puter`. Leave `vm/try watch` running beside it: each file you save is
+copied in, so Quickshell reloads QML by itself (on screen in about a
+second) and labwc reloads its config. After `theme/make`, or changing what
+`install.sh` sets up, `vm/try apply`. `vm/try do CMD` runs a command in its session, `vm/try shot` saves
 a screenshot, `vm/try fresh` starts over.
 
 ## Apps

@@ -4,18 +4,19 @@
 # disk, from .github/workflows/vm.yml) in QEMU with Apple's hypervisor, so
 # at the Mac's own speed. Needs QEMU: brew install qemu.
 #
-# This checkout is shared with the machine and mounted over its ~/puter, so
-# what you edit here is what it runs. A change made here isn't noticed in
-# there by itself (no file events cross the share): `watch` restarts
-# Quickshell or reloads labwc as you save, `apply` does the rest.
+# This checkout is shared with the machine (at /mnt/puter, read-only) and
+# copied over its ~/puter once it's up, so it runs what you edit. File
+# events don't cross the share, so `watch` copies each file as you save it:
+# a write in there, which Quickshell sees and reloads itself on (QML, at
+# once), and labwc is told to reload its config; `apply` does the rest.
 #
 #   vm/try             start it; the first time (or with `update`) it's
 #                      downloaded, about 3 GB
 #   vm/try update      download the newest, and start over on it
 #   vm/try fresh       start over on the one downloaded, forgetting changes
-#   vm/try watch       as files change here: Quickshell started again for
-#                      config/quickshell/, labwc's config again for
-#                      config/labwc/, and a word when `apply` is needed
+#   vm/try watch       copies each file into the machine as it changes here;
+#                      Quickshell reloads QML by itself, labwc's config is
+#                      reloaded, and it says when `apply` is needed
 #   vm/try reload      labwc's config again, and Quickshell started again
 #   vm/try apply       install.sh config, then reload: after changing what
 #                      install.sh sets up (theme/ after theme/make, the
@@ -110,13 +111,16 @@ session() {
   console serial "(set -a; . ~/.config/labwc/environment; export XDG_RUNTIME_DIR=/run/user/\$(id -u) WAYLAND_DISPLAY=wayland-0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u)/bus; set +a; $*)"
 }
 
-# This checkout over the machine's own ~/puter, and Quickshell started
-# again on it (it was started on the machine's own).
+# This checkout, shared at /mnt/puter, and its files (not its .git) copied
+# over the machine's own ~/puter, as puter's.
 mount_share() {
-  mountpoint=$(console serial "mountpoint -q ~/puter && echo yes || true")
+  mountpoint=$(console serial "mountpoint -q /mnt/puter && echo yes || true")
   [[ $mountpoint == yes* ]] && return 0
-  console serial "sudo mount -t 9p -o trans=virtio,version=9p2000.L,msize=524288 puter ~/puter" || return 1
-  session "pkill -x quickshell; sleep 1; setsid -f quickshell >/dev/null 2>&1"
+  console serial "sudo mkdir -p /mnt/puter && sudo mount -t 9p -o ro,trans=virtio,version=9p2000.L,msize=524288 puter /mnt/puter" || return 1
+  copy_all
+}
+copy_all() {
+  console serial "tar -C /mnt/puter --exclude=./.git -cf - . | tar -C ~/puter --no-same-owner -xf -"
 }
 
 case "${1:-}" in
@@ -154,10 +158,14 @@ while True:
     if not changed:
         continue
     print(time.strftime("%H:%M:%S"), ", ".join(changed), flush=True)
-    if any(f.startswith("config/quickshell/") for f in changed):
-        subprocess.run([me, "do", "pkill -x quickshell; sleep 0.3; setsid -f quickshell >/dev/null 2>&1"])
+    # Each one copied in (or deleted) on the machine: a write there.
+    q = lambda f: "'" + f.replace("'", "'\\''") + "'"
+    script = "; ".join(
+        f"mkdir -p ~/puter/$(dirname {q(f)}) && cp -f /mnt/puter/{q(f)} ~/puter/{q(f)}" if f in now
+        else f"rm -f ~/puter/{q(f)}" for f in changed)
     if any(f.startswith("config/labwc/") for f in changed):
-        subprocess.run([me, "do", "pkill -HUP -x labwc"])
+        script += "; pkill -HUP -x labwc"
+    subprocess.run([me, "do", script])
     if any(not f.startswith(("config/quickshell/", "config/labwc/")) for f in changed):
         print("  (vm/try apply to take the rest in)", flush=True)
 PY
@@ -170,6 +178,7 @@ PY
     ;;
   apply)
     mount_share
+    copy_all
     session "cd ~/puter && ./install.sh config >/dev/null && pkill -HUP -x labwc && echo applied"
     exit
     ;;
