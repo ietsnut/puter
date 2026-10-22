@@ -67,6 +67,11 @@
 #nav-bar {
     border-bottom: 1px solid @rule !important;
 }
+/* The tab bar in the title colour, as the title bar above it, so the open
+   tab, in paper, runs on into the navigation bar below. */
+#TabsToolbar {
+    background: @title !important;
+}
 
 /* The menu bar only while Alt shows it, each menu's name one inset in. */
 #toolbar-menubar:not([inactive]) {
@@ -85,7 +90,8 @@
 }
 
 /* Tabs: eight modules wide, the last one its close button; no icons or
-   lines between them; the open one in the title colour. */
+   lines between them; the open one in paper, the others in the title
+   colour. */
 #tabbrowser-tabs {
     border: none !important;
     padding: 0 !important;
@@ -108,10 +114,10 @@
     border-radius: 0 !important;
     box-shadow: none !important;
     outline: none !important;
-    background: @paper !important;
+    background: @title !important;
 }
 .tab-background:is([selected], [multiselected]) {
-    background: @title !important;
+    background: @paper !important;
 }
 .tabbrowser-tab:hover > .tab-stack > .tab-background:not([selected]) {
     background: @hover !important;
