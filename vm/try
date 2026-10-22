@@ -4,20 +4,183 @@
 # disk, from .github/workflows/vm.yml) in QEMU with Apple's hypervisor, so
 # at the Mac's own speed. Needs QEMU: brew install qemu.
 #
-#   vm/try           start it; the first time (or when there's a newer
-#                    one, with `update`) it's downloaded, about 3 GB
-#   vm/try update    download the newest, and start over on it
-#   vm/try fresh     start over on the one downloaded, forgetting changes
+# This checkout is shared with the machine and mounted over its ~/puter, so
+# what you edit here is what it runs. A change made here isn't noticed in
+# there by itself (no file events cross the share): `watch` restarts
+# Quickshell or reloads labwc as you save, `apply` does the rest.
 #
-# What you change is kept between runs, beside the download in
-# ~/Library/Caches/puter (a disk of its own over the downloaded one, which
-# itself is never changed). The window is 40 x 25 modules (1200 x 750);
-# PUTER_SIZE=WxH for another, PUTER_MEMORY (6G) and PUTER_CPUS (4).
+#   vm/try             start it; the first time (or with `update`) it's
+#                      downloaded, about 3 GB
+#   vm/try update      download the newest, and start over on it
+#   vm/try fresh       start over on the one downloaded, forgetting changes
+#   vm/try watch       as files change here: Quickshell started again for
+#                      config/quickshell/, labwc's config again for
+#                      config/labwc/, and a word when `apply` is needed
+#   vm/try reload      labwc's config again, and Quickshell started again
+#   vm/try apply       install.sh config, then reload: after changing what
+#                      install.sh sets up (theme/ after theme/make, the
+#                      apps' settings, new files); about 20 seconds
+#   vm/try do CMD      run CMD on it as puter, in the desktop's session, and
+#                      print what it prints
+#   vm/try shot [FILE] a screenshot of it (FILE is /tmp/puter.png unless
+#                      given), and its path
+#
+# What you change on the machine is kept between runs, beside the download
+# in ~/Library/Caches/puter (a disk of its own over the downloaded one,
+# which itself is never changed). The window is 40 x 25 modules (1200 x
+# 750); PUTER_SIZE=WxH for another, PUTER_MEMORY (6G) and PUTER_CPUS (4).
 # Ctrl+Alt+G lets go of the keyboard and pointer.
 set -euo pipefail
 repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 cache="$HOME/Library/Caches/puter"
+serial="$cache/serial.sock"
+monitor="$cache/monitor.sock"
 mkdir -p "$cache"
+
+# Talks to the running machine: its serial console (a shell as puter,
+# logging in if need be) or QEMU's monitor.
+console() { # serial|monitor TEXT
+  python3 - "$@" <<'PY'
+import re, socket, sys, time
+kind, text = sys.argv[1], sys.argv[2]
+# One connection at a time: wait a little for another to finish.
+for attempt in range(30):
+    c = socket.socket(socket.AF_UNIX)
+    try:
+        c.connect(f"{__import__('os').environ['HOME']}/Library/Caches/puter/{kind}.sock")
+        break
+    except FileNotFoundError:
+        sys.exit("puter isn't running: start it with vm/try")
+    except OSError:
+        c.close()
+        time.sleep(0.5)
+else:
+    sys.exit("puter's console is busy")
+c.settimeout(0.2)
+
+# What came back, without the terminal's escape sequences (the shell puts
+# systemd's around its prompt).
+escapes = re.compile(rb"\x1b\][^\x07\x1b]*(\x07|\x1b\\)|\x1b\[[0-9;?]*[a-zA-Z]|\r")
+def read(until, seconds):
+    out, end = b"", time.time() + seconds
+    while time.time() < end:
+        try:
+            out += c.recv(65536)
+        except socket.timeout:
+            pass
+        if until and re.search(until, escapes.sub(b"", out)):
+            break
+    return escapes.sub(b"", out)
+
+if kind == "monitor":
+    c.sendall(text.encode() + b"\n")
+    read(None, 1.5)
+    sys.exit()
+
+# A shell: log in as puter (no password) if the console isn't at one.
+prompt = rb"(login: *|Password: *|\$ *)$"
+out = b""
+for attempt in range(6):
+    c.sendall(b"\n")
+    out = read(prompt, 5)
+    if re.search(rb"login: *$", out):
+        c.sendall(b"puter\n")
+        out = read(prompt, 10)
+    if re.search(rb"Password: *$", out):
+        c.sendall(b"\n")
+        out = read(prompt, 10)
+    if re.search(rb"\$ *$", out):
+        break
+else:
+    sys.exit("couldn't log in on puter's console")
+c.sendall(b"stty -echo cols 200; export PAGER=cat SYSTEMD_PAGER=cat TERM=dumb\n")
+read(rb"\$ *$", 3)
+mark = f"puter{time.time_ns()}"
+c.sendall(f"echo {mark}A; {text}; echo {mark}Z$?\n".encode())
+out = read(rf"{mark}Z\d+".encode(), 3600).decode(errors="replace")
+body = out.split(f"{mark}A", 1)[-1]
+status = re.search(rf"{mark}Z(\d+)", body)
+sys.stdout.write(body.split(f"{mark}Z")[0].lstrip("\n"))
+sys.exit(int(status.group(1)) if status else 1)
+PY
+}
+
+# A command in the desktop's session: its environment, its bus, its display.
+session() {
+  console serial "(set -a; . ~/.config/labwc/environment; export XDG_RUNTIME_DIR=/run/user/\$(id -u) WAYLAND_DISPLAY=wayland-0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u)/bus; set +a; $*)"
+}
+
+# This checkout over the machine's own ~/puter, and Quickshell started
+# again on it (it was started on the machine's own).
+mount_share() {
+  mountpoint=$(console serial "mountpoint -q ~/puter && echo yes || true")
+  [[ $mountpoint == yes* ]] && return 0
+  console serial "sudo mount -t 9p -o trans=virtio,version=9p2000.L,msize=524288 puter ~/puter" || return 1
+  session "pkill -x quickshell; sleep 1; setsid -f quickshell >/dev/null 2>&1"
+}
+
+case "${1:-}" in
+  do)
+    shift
+    session "$*"
+    exit
+    ;;
+  watch)
+    echo "Watching $repo (Ctrl+C to stop)"
+    python3 - "$repo" "$0" <<'PY'
+import os, subprocess, sys, time
+repo, me = sys.argv[1], sys.argv[2]
+def state():
+    seen = {}
+    for top in ("config", "theme", "bin", "install.sh"):
+        path = os.path.join(repo, top)
+        if os.path.isfile(path):
+            seen[top] = os.stat(path).st_mtime_ns
+            continue
+        for root, dirs, files in os.walk(path):
+            for name in files:
+                full = os.path.join(root, name)
+                try:
+                    seen[os.path.relpath(full, repo)] = os.stat(full).st_mtime_ns
+                except FileNotFoundError:
+                    pass
+    return seen
+before = state()
+while True:
+    time.sleep(0.4)
+    now = state()
+    changed = sorted(f for f in set(now) | set(before) if now.get(f) != before.get(f))
+    before = now
+    if not changed:
+        continue
+    print(time.strftime("%H:%M:%S"), ", ".join(changed), flush=True)
+    if any(f.startswith("config/quickshell/") for f in changed):
+        subprocess.run([me, "do", "pkill -x quickshell; sleep 0.3; setsid -f quickshell >/dev/null 2>&1"])
+    if any(f.startswith("config/labwc/") for f in changed):
+        subprocess.run([me, "do", "pkill -HUP -x labwc"])
+    if any(not f.startswith(("config/quickshell/", "config/labwc/")) for f in changed):
+        print("  (vm/try apply to take the rest in)", flush=True)
+PY
+    exit
+    ;;
+  reload)
+    mount_share
+    session "pkill -HUP -x labwc; pkill -x quickshell; sleep 0.5; setsid -f quickshell >/dev/null 2>&1; echo reloaded"
+    exit
+    ;;
+  apply)
+    mount_share
+    session "cd ~/puter && ./install.sh config >/dev/null && pkill -HUP -x labwc && echo applied"
+    exit
+    ;;
+  shot)
+    file="${2:-/tmp/puter.png}"
+    [[ $file == /* ]] || file="$PWD/$file"
+    console monitor "screendump $file -f png"
+    echo "$file"
+    exit
+    ;;
+esac
 
 if [[ $(uname -sm) != "Darwin arm64" ]]; then
   echo "vm/try is for a Mac with Apple silicon." >&2
@@ -36,7 +199,7 @@ case "${1:-}" in
     ;;
   fresh) rm -f "$cache/disk.qcow2" "$cache/vars.fd" ;;
   "") [[ -f $cache/puter.qcow2 ]] || "$repo/iso/download" "$cache/puter.qcow2" puter-vm ;;
-  *) echo "usage: vm/try [update|fresh]" >&2; exit 1 ;;
+  *) echo "usage: vm/try [update|fresh|watch|reload|apply|do CMD|shot [FILE]]" >&2; exit 1 ;;
 esac
 
 # Your disk, over the downloaded one, and the machine's firmware settings.
@@ -44,12 +207,23 @@ esac
   qemu-img create -q -f qcow2 -b "$cache/puter.qcow2" -F qcow2 "$cache/disk.qcow2"
 [[ -f $cache/vars.fd ]] || cp "$firmware/edk2-arm-vars.fd" "$cache/vars.fd"
 
+# Once it's up, this checkout goes over its ~/puter.
+(
+  for _ in $(seq 60); do
+    sleep 2
+    mount_share >/dev/null 2>&1 && exit
+  done
+) &
+
 size="${PUTER_SIZE:-1200x750}"
-exec qemu-system-aarch64 -name puter -machine virt -accel hvf -cpu host \
+rm -f "$serial" "$monitor"
+qemu-system-aarch64 -name puter -machine virt -accel hvf -cpu host \
   -smp "${PUTER_CPUS:-4}" -m "${PUTER_MEMORY:-6G}" \
   -drive if=pflash,format=raw,readonly=on,file="$firmware/edk2-aarch64-code.fd" \
   -drive if=pflash,format=raw,file="$cache/vars.fd" \
   -drive file="$cache/disk.qcow2",if=virtio,discard=unmap \
   -device virtio-gpu-pci,xres="${size%x*}",yres="${size#*x}" -display cocoa \
   -device qemu-xhci -device usb-kbd -device usb-tablet \
-  -nic user,model=virtio-net-pci -device virtio-rng-pci
+  -nic user,model=virtio-net-pci -device virtio-rng-pci \
+  -virtfs local,path="$repo",mount_tag=puter,security_model=mapped-xattr \
+  -serial unix:"$serial",server,nowait -monitor unix:"$monitor",server,nowait

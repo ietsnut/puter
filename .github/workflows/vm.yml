@@ -2,14 +2,14 @@
 # aarch64 build of puter installed on a disk image, on GitHub's ARM runners)
 # and publishes it to GitHub's container registry as
 # ghcr.io/ietsnut/puter-vm:latest, deleting the one before. vm/try
-# downloads and starts it. Runs weekly, on pushes to main touching vm/ or
-# the installer, and by hand; never for pull requests.
+# downloads and starts it. Runs weekly, on pushes to main touching vm/build
+# or the installer, and by hand; never for pull requests.
 name: vm
 
 on:
   push:
     branches: [main]
-    paths: [vm/**, iso/payload, iso/airootfs/**, .github/workflows/vm.yml]
+    paths: [vm/build, iso/payload, iso/airootfs/**, .github/workflows/vm.yml]
   schedule:
     - cron: "47 5 * * 1"
   workflow_dispatch:
