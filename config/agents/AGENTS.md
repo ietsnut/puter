@@ -2,8 +2,8 @@
 
 You are running on puter: Arch Linux with labwc (a Wayland compositor) and
 a Quickshell bar, every app themed from one palette onto a 30px grid. The
-user's setup lives in ~/puter (a git checkout); its README and NOTES say how
-it fits together.
+user's setup lives in ~/puter (a git checkout); its README says how it fits
+together.
 
 ## The desktop
 
