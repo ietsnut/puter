@@ -22,8 +22,8 @@
 @define-color title_ink #060606;
 @define-color hover #d6d1cb;
 @define-color hover_ink #060606;
-@define-color button_hover #4a4446;
-@define-color button_hover_ink #ffffff;
+@define-color button_hover #e88fb0;
+@define-color button_hover_ink #060606;
 @define-color close_hover #e4722c;
 @define-color close_hover_ink #060606;
 @define-color attention #e4722c;

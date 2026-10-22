@@ -21,36 +21,24 @@ colour of each app).
   theme/firefox/chrome/          Firefox's stylesheet, from theme/firefox
   theme/thunderbird/chrome/      Thunderbird's, from theme/thunderbird
 
-Each of those under theme/ is the light look; the dark look (the palette's
-[dark] roles over its others) is written the same way into theme/dark/.
-config/quickshell/Colors.qml holds both, and which a machine shows is
-~/.config/puter/mode (bin/puter-mode).
-
 Icons and glyphs are IBM's Carbon icons (theme/carbon), named in
 theme/icons.map. Run it after changing a palette, theme/palette or the icon
 map, then install.sh config.
 """
-import os
 import re
-import subprocess
 import sys
 from pathlib import Path
 
 theme = Path(__file__).parent
 repo = theme.parent
-# The light look into theme/, then (run again by the light pass) the dark
-# one into theme/dark/.
-DARK = os.environ.get("PUTER_LOOK") == "dark"
-out = theme / "dark" if DARK else theme
 
 
-def read_palette(dark=False):
+def read_palette():
     """From theme/palettes/<name>: role lines, then [colors], [fonts] (a
-    family name, spaces and all), [apps] (an app's icon name and its
-    colour) and [dark] (the roles that differ in the dark look). Returns
-    role -> hex, font -> family, icon -> hex."""
+    family name, spaces and all) and [apps] (an app's icon name and its
+    colour). Returns role -> hex, font -> family, icon -> hex."""
     name = (theme / "palette").read_text().strip()
-    sections, section = {None: {}, "colors": {}, "fonts": {}, "apps": {}, "dark": {}}, None
+    sections, section = {None: {}, "colors": {}, "fonts": {}, "apps": {}}, None
     for line in (theme / "palettes" / name).read_text().splitlines():
         if line.lstrip().startswith("#"):
             continue
@@ -65,39 +53,20 @@ def read_palette(dark=False):
         sections[section][key] = value if section == "fonts" else value.split()[0]
     colors = sections["colors"]
     resolve = lambda table: {key: colors.get(value, value) for key, value in table.items()}
-    roles = {**sections[None], **sections["dark"]} if dark else sections[None]
-    return resolve(roles), sections["fonts"], resolve(sections["apps"])
+    return resolve(sections[None]), sections["fonts"], resolve(sections["apps"])
 
 
-C, FONTS, APPS = read_palette(DARK)
+C, FONTS, APPS = read_palette()
 
 
 # The shell.
 SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "title", "title-ink", "button-hover", "button-hover-ink", "attention", "attention-ink")
-qml_name = lambda role: "".join(w.capitalize() if i else w for i, w in enumerate(role.split("-")))
-DARK_C = read_palette(dark=True)[0]
-if not DARK:
-  (repo / "config" / "quickshell" / "Colors.qml").write_text(
-    "pragma Singleton\nimport QtQuick\nimport Quickshell\nimport Quickshell.Io\n\n"
-    "// Written by theme/make from theme/palette; edit those, not this. Each\n"
-    "// role in the light look and the dark one, which ~/.config/puter/mode\n"
-    "// chooses (bin/puter-mode), followed as it changes.\n"
+(repo / "config" / "quickshell" / "Colors.qml").write_text(
+    "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
+    "// Written by theme/make from theme/palette; edit those, not this.\n"
     "Singleton {\n"
-    "    readonly property bool dark: mode.text().trim() === \"dark\"\n\n"
-    "    FileView {\n"
-    "        id: mode\n"
-    "        path: Quickshell.env(\"HOME\") + \"/.config/puter/mode\"\n"
-    "        blockLoading: true\n"
-    "        watchChanges: true\n"
-    "        printErrors: false\n"
-    "        onFileChanged: reload()\n"
-    "    }\n\n"
-    "    // Read again (bin/puter-mode asks, over IPC: shell.qml).\n"
-    "    function reload() {\n"
-    "        mode.reload();\n"
-    "    }\n\n"
     + "".join(
-        f'    readonly property color {qml_name(role)}: dark ? "{DARK_C[role]}" : "{C[role]}"\n'
+        f'    readonly property color {"".join(w.capitalize() if i else w for i, w in enumerate(role.split("-")))}: "{C[role]}"\n'
         for role in SHELL_ROLES
     )
     # Each app's colour by its icon name (the [apps] section), for the strip
@@ -111,9 +80,8 @@ if not DARK:
 
 # The fonts: every app is set in puter-sans (and code in puter-mono), names
 # fontconfig turns into the palette's fonts, so a palette brings its type.
-if not DARK:
-  (repo / "config" / "fontconfig" / "conf.d").mkdir(exist_ok=True)
-  (repo / "config" / "fontconfig" / "conf.d" / "10-puter-fonts.conf").write_text(
+(repo / "config" / "fontconfig" / "conf.d").mkdir(exist_ok=True)
+(repo / "config" / "fontconfig" / "conf.d" / "10-puter-fonts.conf").write_text(
     '<?xml version="1.0"?>\n<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">\n'
     "<!-- Written by theme/make from theme/palette; edit those, not this. -->\n<fontconfig>\n"
     + "".join(f'  <alias binding="same"><family>puter-{name}</family>'
@@ -127,8 +95,8 @@ def fill(source, target):
     comment, which says what it is, swapped for one saying it's written)."""
     text = (theme / source).read_text().split("*/", 1)[1].lstrip("\n")
     text = re.sub(r"@([a-z][a-z0-9-]*)", lambda m: C.get(m.group(1), m.group(0)), text)
-    (out / target).parent.mkdir(parents=True, exist_ok=True)
-    (out / target).write_text(f"/* Written by theme/make from theme/{source} and theme/palette;\n"
+    (theme / target).parent.mkdir(parents=True, exist_ok=True)
+    (theme / target).write_text(f"/* Written by theme/make from theme/{source} and theme/palette;\n"
                                 "   edit those, not this. */\n" + text)
 
 
@@ -139,8 +107,7 @@ for app in ("firefox", "thunderbird"):
 
 
 # labwc: title bars and menus.
-(out / "labwc").mkdir(parents=True, exist_ok=True)
-(out / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
+(theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
 # A one-module title bar in the title colour, focused or not, paper bodies,
 # square and flat, with a 1px outline. The buttons are the SVGs beside this
 # file.
@@ -268,8 +235,8 @@ BUTTONS = {"close": "close", "iconify": "subtract", "max": "maximize", "max_togg
 for name, icon in BUTTONS.items():
     hover, hover_ink = (C["close-hover"], C["close-hover-ink"]) if name == "close" else (C["button-hover"], C["button-hover-ink"])
     for state in ("active", "inactive"):
-        (out / "labwc" / f"{name}-{state}.svg").write_text(glyph(icon, 30, 16, C["title-ink"]))
-        (out / "labwc" / f"{name}_hover-{state}.svg").write_text(glyph(icon, 30, 16, hover_ink, hover))
+        (theme / "labwc" / f"{name}-{state}.svg").write_text(glyph(icon, 30, 16, C["title-ink"]))
+        (theme / "labwc" / f"{name}_hover-{state}.svg").write_text(glyph(icon, 30, 16, hover_ink, hover))
 
 
 # The icon theme: every name in theme/icons.map at 16 (its glyph sharp at
@@ -308,7 +275,7 @@ for name, color in APPS.items():
     DRAWN[64, "apps", name] = square(64, 40, color)
 
 
-icons = out / "icons"
+icons = theme / "icons"
 for old in icons.glob("[0-9]*x[0-9]*"):
     for f in sorted(old.rglob("*"), reverse=True):
         f.unlink() if f.is_file() else f.rmdir()
@@ -318,7 +285,7 @@ for (size, context, name), svg in DRAWN.items():
     folder.mkdir(parents=True, exist_ok=True)
     (folder / f"{name}.svg").write_text(svg)
 dirs = sorted({f"{size}x{size}/{context}" for size, context, _ in DRAWN})
-index = ["[Icon Theme]", "Name=puter-dark" if DARK else "Name=puter", "Comment=IBM Carbon icons in the palette's ink",
+index = ["[Icon Theme]", "Name=puter", "Comment=IBM Carbon icons in the palette's ink",
          "Inherits=breeze,hicolor", "Directories=" + ",".join(dirs), ""]
 for d in dirs:
     size = int(d.split("x")[0])
@@ -335,17 +302,13 @@ MAIL_ICONS = {"folder": "folder", "account": "email", "inbox": "mail--all", "dra
               "sent": "send", "outbox": "send--alt", "archive": "archive", "trash": "trash-can",
               "junk": "misuse", "templates": "template", "virtual": "filter", "rss": "rss",
               "tag": "tag", "news": "globe", "collapsed": "chevron--right", "expanded": "chevron--down"}
-(out / "thunderbird" / "chrome" / "icons").mkdir(parents=True, exist_ok=True)
+(theme / "thunderbird" / "chrome" / "icons").mkdir(parents=True, exist_ok=True)
 for name, icon in MAIL_ICONS.items():
-    (out / "thunderbird" / "chrome" / "icons" / f"{name}.svg").write_text(glyph(icon, 16, 16, C["ink"]))
+    (theme / "thunderbird" / "chrome" / "icons" / f"{name}.svg").write_text(glyph(icon, 16, 16, C["ink"]))
 
 
 # GTK apps.
-# (The dark look takes the same gtk.css, its colors.css beside it.)
-(out / "gtk-3.0").mkdir(parents=True, exist_ok=True)
-if DARK:
-    (out / "gtk-3.0" / "gtk.css").write_text((theme / "gtk-3.0" / "gtk.css").read_text())
-(out / "gtk-3.0" / "colors.css").write_text(
+(theme / "gtk-3.0" / "colors.css").write_text(
     "/* Written by theme/make from theme/palette; edit those, not this. */\n"
     + "".join(f"@define-color {role.replace('-', '_')} {value};\n" for role, value in C.items())
 )
@@ -362,10 +325,8 @@ def qt_palette(text, muted_text):
         "paper", "paper", "outline", "accent", "accent-ink", "ink", "ink",
         "paper", "paper", "paper", "ink", muted_text, "accent"))
 # FeatherPad's syntax colours: its own file, eleven keys that must each be a
-# different colour (a repeat makes it throw the file away).
-# (FeatherPad reads its dark file when its dark colour scheme is on, and
-# throws the whole file away if two colours are the same, or one is white or
-# black: so they must all differ.)
+# different colour, and neither white nor black (or it throws the whole file
+# away).
 SYNTAX = (("function", "code-function"), ("BuiltinFunction", "code-builtin"),
           ("comment", "code-comment"), ("quote", "code-string"), ("type", "code-type"),
           ("keyWord", "code-keyword"), ("number", "code-number"), ("regex", "code-regex"),
@@ -373,13 +334,12 @@ SYNTAX = (("function", "code-function"), ("BuiltinFunction", "code-builtin"),
 syntax_colors = [C[role].lower() for _, role in SYNTAX]
 if len(set(syntax_colors)) < len(syntax_colors) or {"#ffffff", "#000000"} & set(syntax_colors):
     sys.exit(f"theme/make: FeatherPad needs its code-* colours all different, and neither white "
-             f"nor black ({'dark' if DARK else 'light'} look): {dict((r, C[r]) for _, r in SYNTAX)}")
-(out / "featherpad").mkdir(parents=True, exist_ok=True)
-(out / "featherpad" / ("fp_dark_syntax_colors.conf" if DARK else "fp_light_syntax_colors.conf")).write_text(
+             f"nor black: {dict((r, C[r]) for _, r in SYNTAX)}")
+(theme / "featherpad").mkdir(exist_ok=True)
+(theme / "featherpad" / "fp_light_syntax_colors.conf").write_text(
     "[General]\n" + "".join(f"{key}={C[role]}\n" for key, role in SYNTAX)
 )
-(out / "qt6ct").mkdir(parents=True, exist_ok=True)
-(out / "qt6ct" / "puter.conf").write_text(
+(theme / "qt6ct" / "puter.conf").write_text(
     "# Written by theme/make from theme/palette; edit those, not this.\n[ColorScheme]\n"
     f"active_colors={qt_palette('ink', 'muted-ink')}\n"
     f"inactive_colors={qt_palette('ink', 'muted-ink')}\n"
@@ -404,8 +364,8 @@ scheme = ["# Written by theme/make from theme/palette; edit those, not this.",
 for i in range(8):
     scheme += [f"[Color{i}]", f"Color={rgb3(f'ansi{i}')}", "",
                f"[Color{i}Intense]", f"Color={rgb3(f'ansi{i + 8}')}", ""]
-(out / "qterminal").mkdir(parents=True, exist_ok=True)
-(out / "qterminal" / "puter.colorscheme").write_text("\n".join(scheme))
+(theme / "qterminal").mkdir(exist_ok=True)
+(theme / "qterminal" / "puter.colorscheme").write_text("\n".join(scheme))
 
 
 # The agents' terminal (foot, bin/puter-agent): the same paper, ink and
@@ -430,14 +390,14 @@ foot = ["# Written by theme/make from theme/palette; edit those, not this.",
         f"urls={hex6('ansi4')}"]
 foot += [f"regular{i}={hex6(f'ansi{i}')}" for i in range(8)]
 foot += [f"bright{i}={hex6(f'ansi{i + 8}')}" for i in range(8)]
-(out / "foot").mkdir(parents=True, exist_ok=True)
-(out / "foot" / "foot.ini").write_text("\n".join(foot) + "\n")
+(theme / "foot").mkdir(exist_ok=True)
+(theme / "foot" / "foot.ini").write_text("\n".join(foot) + "\n")
 
 
 # PDFs (qpdfview): pages on paper with a 1px edge in the outline colour,
 # lying on muted (bone); install.sh writes these into its settings.
-(out / "qpdfview").mkdir(parents=True, exist_ok=True)
-(out / "qpdfview" / "colors").write_text(f"backgroundColor {C['muted']}\npaperColor {C['paper']}\n")
+(theme / "qpdfview").mkdir(exist_ok=True)
+(theme / "qpdfview" / "colors").write_text(f"backgroundColor {C['muted']}\npaperColor {C['paper']}\n")
 
 
 
@@ -556,10 +516,5 @@ KICAD = {
     },
 }
 import json
-(out / "kicad").mkdir(parents=True, exist_ok=True)
-(out / "kicad" / "puter.json").write_text(json.dumps(KICAD, indent=2) + "\n")
-
-
-# And then the dark look, the same way, into theme/dark/.
-if not DARK:
-    subprocess.run([sys.executable, __file__], env={**os.environ, "PUTER_LOOK": "dark"}, check=True)
+(theme / "kicad").mkdir(exist_ok=True)
+(theme / "kicad" / "puter.json").write_text(json.dumps(KICAD, indent=2) + "\n")

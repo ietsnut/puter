@@ -179,7 +179,9 @@ PY
   apply)
     mount_share
     copy_all
-    session "cd ~/puter && ./install.sh config >/dev/null && pkill -HUP -x labwc && echo applied"
+    # (Quickshell started again too: it doesn't reload Colors.qml, which
+    # theme/make writes, by itself.)
+    session "cd ~/puter && ./install.sh config >/dev/null && pkill -HUP -x labwc; pkill -x quickshell; sleep 0.5; setsid -f quickshell >/dev/null 2>&1; echo applied"
     exit
     ;;
   shot)

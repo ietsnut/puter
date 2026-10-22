@@ -1,51 +1,32 @@
 pragma Singleton
 import QtQuick
 import Quickshell
-import Quickshell.Io
 
-// Written by theme/make from theme/palette; edit those, not this. Each
-// role in the light look and the dark one, which ~/.config/puter/mode
-// chooses (bin/puter-mode), followed as it changes.
+// Written by theme/make from theme/palette; edit those, not this.
 Singleton {
-    readonly property bool dark: mode.text().trim() === "dark"
-
-    FileView {
-        id: mode
-        path: Quickshell.env("HOME") + "/.config/puter/mode"
-        blockLoading: true
-        watchChanges: true
-        printErrors: false
-        onFileChanged: reload()
-    }
-
-    // Read again (bin/puter-mode asks, over IPC: shell.qml).
-    function reload() {
-        mode.reload();
-    }
-
-    readonly property color desk: dark ? "#583127" : "#583127"
-    readonly property color deskDot: dark ? "#f1f0ec" : "#f1f0ec"
-    readonly property color bar: dark ? "#231f20" : "#f1f0ec"
-    readonly property color barInk: dark ? "#f1f0ec" : "#060606"
-    readonly property color barEdge: dark ? "#231f20" : "#f1f0ec"
-    readonly property color search: dark ? "#231f20" : "#f1f0ec"
-    readonly property color tab: dark ? "#231f20" : "#f1f0ec"
-    readonly property color tabInk: dark ? "#f1f0ec" : "#060606"
-    readonly property color tabActive: dark ? "#4a4446" : "#ffffff"
-    readonly property color tabActiveInk: dark ? "#f1f0ec" : "#060606"
-    readonly property color paper: dark ? "#231f20" : "#ffffff"
-    readonly property color ink: dark ? "#f1f0ec" : "#060606"
-    readonly property color accent: dark ? "#e0a9df" : "#e0a9df"
-    readonly property color accentInk: dark ? "#060606" : "#060606"
-    readonly property color muted: dark ? "#4a4446" : "#f1f0ec"
-    readonly property color mutedInk: dark ? "#958d79" : "#6b6459"
-    readonly property color outline: dark ? "#060606" : "#060606"
-    readonly property color title: dark ? "#4a4446" : "#f1f0ec"
-    readonly property color titleInk: dark ? "#f1f0ec" : "#060606"
-    readonly property color buttonHover: dark ? "#6b6459" : "#4a4446"
-    readonly property color buttonHoverInk: dark ? "#ffffff" : "#ffffff"
-    readonly property color attention: dark ? "#e4722c" : "#e4722c"
-    readonly property color attentionInk: dark ? "#060606" : "#060606"
+    readonly property color desk: "#583127"
+    readonly property color deskDot: "#f1f0ec"
+    readonly property color bar: "#f1f0ec"
+    readonly property color barInk: "#060606"
+    readonly property color barEdge: "#f1f0ec"
+    readonly property color search: "#f1f0ec"
+    readonly property color tab: "#f1f0ec"
+    readonly property color tabInk: "#060606"
+    readonly property color tabActive: "#ffffff"
+    readonly property color tabActiveInk: "#060606"
+    readonly property color paper: "#ffffff"
+    readonly property color ink: "#060606"
+    readonly property color accent: "#e0a9df"
+    readonly property color accentInk: "#060606"
+    readonly property color muted: "#f1f0ec"
+    readonly property color mutedInk: "#6b6459"
+    readonly property color outline: "#060606"
+    readonly property color title: "#f1f0ec"
+    readonly property color titleInk: "#060606"
+    readonly property color buttonHover: "#e88fb0"
+    readonly property color buttonHoverInk: "#060606"
+    readonly property color attention: "#e4722c"
+    readonly property color attentionInk: "#060606"
     readonly property var apps: ({
         "featherpad": "#e4722c",
         "pcmanfm-qt": "#e0a9df",

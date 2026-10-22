@@ -17,6 +17,11 @@
     --toolbar-field-focus-color: @ink !important;
     --toolbar-field-border-color: transparent !important;
     --toolbar-field-focus-border-color: transparent !important;
+    /* (The same, by the names Firefox 158 gives them.) */
+    --toolbar-field-background-color-focus: @paper !important;
+    --toolbar-field-text-color: @ink !important;
+    --toolbar-field-text-color-focus: @ink !important;
+    --toolbar-field-border-color-focus: transparent !important;
     --toolbarbutton-border-radius: 0 !important;
     --toolbarbutton-inner-padding: 7px !important;
     --toolbarbutton-outer-padding: 0 !important;
@@ -191,24 +196,40 @@
     padding: 0 !important;
     margin: 0 !important;
 }
-/* One pixel short of the module, so the bar's rule shows under it. */
+/* One pixel short of the module, so the bar's rule shows under it. Square
+   and flat, focused or not; open, its results drop straight down from it at
+   its own width, the two in one outline, without a shadow. (Firefox draws
+   both through these: rounded, reaching past the field and shadowed.) */
 #urlbar {
     --urlbar-height: 29px !important;
     min-height: 29px !important;
     max-height: 29px !important;
-}
-#urlbar-background {
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    background: @paper !important;
-}
-#urlbar[focused] > #urlbar-background {
-    outline: none !important;
-    box-shadow: none !important;
-}
-#urlbar[open] > #urlbar-background {
-    border: 1px solid @outline !important;
+    --urlbar-border-radius: 0px !important;
+    --urlbarview-border-radius: 0px !important;
+    --urlbar-background-border-radius: 0px !important;
+    --urlbar-background-border-top-radius-open: 0px !important;
+    --urlbar-inner-border-radius: 0px !important;
+    --urlbar-background-overhang-open: 0px !important;
+    --urlbar-input-growth-open-inline: 0px !important;
+    --urlbar-input-growth-open-block: 0px !important;
+    --urlbar-background-border: none !important;
+    --urlbar-background-border-focused: none !important;
+    --urlbar-background-border-open: 1px solid @outline !important;
+    --urlbar-background-outline-focused: none !important;
+    --urlbar-background-box-shadow-open: none !important;
+    --urlbar-input-container-border: none !important;
+    --urlbar-input-container-outline-open: none !important;
+    --urlbar-input-container-outline-open-focused: none !important;
+    --urlbarView-margin-block: 0px !important;
+    --urlbarView-margin-inline: 0px !important;
+    --urlbarView-joint-background-outset-inline: 0px !important;
+    --urlbarView-joint-background-outset-block: 0px !important;
+    --urlbarView-padding: 0px !important;
+    --urlbarView-row-gutter: 0px !important;
+    --urlbarView-row-border-radius: 0px !important;
+    --urlbarView-row-padding-inline: 8px !important;
+    --urlbar-background-color: @paper !important;
+    --urlbar-background-color-focus: @paper !important;
 }
 .urlbar-input-container {
     padding: 0 8px !important;
@@ -219,10 +240,25 @@
 .urlbar-input-container > :not(.urlbar-input-box) {
     display: none !important;
 }
+/* The results: a row per module, the selected one in the accent, inside
+   the outline (which is drawn behind them). */
+.urlbarView-results {
+    padding: 0 1px 1px !important;
+}
 .urlbarView-row {
     min-height: 30px !important;
-    padding: 0 8px !important;
+    padding: 0 !important;
     border-radius: 0 !important;
+}
+.urlbarView-row-inner {
+    min-height: 30px !important;
+    padding-block: 0 !important;
+    padding-inline: 8px !important;
+    align-items: center !important;
+    border-radius: 0 !important;
+}
+.urlbarView-row:hover {
+    background: @hover !important;
 }
 .urlbarView-row[selected] {
     background: @accent !important;

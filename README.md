@@ -14,7 +14,7 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `packages.txt` | everything it installs: Arch's packages and puter's own (`[puter]`), a few marked for one architecture |
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
-| `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest), `puter-mode` (light or dark) |
+| `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
@@ -54,13 +54,6 @@ this repository and takes `[puter]`'s packages with Arch's.
 
 Put a palette's name in `theme/palette` (or edit its file in `theme/palettes/`),
 run `theme/make`, then `./install.sh config` on the machine.
-
-Every palette has a light look and a dark one: its `[dark]` section lists the
-roles that differ, and `theme/make` writes the light look into `theme/` and
-the dark one into `theme/dark/`, both committed. The sun and moon in the bar
-switch the whole machine (`bin/puter-mode light|dark|toggle`, which
-`install.sh look` points everything at): the bar, title bars and GTK apps at
-once, Qt apps, Firefox, Thunderbird and the terminals once opened again.
 
 ## Working on it, on a Mac
 
@@ -135,9 +128,8 @@ right-click a folder: Open in Claude Code); its taskbar tab shows whether
 it's working, waiting for you (orange) or done, and both can see and use the
 desktop.
 Notifications come up as toasts in the top-right corner, each with a strip
-in its app's colour (orange when critical). Left of the clock, light or dark (the sun and moon), the network (click for
-nmtui: networks, Wi-Fi and its passwords) and the volume (click for a
-slider, scroll to turn it up or down);
+in its app's colour (orange when critical). Left of the clock, the network (click for nmtui: networks, Wi-Fi and its
+passwords) and the volume (click to mute, scroll to turn it up or down);
 right of it, updates, then restart and shut down in the bar's right corner.
 Updates shows what's out of date and, with one click, brings everything to
 the newest there is (`bin/puter-update`): Arch and the kernel, puter's own

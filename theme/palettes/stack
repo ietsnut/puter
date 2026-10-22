@@ -33,9 +33,10 @@ title-ink     ink
 hover         sand
 hover-ink     ink
 
-# Window buttons under the pointer: the square filled, the glyph turned over.
-button-hover      charcoal-light
-button-hover-ink  paper
+# The bar's buttons and tabs, and the window buttons, under the pointer: the
+# square in pink, the glyph as it was.
+button-hover      pink
+button-hover-ink  ink
 close-hover       orange
 close-hover-ink   ink
 # An agent's taskbar tab while it waits for you (bin/puter-agent).
@@ -133,61 +134,6 @@ sch-hidden        sand
 3d-copper         yellow
 3d-mask           green
 3d-silk           white
-
-# The dark look (bin/puter-mode): charcoal windows and bars, text in bone,
-# title bars and headers a shade lighter; the desk, the accents and every
-# app's colour as they are. Only the roles that differ.
-[dark]
-bar           charcoal
-bar-ink       bone
-bar-edge      charcoal
-search        charcoal
-search-ink    bone
-tab           charcoal
-tab-ink       bone
-tab-active    charcoal-light
-tab-active-ink  bone
-paper         charcoal
-ink           bone
-muted         charcoal-light
-muted-ink     stone
-outline       ink
-rule          charcoal-light
-title         charcoal-light
-title-ink     bone
-hover         stone-dark
-hover-ink     bone
-button-hover      stone-dark
-button-hover-ink  paper
-# Syntax and the terminal, readable on charcoal.
-code-comment   stone
-code-keyword   periwinkle
-code-string    lime
-code-type      bone
-code-constant  lilac
-code-function  sky
-code-builtin   peach
-code-regex     pink
-code-tag       lilac
-code-value     cyan-light
-code-other     yellow
-ansi0   charcoal-light
-ansi7   bone
-ansi8   stone
-# Schematics drawn on charcoal.
-sch-grid          charcoal-light
-sch-wire          lime
-sch-bus           periwinkle
-sch-outline       bone
-sch-body          charcoal-light
-sch-pin           bone
-sch-pin-name      periwinkle
-sch-pin-number    stone
-sch-text          bone
-sch-fields        stone
-sch-sheet         bone
-sch-worksheet     bone
-sch-hidden        stone-dark
 
 [fonts]
 sans      IBM Plex Sans

@@ -452,6 +452,6 @@ CalcKeypad {
     qproperty-ruleColor: #d6d1cb;
     qproperty-hoverColor: #d6d1cb;
     qproperty-hoverInk: #060606;
-    qproperty-pressedColor: #4a4446;
-    qproperty-pressedInk: #ffffff;
+    qproperty-pressedColor: #e88fb0;
+    qproperty-pressedInk: #060606;
 }

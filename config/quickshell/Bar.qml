@@ -6,8 +6,8 @@ import Quickshell.Services.Pipewire
 
 // The bottom bar, on the bottom edge: a strip one module tall with the search
 // square standing two modules tall in the left corner, open windows right after it,
-// then the look (light or dark), the network and volume, the date and time,
-// updates, and restart and shut down in the right corner, each a one-module glyph from puter's icons.
+// then the network and volume, the date and time, updates, and restart and
+// shut down in the right corner, each a one-module glyph from puter's icons.
 PanelWindow {
     id: bar
 
@@ -117,7 +117,7 @@ PanelWindow {
                 // The app's icon from its desktop file, or, without one, the icon
                 // named after the app (as labwc does for its title bar).
                 icon: Quickshell.iconPath(DesktopEntries.heuristicLookup(modelData.appId)?.icon ?? modelData.appId, true)
-                badge: agent && !(agent === "done" && modelData.activated) ? Theme.glyph("puter-agent-" + agent, "status") : ""
+                badge: agent && !(agent === "done" && modelData.activated) ? Quickshell.iconPath("puter-agent-" + agent) : ""
                 minModules: 3
                 maxModules: 8
                 hoverable: true
@@ -158,16 +158,6 @@ PanelWindow {
         stdout: StdioCollector {
             onStreamFinished: bar.online = text.split("\n").some(state => state === "connected")
         }
-    }
-
-    // The look, light or dark (bin/puter-mode): the moon while light, the
-    // sun while dark, a click to change.
-    BarButton {
-        id: mode
-        anchors.right: network.left
-        y: Theme.module
-        icon: Colors.dark ? "puter-light" : "puter-dark"
-        onClicked: Quickshell.execDetached([Quickshell.shellDir + "/../../bin/puter-mode", "toggle"])
     }
 
     // The network: signal bars, struck through when offline; opens nmtui

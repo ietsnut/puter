@@ -39,15 +39,6 @@ ShellRoot {
         id: switcher
     }
 
-    // bin/puter-mode, having changed the look: `qs ipc call look changed`.
-    IpcHandler {
-        target: "look"
-
-        function changed(): void {
-            Colors.reload();
-        }
-    }
-
     // Super+Space: `qs ipc call search toggle`.
     IpcHandler {
         target: "search"

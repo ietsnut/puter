@@ -24,7 +24,7 @@ Rectangle {
         x: (button.width - width) / 2
         y: (button.height - height) / 2
         implicitSize: button.iconSize
-        source: Theme.glyph(button.icon)
+        source: Quickshell.iconPath(button.icon)
     }
 
     MouseArea {

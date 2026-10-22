@@ -9,11 +9,7 @@
   </placement>
 
   <theme>
-    <!-- The look's title bars and buttons, light or dark (install.sh look
-         points puter-look at theme/ or theme/dark/); each app's square from
-         puter's icons, the same in both. -->
-    <name>puter-look</name>
-    <icon>puter</icon>
+    <name>puter</name>
     <titlebar>
       <!-- The app's square (its icon, theme/make) first; it opens the window
            menu, as the menu button did. -->
