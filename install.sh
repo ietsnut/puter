@@ -4,8 +4,8 @@
 #
 #   ./install.sh          everything: packages, fonts, configs, no passwords,
 #                         straight into the desktop on boot
-#   ./install.sh config   only link the configs and apply settings (what
-#                         dev/sync runs after copying a change over)
+#   ./install.sh config   only link the configs and apply settings (after
+#                         changing them)
 #   ./install.sh packages only the packages, builds and settings (as an update)
 #   ./install.sh access   only stop sudo and polkit asking for a password
 #   ./install.sh login    only start straight into the desktop on boot (what

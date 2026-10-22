@@ -1,7 +1,5 @@
 # puter
 
-> The dev VM: `dev/devbox/README.md`.
-
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
 search, and Qt Widgets apps, all on a 30px module, square and flat, with IBM's
 Carbon icons. Made for workshops and machines with nothing sensitive on
@@ -21,7 +19,6 @@ and `mulholland` (black, white and gray, IBM Plex).
 | `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
 | `vm/` | puter on a Mac with Apple silicon: `try` downloads puter's virtual machine (the aarch64 build, installed) from `ghcr.io/ietsnut/puter-vm` and starts it in QEMU at the Mac's own speed; `build` makes it |
-| `dev/` | work from the Mac: `sync`, `shot`, `grid`, `click`, `run`, `screen`; `devbox/` is the dev VM's setup; screenshots land in `dev/shots/` |
 
 ## Installing
 
@@ -40,19 +37,14 @@ settings; `install.sh packages` installs and builds everything, as an update
 ## Changing colours
 
 Put a palette's name in `theme/palette` (or edit its file in `theme/palettes/`),
-run `theme/make`, then `dev/sync`.
+run `theme/make`, then `./install.sh config` on the machine.
 
 ## Working on it
 
-The desktop runs in an Arch VM on the devbox (`ssh archvm`). Edit here, then
-`dev/sync` copies the checkout to `~/puter` on the VM, runs `install.sh config`
-and reloads. `dev/shot` saves a screenshot to `dev/shots/shot.png`;
-`dev/grid` checks one against the grid. `dev/screen` opens the VM's desktop live in Screen
-Sharing (`dev/screen stop` closes the tunnel), `dev/run qterminal` opens a
-window on it and `dev/click X Y` clicks at a point in screenshot pixels.
-
-The VM has no GPU, and wlroots crashes on OpenGL apps' native Wayland frames
-there, so run those through XWayland: `dev/run env GDK_BACKEND=x11 kicad`.
+On a Mac with Apple silicon, `vm/try` runs puter (the ARM build) in a
+window at the Mac's own speed. Its `~/puter` is a git checkout: push a
+change, then `git pull && ./install.sh config` there. `vm/try fresh` starts
+over.
 
 ## Apps
 

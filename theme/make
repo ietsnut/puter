@@ -23,7 +23,7 @@ colour of each app).
 
 Icons and glyphs are IBM's Carbon icons (theme/carbon), named in
 theme/icons.map. Run it after changing a palette, theme/palette or the icon
-map, then dev/sync.
+map, then install.sh config.
 """
 import re
 from pathlib import Path

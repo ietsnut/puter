@@ -1,6 +1,0 @@
-#!/bin/bash
-# Click at a point on the VM's screen, in screenshot pixels:  dev/click 1150 727
-# The pointer is parked in the top-left corner first, so the move is absolute.
-set -euo pipefail
-ssh archvm "export XDG_RUNTIME_DIR=/run/user/\$(id -u) WAYLAND_DISPLAY=wayland-0
-wlrctl pointer move -10000 -10000 && wlrctl pointer move ${1:?x} ${2:?y} && wlrctl pointer click ${3:-left}"
