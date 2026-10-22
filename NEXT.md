@@ -4,6 +4,19 @@ Where things stood at the end of the 20 October 2026 session.
 
 ## Open edges
 
+- **ARM and the Mac VM** (22 October): the aarch64 build (Arch Linux ARM,
+  `[puter]`'s `repo-aarch64`) was built and debugged locally on a Mac and
+  works from a fresh image: straight to the desktop, Firefox, KiCad,
+  Files, Sheet and Calculator, Claude Code and Codex, and `puter-update`
+  ends "Everything is up to date". The last CI runs of `vm.yml` and
+  `iso.yml` (with this day's installer fixes: fstab by UUID, keyrings,
+  mirrors, gpg-agent) weren't watched to the end: check they passed before
+  relying on ghcr's images. Not yet: a Raspberry Pi (it boots through its
+  own firmware, not UEFI, so it would need its own image layout).
+- **Portals at startup**: Quickshell and the lxqt portal log NoReply
+  timeouts (25 seconds each) for portal Settings and FileChooser calls at
+  login; seen on ARM, the config is the same on x86.
+
 - **The USB installer** (21 October): built, installed and started in
   QEMU by CI (`iso.yml`: KVM, OVMF, virtio), which boots straight to the
   desktop; not yet on real hardware or from a real stick (the disk picker
