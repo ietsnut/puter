@@ -71,6 +71,8 @@ settings() {
   # GTK on Wayland reads its theme from gsettings rather than settings.ini.
   gsettings set org.gnome.desktop.interface gtk-theme puter
   gsettings set org.gnome.desktop.interface icon-theme puter
+  # Light, for the apps that ask (GTK 4, portals).
+  gsettings set org.gnome.desktop.interface color-scheme default
   gsettings set org.gnome.desktop.interface font-name "puter-sans 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
