@@ -104,7 +104,13 @@ pacstrap -C "$conf" -K /mnt "${pkgs[@]}"
 umount /mnt/var/cache/pacman/pkg
 # pacstrap -K leaves the new keyring's gpg-agent running, from out here.
 gpgconf --homedir /mnt/etc/pacman.d/gnupg --kill gpg-agent || true
-genfstab -U /mnt >>/mnt/etc/fstab
+# The two partitions by UUID, written here rather than by genfstab, which
+# needs udev to know them (a container has none) and lists this machine's
+# swap as well.
+cat >>/mnt/etc/fstab <<FSTAB
+UUID=$(blkid -s UUID -o value "${parts[1]}")  /      ext4  rw,relatime  0 1
+UUID=$(blkid -s UUID -o value "${parts[0]}")  /boot  vfat  rw,relatime,fmask=0077,dmask=0077  0 2
+FSTAB
 # Arch's own mirrors from now on (its worldwide CDN), and [puter].
 # shellcheck disable=SC2016  # pacman's own variables
 echo 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch' >/mnt/etc/pacman.d/mirrorlist
