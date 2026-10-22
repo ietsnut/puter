@@ -9,13 +9,15 @@ ShellRoot {
         updates: updatesPanel.barState
         onSearch: searchPanel.toggle()
         onUpdate: updatesPanel.toggle()
+        onVolume: volumePanel.toggle()
     }
 
     Dismiss {
-        visible: searchPanel.visible || updatesPanel.visible
+        visible: searchPanel.visible || updatesPanel.visible || volumePanel.visible
         onClicked: {
             searchPanel.visible = false;
             updatesPanel.visible = false;
+            volumePanel.visible = false;
         }
     }
 
@@ -25,6 +27,10 @@ ShellRoot {
 
     Updates {
         id: updatesPanel
+    }
+
+    Volume {
+        id: volumePanel
     }
 
     Toasts {}

@@ -13,6 +13,7 @@ PanelWindow {
 
     signal search
     signal update
+    signal volume
 
     // Each agent window's state, by its title: working, waiting or done (set
     // by the agents' hooks over IPC, shell.qml).
@@ -169,17 +170,14 @@ PanelWindow {
         onClicked: Quickshell.execDetached(["qterminal", "-e", "nmtui"])
     }
 
-    // Volume: a speaker, muted or not; a click mutes or unmutes, the wheel
-    // turns it up or down a tenth at a time.
+    // Volume: a speaker, muted or not; a click opens its slider (Volume.qml),
+    // the wheel turns it up or down a tenth at a time.
     BarButton {
         id: volume
         anchors.right: time.left
         y: Theme.module
         icon: bar.muted ? "puter-volume-muted" : "puter-volume"
-        onClicked: {
-            if (bar.sink?.audio)
-                bar.sink.audio.muted = !bar.sink.audio.muted;
-        }
+        onClicked: bar.volume()
         onScrolled: steps => {
             if (!bar.sink?.audio)
                 return;
