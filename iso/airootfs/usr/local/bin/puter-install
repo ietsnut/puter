@@ -102,6 +102,8 @@ mkdir -p /mnt/var/cache/pacman/pkg
 mount --bind "$src/offline" /mnt/var/cache/pacman/pkg
 pacstrap -C "$conf" -K /mnt "${pkgs[@]}"
 umount /mnt/var/cache/pacman/pkg
+# pacstrap -K leaves the new keyring's gpg-agent running, from out here.
+gpgconf --homedir /mnt/etc/pacman.d/gnupg --kill gpg-agent || true
 genfstab -U /mnt >>/mnt/etc/fstab
 # Arch's own mirrors from now on (its worldwide CDN), and [puter].
 # shellcheck disable=SC2016  # pacman's own variables
@@ -173,7 +175,16 @@ for proc in /proc/[0-9]*; do
   [[ $(readlink "$proc/root" 2>/dev/null) == /mnt ]] && kill "${proc#/proc/}" 2>/dev/null
 done
 sleep 1
-umount -R /mnt
+if ! umount -R /mnt; then
+  echo "!! /mnt is still in use, by:"
+  for proc in /proc/[0-9]*; do
+    if [[ $(readlink "$proc/root" 2>/dev/null) == /mnt* || $(readlink "$proc/cwd" 2>/dev/null) == /mnt* ]]; then
+      echo "   ${proc#/proc/} $(tr '\0' ' ' <"$proc/cmdline" 2>/dev/null)"
+    fi
+  done
+  grep ' /mnt' /proc/mounts
+  exit 1
+fi
 echo "::installed"
 if [[ -n $image ]]; then
   :
