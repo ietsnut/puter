@@ -12,6 +12,8 @@
 base
 linux                 x86_64
 linux-aarch64         aarch64
+# Arch Linux ARM's signing keys (Arch's own come with base)
+archlinuxarm-keyring  aarch64
 linux-firmware
 intel-ucode           x86_64
 amd-ucode             x86_64

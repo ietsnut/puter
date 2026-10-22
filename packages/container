@@ -11,7 +11,7 @@ case $(uname -m) in
     docker pull -q archlinux:latest
     docker tag archlinux:latest arch
     ;;
-  aarch64)
+  aarch64 | arm64)
     url=https://fl.us.mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
     dir="$(mktemp -d)"
     curl -fsSL -o "$dir/root.tar.gz" "$url"

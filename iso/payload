@@ -38,6 +38,7 @@ pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
   "${pkgs[@]}"
 # (Arch's packages are zstd, Arch Linux ARM's mostly xz.)
 shopt -s extglob
+rm -f "$offline"/offline.*
 repo-add -q "$offline/offline.db.tar.gz" "$offline"/*.pkg.tar.@(zst|xz)
 # Everything resolves from the stick alone, or the build fails here rather
 # than an install.
@@ -60,10 +61,12 @@ pacman -Sp --config "$work/offline.conf" --dbpath "$work/empty" \
 # installer would have, so that `claude update` keeps it current after.
 id claude >/dev/null 2>&1 || useradd -m claude
 runuser -u claude -- bash -c 'curl -fsSL https://claude.ai/install.sh | bash'
+rm -rf "$dir/claude"
 mkdir -p "$dir/claude"
 cp /home/claude/.local/share/claude/versions/* "$dir/claude/"
 
 # puter itself, as a git checkout of what's being built (puter-update
 # pulls it later).
+rm -rf "$dir/puter"
 git clone -q --no-hardlinks "$repo" "$dir/puter"
 git -C "$dir/puter" remote set-url origin https://github.com/ietsnut/puter.git
