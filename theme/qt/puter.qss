@@ -97,6 +97,16 @@ PCManFM--MainWindow > QToolBar {
     min-height: 30px;
     max-height: 30px;
 }
+/* Its path: flat, part of the bar (the bar's rule shows under it), the
+   text one inset in. */
+PCManFM--MainWindow > QToolBar Fm--PathEdit {
+    background: transparent;
+    border: none;
+    /* A field keeps 2px of its own around the text: 6 + 2 is the inset. */
+    padding: 0 6px;
+    min-height: 29px;
+    max-height: 29px;
+}
 
 /* Toolbars: one module, paper, a light rule along the foot; their buttons
    one module square, the 16px icon in the middle. */

@@ -10,8 +10,8 @@ and `mulholland` (black, white and gray, IBM Plex).
 
 | Path | What it is |
 | --- | --- |
-| `install.sh` | sets up a plain Arch install: packages, builds, configs, no passwords, straight into the desktop |
-| `packages.txt` | everything it installs from the Arch repos |
+| `install.sh` | sets up a plain Arch install: packages, configs, no passwords, straight into the desktop |
+| `packages.txt` | everything it installs: Arch's packages and puter's own (`[puter]`), a few marked for one architecture |
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
@@ -30,30 +30,96 @@ git clone https://github.com/ietsnut/puter ~/puter
 ~/puter/install.sh
 ```
 
-then reboot. `install.sh config` only relinks the configs and reapplies
-settings; `install.sh packages` installs and builds everything, as an update
+then reboot. Or write the USB installer to a stick (`iso/download`, then
+balenaEtcher or Raspberry Pi Imager): it installs offline, asking only
+which disk to erase. `install.sh config` only relinks the configs and
+reapplies settings; `install.sh packages` installs everything, as an update
 (`bin/puter-update`).
+
+## How it's built and shipped
+
+Nothing is compiled on a puter machine. GitHub's runners do it all, and
+only the newest of everything is kept:
+
+| What | Built by | Where it goes | When |
+| --- | --- | --- | --- |
+| `[puter]`, puter's pacman repository (`packages/`, `src/`), for x86_64 and aarch64, signed with `packages/puter.gpg` (the private key is the `PUTER_SIGNING_KEY` secret) | `.github/workflows/packages.yml` | the `repo` and `repo-aarch64` releases, which `puter-update` lists above Arch's own | pushes touching `packages/` or `src/`, daily (to follow Arch, the AUR, JLCPCB, OpenAI and Qt), by hand |
+| The USB installer, `puter.iso` (about 3.7 GB, x86_64), test-installed and started in QEMU before it's published | `.github/workflows/iso.yml` | `ghcr.io/ietsnut/puter-iso` (`iso/download`) | pushes touching `iso/`, weekly, by hand |
+| The Mac's virtual machine, `puter.qcow2` (about 3 GB, aarch64: Arch Linux ARM, so no JLCONE) | `.github/workflows/vm.yml` | `ghcr.io/ietsnut/puter-vm` (`vm/try`) | pushes touching `vm/build` or the installer, weekly, by hand |
+
+Machines follow `main`: `puter-update` (the bar's update button) pulls
+this repository and takes `[puter]`'s packages with Arch's.
 
 ## Changing colours
 
 Put a palette's name in `theme/palette` (or edit its file in `theme/palettes/`),
 run `theme/make`, then `./install.sh config` on the machine.
 
-## Working on it
+## Working on it, on a Mac
 
-On a Mac with Apple silicon, `vm/try` runs puter (the ARM build) in a
-window at the Mac's own speed, with this checkout copied in as its
-`~/puter`. Leave `vm/try watch` running beside it: each file you save is
-copied in, so Quickshell reloads QML by itself (on screen in about a
-second) and labwc reloads its config. After `theme/make`, or changing what
-`install.sh` sets up, `vm/try apply`. `vm/try do CMD` runs a command in its session, `vm/try shot` saves
-a screenshot, `vm/try fresh` starts over.
+On a Mac with Apple silicon, puter runs in a window at the Mac's own speed:
+the aarch64 build in QEMU with Apple's hypervisor (`vm/try`), with this
+checkout copied in as its `~/puter`, so it runs what you edit.
+
+Start it (the first time downloads about 3 GB into
+`~/Library/Caches/puter`; it's up about a minute later):
+
+```
+brew install qemu
+vm/try
+```
+
+Then, in another terminal, leave `vm/try watch` running: each file you save
+here is copied in, so Quickshell reloads QML by itself (on screen within a
+second) and labwc reloads its config. For the rest:
+
+| | |
+| --- | --- |
+| `vm/try apply` | after `theme/make`, or changing what `install.sh` sets up (about 20 seconds) |
+| `vm/try reload` | labwc and Quickshell again, at once |
+| `vm/try do CMD` | a command in its desktop session, its output here (`vm/try do 'setsid -f featherpad'` opens an app) |
+| `vm/try shot [FILE]` | a screenshot (`/tmp/puter.png` unless given) |
+| `vm/try update` | the newest published machine, starting over on it |
+| `vm/try fresh` | start over on the one downloaded |
+
+To try a change to `src/` (the Qt style, Sheet, Calculator), build it in
+the machine (once: `vm/try do 'sudo pacman -Sy --noconfirm cmake gcc make'`):
+
+```
+vm/try apply
+vm/try do 'cmake -S ~/puter/src/style -B /tmp/style -DCMAKE_INSTALL_PREFIX=/usr && cmake --build /tmp/style && sudo cmake --install /tmp/style'
+```
+
+then restart the app. Commit and push when it's right: CI builds it into
+`[puter]` for every machine.
+
+Stop it by closing its window (or `vm/try do 'sudo poweroff'`); what you
+changed in it is kept for next time. To clean it all up:
+
+```
+rm -rf ~/Library/Caches/puter
+```
+
+To build the machine here instead of downloading it (about 15 minutes, 20
+GB of Docker space while it builds; commit first, since it installs what's
+committed):
+
+```
+packages/container
+docker run --rm --privileged -v /dev:/dev -v "$PWD:/puter:ro" -v puter-work:/work arch /puter/vm/build /work/build /work/out
+mkdir -p ~/Library/Caches/puter
+docker run --rm -v puter-work:/work -v ~/Library/Caches/puter:/out arch mv /work/out/puter.qcow2 /out/
+vm/try fresh
+```
+
+and to clean that up as well: `docker volume rm puter-work` and
+`docker rmi arch arch-root`.
 
 ## Apps
 
-Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt),
+Every app is called what it is (`config/apps.names`): Files (PCManFM-Qt: back, the folder's whole path, and a terminal opened there),
 Notepad (FeatherPad, syntax colours from the palette), Photos (LXImage-Qt),
-Video (mpv), Terminal (QTerminal), Browser (Firefox), Mail (Thunderbird), Sheets (puter's own),
+Video (mpv), Terminal (QTerminal), Browser (Firefox, laid out like Chrome: tabs with close and new-tab buttons, downloads and the menu at the right), Mail (Thunderbird), Sheets (puter's own),
 PDFs (qpdfview), Archives (LXQt's archiver), Calculator (puter's own) and
 System Monitor (qps); KiCad and JLCONE (PCB orders) keep their own names; helpers that come with a package (foot's server, CMake, the Qt test
 tools) are kept out of search.
@@ -66,9 +132,9 @@ in its app's colour (orange when critical). Left of the clock, the network (clic
 passwords) and the volume (click to mute, scroll to turn it up or down);
 right of it, updates, then restart and shut down in the bar's right corner.
 Updates shows what's out of date and, with one click, brings everything to
-the newest there is (`bin/puter-update`): Arch and the kernel, firmware,
-puter itself, the packages it builds, its own apps and Claude Code, with
-the output and progress as it goes.
+the newest there is (`bin/puter-update`): Arch and the kernel, puter's own
+packages (`[puter]`), firmware, puter itself and Claude Code, with the
+output and progress as it goes.
 
 ## Keys
 
