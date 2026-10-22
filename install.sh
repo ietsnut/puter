@@ -6,6 +6,8 @@
 #                         straight into the desktop on boot
 #   ./install.sh config   only link the configs and apply settings (after
 #                         changing them)
+#   ./install.sh look     only the look, light or dark (what bin/puter-mode
+#                         runs)
 #   ./install.sh packages only the packages, builds and settings (as an update)
 #   ./install.sh access   only stop sudo and polkit asking for a password
 #   ./install.sh login    only start straight into the desktop on boot (what
@@ -68,9 +70,6 @@ on_bus() {
 }
 
 settings() {
-  # GTK on Wayland reads its theme from gsettings rather than settings.ini.
-  gsettings set org.gnome.desktop.interface gtk-theme puter
-  gsettings set org.gnome.desktop.interface icon-theme puter
   gsettings set org.gnome.desktop.interface font-name "puter-sans 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
@@ -97,67 +96,21 @@ config() {
     systemctl --user daemon-reload 2>/dev/null || true
   fi
 
-  # The agents' terminal, foot: its settings and colours (theme/foot, from
-  # theme/make).
-  ln -sfn "$repo/theme/foot" "$HOME/.config/foot"
-
-  # The theme: labwc's title bars and window buttons, and GTK apps; and the
-  # icon theme.
+  # Both looks' themes and icons, by name (GTK and the icon theme follow a
+  # change of name at once): puter, the light one, and puter-dark.
   mkdir -p "$HOME/.local/share/themes" "$HOME/.local/share/icons"
   ln -sfn "$repo/theme" "$HOME/.local/share/themes/puter"
+  ln -sfn "$repo/theme/dark" "$HOME/.local/share/themes/puter-dark"
   ln -sfn "$repo/theme/icons" "$HOME/.local/share/icons/puter"
-
-  # KiCad's colours: the theme, chosen in every editor. Copied rather than
-  # linked, since KiCad saves its themes back to this folder.
-  if command -v kicad >/dev/null; then
-    kicad_config="$HOME/.config/kicad/10.0"
-    mkdir -p "$kicad_config/colors"
-    cp "$repo/theme/kicad/puter.json" "$kicad_config/colors/puter.json"
-    python3 - "$kicad_config" <<'PY'
-import json, pathlib, sys
-config = pathlib.Path(sys.argv[1])
-for app in ("pcbnew", "eeschema", "fpedit", "symbol_editor", "gerbview"):
-    path = config / f"{app}.json"
-    settings = json.loads(path.read_text()) if path.exists() else {}
-    settings.setdefault("appearance", {})["color_theme"] = "puter"
-    path.write_text(json.dumps(settings, indent=2))
-PY
-  fi
-
-  # Qt Widgets apps: puter's widget style (src/style), palette, fonts and
-  # stylesheet, and file dialogs from the portal (the same libfm-qt dialog
-  # every other app gets, xdg-desktop-portal/), through qt6ct
-  # (QT_QPA_PLATFORMTHEME in config/labwc/environment). Written here rather than
-  # kept in the repo because qt6ct wants absolute paths.
-  mkdir -p "$HOME/.config/qt6ct"
-  cat > "$HOME/.config/qt6ct/qt6ct.conf" <<CONF
-[Appearance]
-style=puter
-custom_palette=true
-color_scheme_path=$repo/theme/qt6ct/puter.conf
-icon_theme=puter
-standard_dialogs=xdgdesktopportal
-
-[Fonts]
-general="puter-sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
-fixed="puter-mono,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
-
-[Interface]
-menus_have_icons=false
-show_shortcuts_in_context_menus=true
-toolbutton_style=0
-dialog_buttons_have_icons=0
-activate_item_on_single_click=0
-stylesheets=$HOME/.config/qt6ct/puter.qss
-CONF
-  # The stylesheet, with the icon theme's path filled in (Qt needs it whole).
-  sed "s|@icons|$HOME/.local/share/icons/puter|g" "$repo/theme/qt6ct/puter.qss" > "$HOME/.config/qt6ct/puter.qss"
+  ln -sfn "$repo/theme/dark/icons" "$HOME/.local/share/icons/puter-dark"
 
   # FeatherPad: system icons, puter-mono, puter's syntax colours, the
   # search bar only when searching, no toolbar, status bar or tab strip for a
   # single file; no line numbers, since it paints their gutter dark gray in
   # code. Every app opens at 24 x 18 modules rather than at the size it last
-  # had (which is seldom on the grid).
+  # had (which is seldom on the grid). (Its folder is kept read-only, look.)
+  mkdir -p "$HOME/.config/featherpad"
+  chmod u+w "$HOME/.config/featherpad"
   ini "$HOME/.config/featherpad/fp.conf" text font '"puter-mono,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"'
   ini "$HOME/.config/featherpad/fp.conf" text lineNumbers false
   ini "$HOME/.config/featherpad/fp.conf" window sysIcons true
@@ -167,7 +120,6 @@ CONF
   ini "$HOME/.config/featherpad/fp.conf" window hideSingleTab true
   ini "$HOME/.config/featherpad/fp.conf" window size none
   ini "$HOME/.config/featherpad/fp.conf" window startSize "@Size(720 540)"
-  ln -sfn "$repo/theme/featherpad/fp_light_syntax_colors.conf" "$HOME/.config/featherpad/fp_light_syntax_colors.conf"
   # PCManFM-Qt: the list view with 16px icons, one module per file, showing
   # only name, size and date; no side pane (Go has the places), no tab strip
   # for a single folder, no close buttons on tabs; 24 x 18 modules.
@@ -197,36 +149,32 @@ CONF
   ini "$d" View ShowThumbnails false
   ini "$d" View NoItemTooltip true
 
-  # Firefox: its settings (config/firefox/user.js) and puter's stylesheet
-  # (theme/firefox/chrome, from theme/make) in its default profile, which a
-  # first run with no window makes if there's none yet.
+  # Firefox: its settings (config/firefox/user.js) in its default profile,
+  # which a first run with no window makes if there's none yet (and puter's
+  # stylesheet, look).
   if command -v firefox >/dev/null; then
     local ff="$HOME/.config/mozilla/firefox" profile
     [[ -f $ff/profiles.ini ]] || timeout 30 firefox --headless about:blank >/dev/null 2>&1 || true
     profile="$(firefox_profile "$ff/profiles.ini")"
     if [[ -n $profile && -d $ff/$profile ]]; then
       ln -sfn "$repo/config/firefox/user.js" "$ff/$profile/user.js"
-      ln -sfn "$repo/theme/firefox/chrome" "$ff/$profile/chrome"
     fi
   fi
 
-  # Thunderbird, the same way (config/thunderbird/user.js and
-  # theme/thunderbird/chrome); its profile is in ~/.config/thunderbird.
+  # Thunderbird, the same way (config/thunderbird/user.js); its profile is
+  # in ~/.config/thunderbird.
   if command -v thunderbird >/dev/null; then
     local tb="$HOME/.config/thunderbird"
     [[ -f $tb/profiles.ini ]] || timeout 30 thunderbird --headless >/dev/null 2>&1 || true
     profile="$(firefox_profile "$tb/profiles.ini")"
     if [[ -n $profile && -d $tb/$profile ]]; then
       ln -sfn "$repo/config/thunderbird/user.js" "$tb/$profile/user.js"
-      ln -sfn "$repo/theme/thunderbird/chrome" "$tb/$profile/chrome"
     fi
   fi
 
-  # QTerminal: puter's colours (theme/qterminal/, from theme/make), puter-mono,
-  # no margin (nor the 2px it keeps around a terminal to outline the focused
-  # one of a split), the tab bar only with more than one tab; 24 x 18 modules.
-  mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
-  ln -sfn "$repo/theme/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
+  # QTerminal: puter's colours (look), puter-mono, no margin (nor the 2px
+  # it keeps around a terminal to outline the focused one of a split), the
+  # tab bar only with more than one tab; 24 x 18 modules.
   local q="$HOME/.config/qterminal.org/qterminal.ini"
   ini "$q" General colorScheme puter
   ini "$q" General fontFamily "puter-mono"
@@ -250,16 +198,12 @@ CONF
   ini "$q" General MenuVisible true
 
   # qpdfview: the page as wide as the window, pages one module apart, each
-  # with a 1px edge, on bone (theme/qpdfview/colors, from theme/make); the
-  # tab bar only for two or more, no toolbars, and closing the last tab
-  # closes the window.
-  local p="$HOME/.config/qpdfview/qpdfview.conf" key value
+  # with a 1px edge (its colours, look); the tab bar only for two or more, no
+  # toolbars, and closing the last tab closes the window.
+  local p="$HOME/.config/qpdfview/qpdfview.conf"
   ini "$p" documentView scaleMode 1
   ini "$p" documentView pageSpacing 30
   ini "$p" pageItem decoratePages true
-  while read -r key value; do
-    ini "$p" pageItem "$key" "$value"
-  done <"$repo/theme/qpdfview/colors"
   ini "$p" mainWindow tabVisibility 0
   ini "$p" mainWindow fileToolBar ""
   ini "$p" mainWindow editToolBar ""
@@ -319,6 +263,132 @@ NAMES
   agents
 
   on_bus bash -c "$(declare -f settings); settings"
+
+  look
+}
+
+# The look, light or dark (~/.config/puter/mode, bin/puter-mode): theme/ or
+# theme/dark/, both written by theme/make. Everything that differs between
+# them is set here, so changing look is this alone; what's running and reads
+# it only at its start (Qt apps, Firefox, Thunderbird, terminals) shows it
+# once opened again.
+look() {
+  local mode name dir
+  # (The file always there, for the shell to follow: Colors.qml.)
+  mkdir -p "$HOME/.config/puter"
+  [[ -f $HOME/.config/puter/mode ]] || echo light >"$HOME/.config/puter/mode"
+  mode="$(cat "$HOME/.config/puter/mode")"
+  if [[ $mode == dark ]]; then
+    name=puter-dark dir="$repo/theme/dark"
+  else
+    name=puter dir="$repo/theme"
+  fi
+
+  # labwc's title bars and window buttons: its theme is always puter-look
+  # (config/labwc/rc.xml), whichever that is.
+  mkdir -p "$HOME/.local/share/themes"
+  ln -sfn "$dir" "$HOME/.local/share/themes/puter-look"
+
+  # GTK apps and the icon theme, by name, so running GTK apps change too;
+  # and apps that ask (GTK 4, portals) told which.
+  on_bus gsettings set org.gnome.desktop.interface gtk-theme "$name"
+  on_bus gsettings set org.gnome.desktop.interface icon-theme "$name"
+  on_bus gsettings set org.gnome.desktop.interface color-scheme \
+    "$([[ $mode == dark ]] && echo prefer-dark || echo default)"
+
+  # Qt Widgets apps: puter's widget style (src/style), palette, fonts and
+  # stylesheet, and file dialogs from the portal (the same libfm-qt dialog
+  # every other app gets, xdg-desktop-portal/), through qt6ct
+  # (QT_QPA_PLATFORMTHEME in config/labwc/environment). Written here rather
+  # than kept in the repo because qt6ct wants absolute paths.
+  mkdir -p "$HOME/.config/qt6ct"
+  cat >"$HOME/.config/qt6ct/qt6ct.conf" <<CONF
+[Appearance]
+style=puter
+custom_palette=true
+color_scheme_path=$dir/qt6ct/puter.conf
+icon_theme=$name
+standard_dialogs=xdgdesktopportal
+
+[Fonts]
+general="puter-sans,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
+fixed="puter-mono,-1,15,5,400,0,0,0,0,0,0,0,0,0,0,1"
+
+[Interface]
+menus_have_icons=false
+show_shortcuts_in_context_menus=true
+toolbutton_style=0
+dialog_buttons_have_icons=0
+activate_item_on_single_click=0
+stylesheets=$HOME/.config/qt6ct/puter.qss
+CONF
+  # The stylesheet, with the icon theme's path filled in (Qt needs it whole).
+  sed "s|@icons|$HOME/.local/share/icons/$name|g" "$dir/qt6ct/puter.qss" >"$HOME/.config/qt6ct/puter.qss"
+
+  # The terminals: foot (the agents') and QTerminal.
+  ln -sfn "$dir/foot" "$HOME/.config/foot"
+  mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
+  ln -sfn "$dir/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
+
+  # FeatherPad's syntax colours: its light file, and its dark one with its
+  # dark scheme on. Copies, not links: FeatherPad writes them back as it
+  # quits (into this checkout, were they links). And its folder read-only
+  # once they're there, since it also writes all its settings back as it
+  # quits (by replacing the file, so only the folder can stop it): an open
+  # one would put back the look it started with.
+  local fp="$HOME/.config/featherpad"
+  mkdir -p "$fp"
+  chmod u+w "$fp"
+  rm -f "$fp/fp_light_syntax_colors.conf" "$fp/fp_dark_syntax_colors.conf"
+  cp "$repo/theme/featherpad/fp_light_syntax_colors.conf" "$repo/theme/dark/featherpad/fp_dark_syntax_colors.conf" "$fp/"
+  ini "$fp/fp.conf" text darkColorScheme "$([[ $mode == dark ]] && echo true || echo false)"
+  # (Its dark background a gray, 0 to 50: 32 is nearest charcoal.)
+  ini "$fp/fp.conf" text darkBgColorValue 32
+  chmod a-w "$fp"
+
+  # The PDF viewer's page and the gap round it.
+  local key value
+  while read -r key value; do
+    ini "$HOME/.config/qpdfview/qpdfview.conf" pageItem "$key" "$value"
+  done <"$dir/qpdfview/colors"
+
+  # KiCad's colours, chosen in every editor. Copied rather than linked,
+  # since KiCad saves its themes back to this folder.
+  if command -v kicad >/dev/null; then
+    local kicad_config="$HOME/.config/kicad/10.0"
+    mkdir -p "$kicad_config/colors"
+    cp "$dir/kicad/puter.json" "$kicad_config/colors/puter.json"
+    python3 - "$kicad_config" <<'PY'
+import json, pathlib, sys
+config = pathlib.Path(sys.argv[1])
+for app in ("pcbnew", "eeschema", "fpedit", "symbol_editor", "gerbview"):
+    path = config / f"{app}.json"
+    settings = json.loads(path.read_text()) if path.exists() else {}
+    settings.setdefault("appearance", {})["color_theme"] = "puter"
+    path.write_text(json.dumps(settings, indent=2))
+PY
+  fi
+
+  # Firefox's and Thunderbird's stylesheet, in their default profiles.
+  local app folder profile
+  for app in firefox thunderbird; do
+    folder="$HOME/.config/thunderbird"
+    [[ $app == firefox ]] && folder="$HOME/.config/mozilla/firefox"
+    [[ -f $folder/profiles.ini ]] || continue
+    profile="$(firefox_profile "$folder/profiles.ini")"
+    if [[ -n $profile && -d $folder/$profile ]]; then
+      ln -sfn "$dir/$app/chrome" "$folder/$profile/chrome"
+    fi
+  done
+
+  # Claude Code in the terminal's own colours (the palette's), light or dark.
+  python3 - "$mode" <<'PY'
+import json, pathlib, sys
+config = pathlib.Path.home() / ".claude.json"
+settings = json.loads(config.read_text()) if config.exists() else {}
+settings["theme"] = "dark-ansi" if sys.argv[1] == "dark" else "light-ansi"
+config.write_text(json.dumps(settings, indent=2) + "\n")
+PY
 }
 
 # Coding agents (bin/puter-agent): each opens in its own foot window, from
@@ -371,11 +441,6 @@ for path in (home / ".claude/settings.json", home / ".codex/hooks.json"):
                 if not any("puter-agent hook" in h.get("command", "") for h in e.get("hooks", []))]
         hooks[event] = kept + entries
     path.write_text(json.dumps(settings, indent=2) + "\n")
-# Claude Code in its light theme, in the terminal's own colours (the palette's).
-config = home / ".claude.json"
-settings = json.loads(config.read_text()) if config.exists() else {}
-settings["theme"] = "light-ansi"
-config.write_text(json.dumps(settings, indent=2) + "\n")
 HOOKS
 
   # The desktop, for both.
@@ -441,6 +506,9 @@ case "${1:-all}" in
   config)
     config
     ;;
+  look)
+    look
+    ;;
   packages)
     packages
     ;;
@@ -458,7 +526,7 @@ case "${1:-all}" in
     echo "Done. Reboot to log in to puter."
     ;;
   *)
-    echo "usage: $0 [config|packages|access|login]" >&2
+    echo "usage: $0 [config|look|packages|access|login]" >&2
     exit 1
     ;;
 esac

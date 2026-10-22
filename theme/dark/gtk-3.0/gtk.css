@@ -1,0 +1,587 @@
+/* GTK 3 apps (Thunar, KiCad, Chromium's frame) in puter's look: Adwaita's
+   layout, redrawn in the palette's roles, square and flat, IBM Plex Sans at 15px, and
+   every bar and row one module (30px) tall. The colours are colors.css,
+   written by ../make from ../colors. */
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
+@import url("colors.css");
+
+@define-color theme_bg_color @paper;
+@define-color theme_fg_color @ink;
+@define-color theme_base_color @paper;
+@define-color theme_text_color @ink;
+@define-color theme_selected_bg_color @accent;
+@define-color theme_selected_fg_color @accent_ink;
+@define-color borders @muted;
+
+* {
+  font-family: "puter-sans";
+  font-size: 15px;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+  -gtk-icon-shadow: none;
+  outline: none;
+  transition: none;
+  animation: none;
+}
+
+window, .background, dialog, popover, popover.background {
+  background-color: @paper;
+  color: @ink;
+}
+
+/* Bars: menu bar, toolbars and status bars are each one module tall. */
+/* The menu bar: paper, a light rule along its foot drawn inside its module. */
+menubar {
+  background-color: @paper;
+  color: @ink;
+  padding: 0;
+  min-height: 30px;
+  border: none;
+  box-shadow: inset 0 -1px @rule;
+}
+
+menubar > menuitem {
+  min-height: 30px;
+  padding: 0 8px;
+  color: @ink;
+}
+
+menubar > menuitem:hover {
+  background-color: @accent;
+  color: @accent_ink;
+  box-shadow: none;
+}
+
+menu, .menu, .context-menu {
+  background-color: @paper;
+  color: @ink;
+  padding: 0;
+  border: 1px solid @outline;
+}
+
+menu menuitem {
+  min-height: 30px;
+  padding: 0 8px;
+  color: @ink;
+}
+
+menu menuitem:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+menu menuitem:disabled, menu menuitem:disabled label {
+  color: @muted_ink;
+}
+
+menu separator {
+  background-color: @rule;
+  min-height: 1px;
+  margin: 0;
+}
+
+toolbar, .toolbar, .primary-toolbar {
+  background-color: @paper;
+  background-image: none;
+  padding: 0;
+  border: none;
+  min-height: 30px;
+}
+
+statusbar, .statusbar {
+  background-color: @paper;
+  color: @muted_ink;
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+  border: none;
+}
+
+separator {
+  background-color: @muted_ink;
+  min-width: 0;
+  min-height: 0;
+}
+
+paned > separator {
+  background-color: @muted_ink;
+  background-image: none;
+  min-width: 2px;
+  min-height: 2px;
+  margin: 0;
+}
+
+/* Buttons: flat, one module square, icons in the ink. */
+button, button.flat, button.image-button, button.toggle {
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  color: @ink;
+  min-height: 30px;
+  min-width: 30px;
+  padding: 0;
+  margin: 0;
+}
+
+button:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+button:active, button:checked {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+button:disabled, button:disabled image {
+  color: @muted_ink;
+  background-color: transparent;
+}
+
+/* Buttons with words, as on the desk: paper, a 1px outline drawn inside. */
+button.text-button {
+  padding: 0 8px;
+  background-color: @paper;
+  color: @ink;
+  box-shadow: inset 0 0 0 1px @outline;
+}
+
+button.text-button:hover {
+  background-color: @accent;
+  color: @accent_ink;
+  box-shadow: inset 0 0 0 1px @outline;
+}
+
+/* Text entries, as on the desk: paper, a 1px outline drawn inside. */
+entry {
+  background-color: @paper;
+  background-image: none;
+  color: @ink;
+  caret-color: @ink;
+  border: none;
+  box-shadow: inset 0 0 0 1px @outline;
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+}
+
+entry image {
+  color: @ink;
+}
+
+entry selection {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Lists and the sidebar: rows one module tall, selection in the accent. */
+.sidebar, placessidebar, placessidebar list, .thunar .sidebar, treeview.view {
+  background-color: @paper;
+  color: @ink;
+  border: none;
+}
+
+.sidebar row, placessidebar row, list row {
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+}
+
+.sidebar row:selected, placessidebar row:selected, list row:selected,
+treeview.view:selected, iconview:selected, .view:selected, .view text:selected,
+flowboxchild:selected {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+.sidebar row:hover, placessidebar row:hover, list row:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+.sidebar .sidebar-section-header, placessidebar .sidebar-section-header,
+.sidebar row.sidebar-placeholder-row {
+  color: @muted_ink;
+}
+
+treeview.view header button {
+  background-color: @paper;
+  color: @muted_ink;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid @outline;
+}
+
+iconview, .view {
+  background-color: @paper;
+  color: @ink;
+}
+
+iconview:hover, .view:hover {
+  background-color: transparent;
+}
+
+rubberband, .rubberband {
+  background-color: transparent;
+  border: 2px solid @ink;
+}
+
+/* Scrollbars: a 6px muted bar, square, no trough. */
+scrollbar, scrollbar.vertical, scrollbar.horizontal {
+  background-color: transparent;
+  border: none;
+}
+
+scrollbar slider {
+  background-color: @muted_ink;
+  border: none;
+  min-width: 6px;
+  min-height: 6px;
+  margin: 0;
+}
+
+scrollbar button {
+  min-width: 0;
+  min-height: 0;
+}
+
+tooltip, tooltip.background {
+  background-color: @paper;
+  color: @ink;
+  padding: 0 8px;
+  border: none;
+}
+
+tooltip * {
+  color: @ink;
+}
+
+/* Popovers (dropdowns, pickers) get the same thin outline as menus. */
+popover.background {
+  border: 1px solid @outline;
+}
+
+headerbar, .titlebar {
+  background-color: @title;
+  background-image: none;
+  color: @title_ink;
+  min-height: 30px;
+  padding: 0;
+  border: none;
+}
+
+check, radio {
+  background-color: @paper;
+  background-image: none;
+  border: 2px solid @ink;
+  color: @paper;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+check:checked, radio:checked {
+  background-color: @ink;
+}
+
+notebook > header {
+  background-color: @paper;
+  border: none;
+}
+
+notebook > header tab {
+  min-height: 30px;
+  padding: 0 8px;
+  color: @muted_ink;
+}
+
+notebook > header tab:checked {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Unfocused windows: Adwaita has its own "backdrop" colours that would win
+   over the rules above, so they are restated here. A window looks the same
+   focused or not; its title bar says which. */
+window:backdrop, .background:backdrop, .view:backdrop, iconview:backdrop,
+treeview.view:backdrop, .sidebar:backdrop, placessidebar:backdrop,
+placessidebar list:backdrop, toolbar:backdrop, statusbar:backdrop {
+  background-color: @paper;
+  color: @ink;
+}
+
+label:backdrop, button:backdrop, image:backdrop {
+  color: inherit;
+}
+
+/* A header bar inside a window that has labwc's title bar is a plain bar
+   under it: paper, a light rule along its foot. (Mousepad and Thunar, patched,
+   give dialogs labwc's title bar.) */
+window:not(.csd) headerbar,
+window:not(.csd) headerbar:backdrop {
+  background-color: @paper;
+  color: @ink;
+  box-shadow: inset 0 -1px @rule;
+}
+
+/* A window looks the same whether it has the focus or not. */
+headerbar:backdrop, .titlebar:backdrop {
+  background-color: @title;
+  color: @title_ink;
+}
+
+menubar:backdrop {
+  background-color: @paper;
+}
+
+menubar > menuitem:backdrop, menubar > menuitem:backdrop label {
+  color: @ink;
+}
+
+entry:backdrop {
+  background-color: @paper;
+  color: @ink;
+}
+
+.view:selected:backdrop, iconview:selected:backdrop, list row:selected:backdrop,
+.sidebar row:selected:backdrop, placessidebar row:selected:backdrop {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Icons inside entries use their symbolic form, so they take the entry's
+   paper ink rather than being drawn in ink on ink. */
+entry {
+  -gtk-icon-style: symbolic;
+}
+
+/* Adwaita rounds and shades some widgets with rules more specific than the
+   catch-all at the top, so square and flatten them by name. */
+entry, button, menubar, menu, menuitem, popover, tooltip, row, list,
+scrollbar slider, notebook tab, treeview, iconview, frame, frame > border,
+.linked > entry, .linked > button {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* No divider between the sidebar and the files: the sidebar draws a 2px edge
+   inside its own width, so the file view starts on the grid. */
+paned > separator, paned.horizontal > separator {
+  min-width: 0;
+  min-height: 0;
+  background: none;
+  border: none;
+}
+
+.sidebar, placessidebar, .thunar .shortcuts-pane {
+  border-right: 2px solid @muted;
+}
+
+/* Tree rows (file dialogs, Thunar's list view): one module tall. A row of
+   IBM Plex Sans at 15px is 25px (26px in Thunar, whose cells pad by a pixel);
+   GTK adds its vertical separator once per row (CSS padding would be added
+   once per column), so that makes up the rest. */
+treeview.view {
+  -GtkTreeView-vertical-separator: 5;
+}
+.thunar treeview.view {
+  -GtkTreeView-vertical-separator: 4;
+}
+
+/* The toolbar: one module, no border under it. */
+toolbar, .toolbar, .primary-toolbar, toolbar:backdrop {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+toolbar > *, toolbar toolitem, toolbar entry, toolbar button {
+  margin: 0;
+}
+
+/* Frames draw a 1px border in Adwaita's own gray; puter has no such lines. */
+scrolledwindow, scrolledwindow.frame, frame, frame > border,
+scrolledwindow > undershoot, scrolledwindow > overshoot {
+  border: none;
+  background-image: none;
+}
+
+/* Entries are exactly one module: no border, no vertical padding. */
+entry, toolbar entry {
+  min-height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+}
+
+.sidebar, placessidebar, .sidebar scrolledwindow, .sidebar viewport {
+  padding: 0;
+  margin: 0;
+}
+
+/* Adwaita colours a focused selection with its own blue; puter uses the
+   accent whether or not the list has focus. */
+.view:selected:focus, .view:selected:focus:backdrop, treeview.view:selected:focus,
+iconview:selected:focus, .view text:selected:focus, list row:selected:focus,
+treeview.view:selected:focus:backdrop {
+  background-color: @accent;
+  color: @accent_ink;
+}
+
+/* Toolbar buttons are one-module squares side by side: Adwaita spaces them
+   with margins of its own, set here to none. */
+toolbar toolitem, toolbar > toolitem, .toolbar toolitem, toolbutton,
+toolbar toolbutton, toolbar button, toolbar toolitem > button, .toolbar button,
+toolbar toolbutton > button, toolbar .image-button {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 30px;
+  min-height: 30px;
+}
+
+/* Adwaita shades buttons and entries in every state with shadows, gradients
+   and a 1px white highlight, through rules more specific than the ones above.
+   These selectors outrank them, so nothing is drawn but flat fills. */
+button:not(.puter-a):not(.puter-b), button:not(.puter-a):not(.puter-b):hover,
+button:not(.puter-a):not(.puter-b):active, button:not(.puter-a):not(.puter-b):checked,
+button:not(.puter-a):not(.puter-b):backdrop, button:not(.puter-a):not(.puter-b):disabled,
+entry:not(.puter-a):not(.puter-b), entry:not(.puter-a):not(.puter-b):focus,
+entry:not(.puter-a):not(.puter-b):backdrop {
+  box-shadow: none;
+  background-image: none;
+  text-shadow: none;
+  -gtk-icon-shadow: none;
+  outline: none;
+  border-color: transparent;
+}
+
+/* Flat buttons (toolbar buttons are flat) keep a 1px border in Adwaita that
+   makes them 31px wide; they are one module like every other button. */
+button.flat:not(.puter-a):not(.puter-b), button.flat:not(.puter-a):not(.puter-b):hover,
+button.flat:not(.puter-a):not(.puter-b):active, button.flat:not(.puter-a):not(.puter-b):checked,
+button.flat:not(.puter-a):not(.puter-b):backdrop, button.flat:not(.puter-a):not(.puter-b):disabled {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Adwaita spaces toolbar items with a 1px right and bottom margin (its rule,
+   matched exactly so this one wins); they sit flush, one module apart. */
+toolbar:not(.inline-toolbar):not(.osd) > *:not(.toggle):not(.popup) > * {
+  margin: 0;
+}
+
+/* A field's leading icon takes no room when there is none to show. */
+entry image.left {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* Tabs (Mousepad, Thunar): one module tall, flat, the open tab in the accent.
+   Adwaita underlines the open tab with a blue shadow through rules more
+   specific than the ones above; these outrank them. */
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) {
+  background-color: @paper;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+notebook:not(.puter-a) > header:not(.puter-a) > tabs:not(.puter-a) {
+  margin: 0;
+  padding: 0;
+}
+
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b),
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):hover,
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):backdrop {
+  background-color: @paper;
+  color: @muted_ink;
+  box-shadow: none;
+  border: none;
+  outline: none;
+  min-height: 30px;
+  padding: 0 0 0 8px;
+  margin: 0;
+}
+
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):checked,
+notebook:not(.puter-a) > header:not(.puter-a):not(.puter-b) > tabs:not(.puter-a) > tab:not(.puter-a):not(.puter-b):checked:backdrop {
+  background-color: @accent;
+  color: @accent_ink;
+  box-shadow: none;
+}
+
+notebook > header > tabs > tab label {
+  color: inherit;
+}
+
+notebook > header > tabs > tab button {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  margin: 0;
+}
+
+notebook:not(.puter-a), notebook.frame:not(.puter-a), notebook:not(.puter-a):backdrop {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Mousepad packs its tabs with 2px of padding above and below in code; its
+   notebook takes them back so the tabs start right under the menu bar. */
+window.mousepad notebook:not(.puter-a) {
+  margin-top: -2px;
+  margin-bottom: -2px;
+}
+
+/* Close buttons on tabs draw the window buttons' cross (window-close in the
+   icon theme), in the tab's own text colour. */
+notebook > header > tabs > tab button image {
+  -gtk-icon-style: symbolic;
+  color: inherit;
+}
+
+/* Adwaita shrinks tab close buttons to 20px and dims them to 30%; here they
+   are a full module square in the tab's own text colour, like the window
+   buttons. */
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b),
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):hover,
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):backdrop {
+  min-width: 30px;
+  min-height: 30px;
+  margin: 0;
+  padding: 0;
+  color: inherit;
+}
+
+notebook > header > tabs > tab button.flat:not(.puter-a):not(.puter-b):hover {
+  background-color: @paper;
+}
+
+/* Menu items start one inset in, as in GTK 4 apps. GTK 3 puts an item's icon
+   (16px and 6px of spacing) in front of its label, blank where the theme has
+   no such icon; menus have no icons here, so it is taken back out. */
+menu menuitem box > image {
+  -gtk-icon-transform: scale(0);
+  margin-right: -22px;
+}
+
+/* A dialog's buttons along its foot, as on the desk: paper with the 1px
+   outline drawn inside, one module tall, gray under the pointer. */
+.dialog-action-area button, .dialog-action-box button {
+  min-height: 30px;
+  padding: 0 8px;
+  margin: 0;
+  background-color: @paper;
+  color: @ink;
+  box-shadow: inset 0 0 0 1px @outline;
+}
+.dialog-action-area button:hover, .dialog-action-box button:hover {
+  background-color: @accent;
+  color: @accent_ink;
+}

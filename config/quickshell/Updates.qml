@@ -169,7 +169,7 @@ PanelWindow {
             x: (Theme.module - width) / 2
             y: (Theme.module - height) / 2
             implicitSize: 16
-            source: Quickshell.iconPath("puter-update")
+            source: Theme.glyph("puter-update")
         }
 
         Label {

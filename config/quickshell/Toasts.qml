@@ -106,7 +106,7 @@ PanelWindow {
                         x: (Theme.module - width) / 2
                         y: (Theme.module - height) / 2
                         implicitSize: 16
-                        source: Quickshell.iconPath(toast.critical ? "puter-notification-urgent" : "puter-notification")
+                        source: Theme.glyph(toast.critical ? "puter-notification-urgent" : "puter-notification", "status")
                     }
 
                     Label {

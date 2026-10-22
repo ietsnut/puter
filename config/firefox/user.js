@@ -34,5 +34,6 @@ user_pref("browser.tabs.hoverPreview.enabled", false);
 user_pref("ui.prefersReducedMotion", 1);
 user_pref("toolkit.cosmeticAnimations.enabled", false);
 
-// Pages light, as every window is.
-user_pref("layout.css.prefers-color-scheme.content-override", 1);
+// Pages light or dark as the look is (bin/puter-mode; through GTK's theme,
+// puter or puter-dark).
+user_pref("layout.css.prefers-color-scheme.content-override", 2);
