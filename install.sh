@@ -176,6 +176,10 @@ CONF
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window SidePaneVisible false
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window AlwaysShowTabs false
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window ShowTabClose false
+  # Its toolbar (src/style): back, the folder's whole path as text rather
+  # than a button per folder, and a terminal there (QTerminal).
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window PathBarButtons false
+  ini "$HOME/.config/pcmanfm-qt/default/settings.conf" System Terminal qterminal
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SmallIconSize 16
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" FolderView SidePaneIconSize 16
   ini "$HOME/.config/pcmanfm-qt/default/settings.conf" Window RememberWindowSize false

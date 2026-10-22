@@ -81,6 +81,12 @@ QMainWindow > QToolBar, QMainWindow > QStatusBar {
     padding: 0;
     margin: 0;
 }
+/* But Files (PCManFM-Qt) keeps its toolbar: back, the folder's whole path
+   and a terminal there (src/style pares it to those). */
+PCManFM--MainWindow > QToolBar {
+    min-height: 30px;
+    max-height: 30px;
+}
 
 /* Toolbars: one module, paper, a light rule along the foot; their buttons
    one module square, the 16px icon in the middle. */

@@ -30,7 +30,9 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
+#include <QIcon>
 #include <QToolBar>
+#include <QWidgetAction>
 #include <QToolButton>
 #include <QWidget>
 
@@ -183,6 +185,29 @@ void pareFileDialog(QDialog *dialog)
         }
 }
 
+// PCManFM-Qt's window: its toolbar (the stylesheet shows it, though not
+// any other app's) as back, the folder's whole path (a text field:
+// PathBarButtons=false, from install.sh), and a terminal opened in it; the
+// rest of what the toolbar offered stays in the menus. Its actions are found
+// by the names in PCManFM-Qt's main-win.ui; the path field is the one widget
+// it puts on the toolbar.
+void pareFileManager(QMainWindow *window)
+{
+    auto *toolbar = window->findChild<QToolBar *>(QStringLiteral("toolBar"));
+    if (!toolbar)
+        return;
+    for (auto *action : toolbar->actions())
+        if (action->objectName() != QLatin1String("actionGoBack") && !qobject_cast<QWidgetAction *>(action))
+            toolbar->removeAction(action);
+    // Its icon, utilities-terminal, is QTerminal's own (its colour square):
+    // the terminal glyph instead.
+    auto *terminal = window->findChild<QAction *>(QStringLiteral("actionOpenTerminal"));
+    if (terminal && !toolbar->actions().contains(terminal)) {
+        terminal->setIcon(QIcon::fromTheme(QStringLiteral("utilities-terminal-symbolic")));
+        toolbar->addAction(terminal);
+    }
+}
+
 class PuterStyle : public QProxyStyle {
 public:
     PuterStyle() : QProxyStyle(QStyleFactory::create(QStringLiteral("Fusion"))) {}
@@ -257,6 +282,8 @@ public:
                     layout->setContentsMargins(0, 0, 0, 0);
                     layout->setSpacing(0);
                 }
+                if (window->inherits("PCManFM::MainWindow"))
+                    pareFileManager(window);
                 roundSize(window);
             } else if (auto *window = qobject_cast<QWidget *>(object);
                        window && window->windowType() == Qt::Window && !qobject_cast<QToolButton *>(object)) {

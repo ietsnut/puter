@@ -129,6 +129,7 @@ edit-clear                    actions     erase
 edit-rename                   actions     text--creation
 system-search                 actions     search
 go-previous                   actions     arrow--left
+utilities-terminal-symbolic   actions     terminal
 go-next                       actions     arrow--right
 go-up                         actions     arrow--up
 go-down                       actions     arrow--down
