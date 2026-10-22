@@ -5,10 +5,13 @@
 // Read puter's stylesheet (the profile's chrome/userChrome.css).
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
-// labwc's title bar, like every window; the menu bar, as in every other app.
+// labwc's title bar, like every window; the menu bar only on Alt.
 user_pref("browser.tabs.inTitlebar", 0);
 user_pref("browser.uidensity", 1);
 user_pref("browser.toolbars.bookmarks.visibility", "never");
+// Downloads at the right of the address field always, as Chrome has it,
+// not only once something has been downloaded.
+user_pref("browser.download.autohideButton", false);
 
 // Blank pages to start with and in new tabs; nothing restored or suggested.
 user_pref("browser.startup.page", 0);

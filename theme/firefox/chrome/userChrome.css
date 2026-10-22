@@ -48,7 +48,7 @@
     border: none !important;
     box-shadow: none !important;
 }
-#toolbar-menubar, #TabsToolbar, #nav-bar {
+#TabsToolbar, #nav-bar {
     box-sizing: border-box !important;
     min-height: 30px !important;
     max-height: 30px !important;
@@ -62,13 +62,10 @@
     border-bottom: 1px solid #d6d1cb !important;
 }
 
-/* The menu bar, always shown, each menu's name one inset in. */
-#toolbar-menubar[autohide="true"],
-#toolbar-menubar[autohide="true"][inactive] {
-    visibility: visible !important;
-    height: 30px !important;
+/* The menu bar only while Alt shows it, each menu's name one inset in. */
+#toolbar-menubar:not([inactive]) {
     min-height: 30px !important;
-    overflow: visible !important;
+    background: #ffffff !important;
 }
 #main-menubar > menu {
     padding: 0 8px !important;
@@ -81,11 +78,8 @@
     color: #060606 !important;
 }
 
-/* Tabs: only with two or more, eight modules wide, no icons, close buttons
-   or lines between them; the open one in the title colour. */
-#TabsToolbar:not(:has(.tabbrowser-tab:not([hidden]) ~ .tabbrowser-tab:not([hidden]))) {
-    visibility: collapse !important;
-}
+/* Tabs: eight modules wide, the last one its close button; no icons or
+   lines between them; the open one in the title colour. */
 #tabbrowser-tabs {
     border: none !important;
     padding: 0 !important;
@@ -117,35 +111,63 @@
     background: #d6d1cb !important;
 }
 .tab-content {
-    padding: 0 8px !important;
+    padding: 0 0 0 8px !important;
     color: #060606 !important;
 }
-.tab-icon-stack, .tab-close-button, .tab-secondary-label,
-#tabs-newtab-button, #new-tab-button, #alltabs-button, #firefox-view-button,
+/* The close button and the new-tab button: a module square each, the
+   glyph in its middle. */
+.tab-close-button, #tabs-newtab-button {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    padding: 7px !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: flex !important;
+}
+.tab-close-button:hover, #tabs-newtab-button:hover > .toolbarbutton-icon {
+    background: #d6d1cb !important;
+}
+#tabs-newtab-button > .toolbarbutton-icon {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 7px !important;
+    margin: -7px !important;
+    border-radius: 0 !important;
+    background: none;
+}
+/* (Firefox's other new-tab button, at the bar's end for when tabs overflow,
+   isn't wanted: the one after the tabs is enough.) */
+.tab-icon-stack, .tab-secondary-label, #new-tab-button, #alltabs-button, #firefox-view-button,
 .titlebar-spacer, .titlebar-buttonbox-container, #tabbrowser-arrowscrollbox::part(scrollbutton-up),
 #tabbrowser-arrowscrollbox::part(scrollbutton-down) {
     display: none !important;
 }
 
-/* The navigation bar: back, forward, reload, each one module square with its
-   16px icon in the middle, and the address field filling the rest. */
-#PanelUI-button, #unified-extensions-button, #fxa-toolbar-menu-button,
-#sidebar-button, #save-to-pocket-button, #library-button, #downloads-button:not([attention]),
+/* The navigation bar: back, forward, reload, the address field filling
+   what they and the two at the right leave, then downloads and Firefox's
+   menu; each button one module square with its 16px icon in the middle. */
+#unified-extensions-button, #fxa-toolbar-menu-button,
+#sidebar-button, #save-to-pocket-button, #library-button,
 #home-button, #customizableui-special-spring1, #customizableui-special-spring2,
 #tracking-protection-icon-container, #star-button-box, #reader-mode-button,
 #picture-in-picture-button, #translations-button, #page-action-buttons > :not(#urlbar-zoom-button) {
     display: none !important;
 }
-/* Whatever else Firefox puts there (its menu button, extensions, account,
-   VPN and other offers): only the four are kept. */
-#nav-bar > :not(#nav-bar-customization-target),
-#nav-bar-customization-target > :not(#back-button, #forward-button, #stop-reload-button, #urlbar-container),
+/* Whatever else Firefox puts there (extensions, account, VPN and other
+   offers): only these are kept. */
+#nav-bar > :not(#nav-bar-customization-target, #PanelUI-button),
+#nav-bar-customization-target > :not(#back-button, #forward-button, #stop-reload-button, #urlbar-container, #downloads-button),
 #urlbar-searchmode-switcher, #urlbar-search-mode-indicator {
     display: none !important;
 }
-#nav-bar toolbarbutton {
+#nav-bar toolbarbutton, #PanelUI-button {
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
 }
 #nav-bar toolbarbutton > .toolbarbutton-icon {
     width: 30px !important;
