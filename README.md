@@ -42,7 +42,7 @@ patched for the panel and the audio driver for the speakers, and the screen
 comes up at 5120x2880, scaled twice. CI moves it to each kernel Arch ships that
 its patches fit, for the update button to bring; one they don't fit leaves it
 where it is. If the screen stays dark, hold space as it starts and pick Arch's
-kernel. Bluetooth keyboards pair with
+LTS kernel. Bluetooth keyboards pair with
 `bluetoothctl`, so bring a USB one to install with.
 
 ## How it's built and shipped

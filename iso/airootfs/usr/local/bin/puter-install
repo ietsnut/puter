@@ -126,11 +126,11 @@ root_uuid="$(blkid -s UUID -o value "${parts[1]}")"
 # The kernel: Arch's (vmlinuz-linux) or Arch Linux ARM's (Image).
 kernel=vmlinuz-linux
 [[ -e /mnt/boot/Image ]] && kernel=Image
-# (The 5K iMac starts its own kernel, with Arch's beside it as the way back.)
+# (The 5K iMac starts its own kernel, with Arch's LTS as the way back.)
 initrd=initramfs-linux.img
 stock=""
 if [[ -e /mnt/boot/vmlinuz-linux-imac ]]; then
-  stock=$kernel
+  stock=linux-lts
   kernel=vmlinuz-linux-imac
   initrd=initramfs-linux-imac.img
 fi
@@ -171,9 +171,9 @@ ENTRY
 if [[ -n "$stock" ]]; then
   # Should it not bring the screen up (hold space as it starts, for the menu).
   cat >/boot/loader/entries/puter-stock.conf <<ENTRY
-title puter, on Arch's kernel
-linux /$stock
-initrd /initramfs-linux.img
+title puter, on Arch's LTS kernel
+linux /vmlinuz-$stock
+initrd /initramfs-$stock.img
 options root=UUID=$root_uuid rw quiet
 ENTRY
 fi

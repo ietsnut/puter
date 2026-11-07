@@ -6,12 +6,13 @@
 #
 # puter runs on x86_64 (Arch Linux) and aarch64 (Arch Linux ARM). A package
 # that exists on only one of them names it after its own name, and one for
-# only one model of machine names that (its DMI product name) as well;
-# `puter-update packages` lists what this machine takes.
+# only one model of machine names that (its DMI product name) as well, and
+# one for all but a model names it after a !; `puter-update packages` lists
+# what this machine takes.
 
 # The system
 base
-linux                 x86_64
+linux                 x86_64 !iMac18,3
 linux-aarch64         aarch64
 # Arch Linux ARM's signing keys (Arch's own come with base)
 archlinuxarm-keyring  aarch64
@@ -67,10 +68,12 @@ openai-codex
 wlrctl
 wtype
 
-# The 27-inch 5K iMac of 2017: its panel and speakers (packages/linux-imac),
-# the screen at twice the size (config/labwc/autostart) and its keyboard and
-# mouse, over Bluetooth
+# The 27-inch 5K iMac of 2017: its panel and speakers (packages/linux-imac, in
+# linux's place, as they'd share a folder), LTS as the way back, the screen at
+# twice the size (config/labwc/autostart) and its keyboard and mouse, over
+# Bluetooth
 linux-imac            x86_64 iMac18,3
+linux-lts             x86_64 iMac18,3
 wlr-randr             iMac18,3
 bluez                 iMac18,3
 bluez-utils           iMac18,3

@@ -1,6 +1,6 @@
 # The kernel of the 27-inch 5K iMac of 2017 (iMac18,3), so that it works from
-# the first boot: one of Arch's kernels, kept as it is and beside Arch's own
-# linux, with amdgpu patched to drive both halves of the panel as one 5120x2880
+# the first boot: Arch's kernel, in place of its linux (their modules share a
+# folder, so a machine has one or the other), with amdgpu patched to drive both halves of the panel as one 5120x2880
 # output, and the CS8409 audio driver for its speakers and jack.
 #
 # packages/build moves this to each kernel Arch ships. The patches don't fit

@@ -31,8 +31,11 @@ sed "/^\\[core\\]/i [puter]\\nSigLevel = Required\\nServer = https://github.com/
 pacman-key --init
 pacman-key --add "$repo/packages/puter.gpg"
 pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" | awk -F: '/^fpr/ {print $10; exit}')"
-# (With what only some models take: the stick is for any machine.)
-mapfile -t pkgs < <(bash "$repo/bin/puter-update" packages "$(uname -m)" iMac18,3)
+# (Both what most machines take and what only some do: the stick is for any.)
+mapfile -t pkgs < <({
+  bash "$repo/bin/puter-update" packages "$(uname -m)" other
+  bash "$repo/bin/puter-update" packages "$(uname -m)" iMac18,3
+} | sort -u)
 db="$work/db"
 mkdir -p "$db"
 pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \

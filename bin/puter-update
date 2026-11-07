@@ -101,11 +101,18 @@ fail() {
 }
 
 # What packages.txt says to install on a machine: every package that names
-# nothing, and those that name only its architecture and model.
+# nothing, those that name only its architecture and model, less those that
+# name its model after a !.
 packages() { # [arch] [model]
   local arch="${1:-$(uname -m)}" model="${2:-$(cat /sys/class/dmi/id/product_name 2>/dev/null)}"
   sed 's/#.*//' "$repo/packages.txt" | awk -v arch="$arch" -v model="$model" '
-    NF { for (i = 2; i <= NF; i++) if ($i != arch && $i != model) next; print $1 }'
+    NF {
+      for (i = 2; i <= NF; i++) {
+        if ($i == "!" model) next
+        if ($i !~ /^!/ && $i != arch && $i != model) next
+      }
+      print $1
+    }'
 }
 
 # puter's pacman repository, [puter]: built and signed by CI
