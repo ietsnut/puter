@@ -15,7 +15,8 @@
 # puter's own revision after the dot (1.4 on Arch's 1 is puter's fourth), so
 # it stays above Arch's and pacman never swaps them back; wlrctl and
 # qpdfview to the AUR's, with the AUR recipe's checksums (read with a regex,
-# never sourced); puter-imac to Arch's linux, which it's built for; JLCONE to JLCPCB's own electron-updater feed, whose sha512
+# never sourced); linux-imac stays on its one kernel until it's moved by hand;
+# JLCONE to JLCPCB's own electron-updater feed, whose sha512
 # is the checksum; Codex (on Arch Linux ARM) to OpenAI's GitHub releases;
 # puter-apps to Qt's version and src/'s commit count. A bumped copy is
 # built; the repo isn't changed.
@@ -26,7 +27,7 @@ out="$(readlink -f "${1:?usage: packages/build DIR}")"
 # and Codex only needs building for Arch Linux ARM (Arch has it).
 recipes=(labwc qps wlrctl qpdfview puter-apps)
 case $(uname -m) in
-  x86_64) recipes+=(jlcone-bin puter-imac) ;;
+  x86_64) recipes+=(jlcone-bin linux-imac) ;;
   aarch64) recipes+=(openai-codex) ;;
 esac
 
@@ -59,9 +60,7 @@ target() {
     labwc | qps)
       arch="$(pacman -Si "$1" | awk '/^Version/ {print $3; exit}')"
       echo "${arch%-*}-${arch##*-}.${own##*.}" ;;
-    puter-imac)
-      arch="$(pacman -Si linux | awk '/^Version/ {print $3; exit}')"
-      echo "${arch%-*}-${arch##*-}.${own##*.}" ;;
+    linux-imac) echo "$own" ;;
     puter-apps)
       echo "$(pacman -Q qt6-base | awk '{print $2}' | sed 's/-.*//').$(git -C "$repo" rev-list --count HEAD -- src packages/puter-apps)-1" ;;
     *)
@@ -77,12 +76,6 @@ target() {
 sums() { # name dir
   case $1 in
     labwc | puter-apps) ;;
-    puter-imac)
-      # The new kernel's tarball, from kernel.org's list; the rest as they are.
-      local kernel
-      kernel="$(source "$2/PKGBUILD" && echo "$_kernel")"
-      curl -fsSL --max-time 20 "https://cdn.kernel.org/pub/linux/kernel/v${kernel%%.*}.x/sha256sums.asc" |
-        awk -v file="linux-$kernel.tar.xz" '$2 == file {print "sha256sums[0]=" $1}' ;;
     qps)
       local patch
       # shellcheck disable=SC1091,SC2154  # sha256sums comes from the PKGBUILD

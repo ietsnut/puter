@@ -94,7 +94,7 @@ jobs:
           # The desktop has had the time it takes sshd to come up, and some.
           sleep 30
           echo "screendump /mnt/iso/desktop.png -f png" | socat - UNIX-CONNECT:monitor.sock
-          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version; modinfo -p amdgpu | grep tiled_stitch; modinfo -n snd-hda-codec-cs8409 | grep updates; systemctl is-enabled bluetooth'
+          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version; uname -r | grep 7.2.11; modinfo -p amdgpu | grep tiled_stitch; modinfo -n snd-hda-codec-cs8409 | grep updates; systemctl is-enabled bluetooth'
 
       - uses: oras-project/setup-oras@v1
 

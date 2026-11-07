@@ -94,11 +94,6 @@ Server = file://$src/offline
 CONF
 # (bash: the checkout's scripts aren't executable until it's on the disk.)
 mapfile -t pkgs < <(bash "$src/puter/bin/puter-update" packages)
-# (A stick built while puter-imac was behind Arch's kernel hasn't got it; the
-# first update brings it, once it has caught up.)
-if ! compgen -G "$src/offline/puter-imac-*" >/dev/null; then
-  mapfile -t pkgs < <(printf '%s\n' "${pkgs[@]}" | grep -vx puter-imac)
-fi
 # The stick's packages stand in for the new system's package cache, so
 # they aren't copied onto the disk as well.
 mkdir -p /mnt/var/cache/pacman/pkg
@@ -131,6 +126,14 @@ root_uuid="$(blkid -s UUID -o value "${parts[1]}")"
 # The kernel: Arch's (vmlinuz-linux) or Arch Linux ARM's (Image).
 kernel=vmlinuz-linux
 [[ -e /mnt/boot/Image ]] && kernel=Image
+# (The 5K iMac starts its own kernel, with Arch's beside it as the way back.)
+initrd=initramfs-linux.img
+stock=""
+if [[ -e /mnt/boot/vmlinuz-linux-imac ]]; then
+  stock=$kernel
+  kernel=vmlinuz-linux-imac
+  initrd=initramfs-linux-imac.img
+fi
 # An image's firmware settings are its own machine's, not this one's, and
 # it has a serial console as well as its screen (the screen last, so it's
 # where the system speaks).
@@ -162,17 +165,16 @@ LOADER
 cat >/boot/loader/entries/puter.conf <<ENTRY
 title puter
 linux /$kernel
-initrd /initramfs-linux.img
+initrd /$initrd
 options ${console}root=UUID=$root_uuid rw quiet
 ENTRY
-# puter-imac replaces the graphics driver: a way past it, should it not bring
-# the screen up (hold space as it starts, for the menu).
-if pacman -Q puter-imac >/dev/null 2>&1; then
-  cat >/boot/loader/entries/puter-safe.conf <<ENTRY
-title puter, without the graphics driver
-linux /$kernel
+if [[ -n "$stock" ]]; then
+  # Should it not bring the screen up (hold space as it starts, for the menu).
+  cat >/boot/loader/entries/puter-stock.conf <<ENTRY
+title puter, on Arch's kernel
+linux /$stock
 initrd /initramfs-linux.img
-options root=UUID=$root_uuid rw nomodeset
+options root=UUID=$root_uuid rw quiet
 ENTRY
 fi
 CHROOT

@@ -67,10 +67,10 @@ openai-codex
 wlrctl
 wtype
 
-# The 27-inch 5K iMac of 2017: its panel and speakers (packages/puter-imac),
+# The 27-inch 5K iMac of 2017: its panel and speakers (packages/linux-imac),
 # the screen at twice the size (config/labwc/autostart) and its keyboard and
 # mouse, over Bluetooth
-puter-imac            x86_64 iMac18,3
+linux-imac            x86_64 iMac18,3
 wlr-randr             iMac18,3
 bluez                 iMac18,3
 bluez-utils           iMac18,3

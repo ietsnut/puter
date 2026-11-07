@@ -32,7 +32,7 @@ set -uo pipefail
 repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 
 # What, upgraded, wants a restart to take effect.
-running=(linux linux-lts linux-zen linux-hardened systemd glibc mesa labwc quickshell qt6-base wlroots0.20)
+running=(linux linux-imac linux-lts linux-zen linux-hardened systemd glibc mesa labwc quickshell qt6-base wlroots0.20)
 
 # What's out of date, without changing anything (and without root): the
 # packages through checkupdates (a copy of the sync database), puter's own
@@ -135,25 +135,13 @@ system() {
   [[ $(uname -m) == x86_64 ]] || keyring=archlinuxarm-keyring
   pacman -Sy --needed --noconfirm "$keyring" || return 1
   # Everything in packages.txt, so what puter has added since is installed.
-  local pkgs overwrite=() hold=()
+  local pkgs overwrite=()
   mapfile -t pkgs < <(packages)
-  # puter-imac's drivers are built for one kernel: linux waits for them, so
-  # the two move together.
-  if printf '%s\n' "${pkgs[@]}" | grep -qx puter-imac; then
-    local linux imac
-    linux="$(pacman -Si linux | awk '/^Version/ {print $3; exit}')"
-    imac="$(pacman -Si puter-imac | awk '/^Version/ {print $3; exit}')"
-    if [[ ${imac%.*} != "$linux" ]]; then
-      echo "Keeping the kernel: puter-imac isn't built for linux $linux yet."
-      hold=(--ignore linux)
-      mapfile -t pkgs < <(printf '%s\n' "${pkgs[@]}" | grep -vxE 'linux|puter-imac')
-    fi
-  fi
   # puter's apps were once installed by cmake, outside pacman: their files
   # are taken over the first time they come as a package.
   pacman -Q puter-apps >/dev/null 2>&1 || overwrite=(--overwrite '/usr/bin/puter-*'
     --overwrite /usr/lib/qt6/plugins/styles/libputerstyle.so --overwrite '/usr/share/applications/puter-*')
-  pacman -Su --needed --noconfirm "${hold[@]}" "${overwrite[@]}" "${pkgs[@]}" || return 1
+  pacman -Su --needed --noconfirm "${overwrite[@]}" "${pkgs[@]}" || return 1
   # The two newest of each package are kept in pacman's cache.
   if command -v paccache >/dev/null; then paccache -rk2; fi
 }

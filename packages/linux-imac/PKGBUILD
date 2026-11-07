@@ -1,0 +1,99 @@
+# The kernel of the 27-inch 5K iMac of 2017 (iMac18,3), so that it works from
+# the first boot: one of Arch's kernels, kept as it is and beside Arch's own
+# linux, with amdgpu patched to drive both halves of the panel as one 5120x2880
+# output, and the CS8409 audio driver for its speakers and jack.
+#
+# It's one version because the patches only fit some. They fail from 7.2.14 on
+# (a hunk in link_dpms.c) and stop at 7.3, so moving this is by hand: pick a
+# newer one from archive.archlinux.org that they apply to, and bump it here.
+#
+# github.com/MarkPronkin/imac5k-universal-linux-patcher has the patches, in the
+# order of its scripts/patch-imac5k-amdgpu.sh; the audio driver is its pin of
+# github.com/jackdanyell/imac18-3-cs8409-linux-audio.
+pkgname=linux-imac
+pkgver=7.2.11.arch1
+_rel=1
+pkgrel=1
+pkgdesc="The iMac18,3's kernel: its 5K panel and speakers"
+arch=('x86_64')
+url='https://github.com/MarkPronkin/imac5k-universal-linux-patcher'
+license=('GPL-2.0-only' 'MIT')
+depends=('coreutils' 'initramfs' 'kmod')
+makedepends=('bc' 'pahole' 'flex' 'bison' 'cpio' 'git' 'wget' 'python')
+_kernel="${pkgver%.arch*}"
+_tag="${pkgver##*.}"
+_krel="$_kernel-$_tag-$_rel"
+_arch="https://archive.archlinux.org/packages/l"
+_patcher=af9332c78f44c2f48caa9296bf84b325683710e3
+_audio=be90113a7638eb264b2ff5acfe888cd72c8364c6
+options=('!strip' '!debug')
+source=("$_arch/linux/linux-$pkgver-$_rel-x86_64.pkg.tar.zst"
+        "$_arch/linux-headers/linux-headers-$pkgver-$_rel-x86_64.pkg.tar.zst"
+        "https://cdn.kernel.org/pub/linux/kernel/v${_kernel%%.*}.x/linux-$_kernel.tar.xz"
+        "https://github.com/archlinux/linux/releases/download/v$_kernel-$_tag/linux-v$_kernel-$_tag.patch.zst"
+        "patcher::git+https://github.com/MarkPronkin/imac5k-universal-linux-patcher#commit=$_patcher"
+        "audio::git+https://github.com/jackdanyell/imac18-3-cs8409-linux-audio#commit=$_audio"
+        'linux-imac.conf')
+noextract=("linux-$pkgver-$_rel-x86_64.pkg.tar.zst" "linux-headers-$pkgver-$_rel-x86_64.pkg.tar.zst")
+sha256sums=('768377c62afada6cc04c48c9a281d8cb648cc7afc7b7c328c2c9072ba03085ff'
+            'a13370561c26ddcdf38cfa1df2bd10a0f9701366c240ade0213a06c149aba3df'
+            'fd0fc479f983a8c05313f13e9c36330fe6651cf725396748c40d5cd93fa1e6a4'
+            '741d473c4db335d97d9e1d9b8be9337090522550804fe6454ba336d21e580fd6'
+            'SKIP'
+            'SKIP'
+            'e81299b10eecbb2f7ba10001c3c3d38e5cde0eb97cdc8eb934d4c605603ec495')
+
+prepare() {
+  mkdir -p kernel headers
+  bsdtar -xf "linux-$pkgver-$_rel-x86_64.pkg.tar.zst" -C kernel --exclude='.*'
+  bsdtar -xf "linux-headers-$pkgver-$_rel-x86_64.pkg.tar.zst" -C headers --exclude='.*'
+
+  # Arch's exact source: a module from the plain one loads, and can hang the boot.
+  cd "linux-$_kernel"
+  patch -p1 --batch --forward <"../linux-v$_kernel-$_tag.patch"
+  local p
+  for p in imac5k-lean-core-7.2.x imac5k-stitch-layer-7.x 5k-going-down-stop-resync \
+    5k-post-commit-link-recovery 5k-logical-modeset-guard 5k-resume-drop-cached-peer \
+    5k-resume-arm-link-health imacpro-slave-dp-panel-mode dce120-enable-crtc-reset \
+    dce12-multisync-master-first dce110-genlock-master-from-pipe0 \
+    5k-resync-postpone-on-modeset 5k-root-plane-zero-width-guard; do
+    patch -p1 --batch --forward --fuzz=0 <"$srcdir/patcher/patches/$p.patch"
+  done
+
+  cd "$srcdir/audio"
+  patch -p1 --batch --forward --fuzz=0 <"$srcdir/patcher/patches/cs8409-headset-capture.patch"
+  # (It makes a folder in the system's modules, and looks for the kernel there.)
+  sed -i -e '/mkdir \$update_dir/d' -e 's|\[ -d /usr/lib/modules/${UNAME} \]|true|' install.cirrus.driver.sh
+  # (Its download finds the checked tarball there, whole.)
+  mkdir -p build
+  ln -sf "$(readlink -f "$srcdir/linux-$_kernel.tar.xz")" build/
+}
+
+build() {
+  local kbuild="$srcdir/headers/usr/lib/modules/$_krel/build"
+  [[ "$(make -s -C "$kbuild" kernelrelease)" == "$_krel" ]]
+
+  cd "linux-$_kernel"
+  make -C "$kbuild" -j"$(nproc)" M="$PWD/drivers/gpu/drm/amd/amdgpu" \
+    "CFLAGS_amdgpu_trace_points.o=-I$PWD/include/trace" modules
+
+  cd "$srcdir/audio"
+  bash install.cirrus.driver.sh -k "$_krel" --dkms
+  make KERNELRELEASE="$_krel" KERNELBUILD="$kbuild"
+}
+
+package() {
+  local modules="$pkgdir/usr/lib/modules/$_krel" ko
+  cp -a kernel/usr "$pkgdir/"
+  # What mkinitcpio names its images after.
+  echo "$pkgname" >"$modules/pkgbase"
+  for ko in "linux-$_kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko" \
+    audio/build/hda/codecs/cirrus/snd-hda-codec-cs8409.ko; do
+    # Refused here rather than failing to load on the machine.
+    [[ "$(modinfo -F vermagic "$ko")" == "$(modinfo -F vermagic "$modules"/kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko.zst)" ]]
+    strip --strip-debug "$ko"
+    install -d "$modules/updates"
+    zstd -q -19 "$ko" -o "$modules/updates/$(basename "$ko").zst"
+  done
+  install -Dm644 linux-imac.conf "$pkgdir/usr/lib/modprobe.d/linux-imac.conf"
+}
