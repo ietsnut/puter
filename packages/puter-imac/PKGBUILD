@@ -1,0 +1,87 @@
+# What the 27-inch 5K iMac of 2017 (iMac18,3) needs, built here so that it
+# works from the first boot: amdgpu patched to drive both halves of its panel
+# as one 5120x2880 output, and the CS8409 audio driver for its speakers and
+# jack. Both are built for one kernel, Arch's, and installed over its own
+# (updates/); packages/build follows Arch's linux, and puter-update holds linux
+# back until this has caught up. The patches only fit Linux 7.1 and 7.2: on 7.3
+# this stops building, and linux stays held, until they're ported upstream.
+#
+# github.com/MarkPronkin/imac5k-universal-linux-patcher has the patches, in the
+# order of its scripts/patch-imac5k-amdgpu.sh; the audio driver is its pin of
+# github.com/jackdanyell/imac18-3-cs8409-linux-audio.
+pkgname=puter-imac
+pkgver=7.2.14.arch1
+pkgrel=1.1
+pkgdesc="The iMac18,3's 5K panel and speakers"
+arch=('x86_64')
+url='https://github.com/MarkPronkin/imac5k-universal-linux-patcher'
+license=('GPL-2.0-only' 'MIT')
+depends=("linux=$pkgver-${pkgrel%.*}" 'mkinitcpio')
+makedepends=('linux-headers' 'bc' 'pahole' 'flex' 'bison' 'cpio' 'git' 'wget' 'python')
+_kernel="${pkgver%.arch*}"
+_patcher=af9332c78f44c2f48caa9296bf84b325683710e3
+_audio=be90113a7638eb264b2ff5acfe888cd72c8364c6
+options=('!strip' '!debug')
+source=("https://cdn.kernel.org/pub/linux/kernel/v${_kernel%%.*}.x/linux-$_kernel.tar.xz"
+        "patcher::git+https://github.com/MarkPronkin/imac5k-universal-linux-patcher#commit=$_patcher"
+        "audio::git+https://github.com/jackdanyell/imac18-3-cs8409-linux-audio#commit=$_audio"
+        'puter-imac.conf'
+        'puter-imac.hook')
+sha256sums=('bb1b871ef95a8de10b3f7b7baf0e0d754abbf620f804b6caf860f226aa97647d'
+            'SKIP'
+            'SKIP'
+            '86e4d2fd46d8a184e25f65029588b506abd0bc43ca058978570060c2e2129ae8'
+            'fbfa8fbce1e1ffa7ebdec31dd65a926b26f5b7ee766e677a559539ddf4d4ff24')
+
+_krel() { ls /usr/lib/modules | grep -- -arch; }
+
+prepare() {
+  cd "linux-$_kernel"
+  local p
+  for p in imac5k-lean-core-7.2.x imac5k-stitch-layer-7.x 5k-going-down-stop-resync \
+    5k-post-commit-link-recovery 5k-logical-modeset-guard 5k-resume-drop-cached-peer \
+    5k-resume-arm-link-health imacpro-slave-dp-panel-mode dce120-enable-crtc-reset \
+    dce12-multisync-master-first dce110-genlock-master-from-pipe0 \
+    5k-resync-postpone-on-modeset 5k-root-plane-zero-width-guard; do
+    patch -p1 --batch --forward --fuzz=0 <"$srcdir/patcher/patches/$p.patch"
+  done
+
+  cd "$srcdir/audio"
+  patch -p1 --batch --forward --fuzz=0 <"$srcdir/patcher/patches/cs8409-headset-capture.patch"
+  # (It would make a folder in the system's modules, for its own install.)
+  sed -i '/mkdir \$update_dir/d' install.cirrus.driver.sh
+  mkdir -p build
+  # (Its download finds the checked tarball there, whole.)
+  ln -sf "$(readlink -f "$srcdir/linux-$_kernel.tar.xz")" build/
+}
+
+build() {
+  local krel kbuild
+  krel="$(_krel)"
+  kbuild="/usr/lib/modules/$krel/build"
+  [[ "$(make -s -C "$kbuild" kernelrelease)" == "$krel" ]]
+
+  cd "linux-$_kernel"
+  make -C "$kbuild" -j"$(nproc)" M="$PWD/drivers/gpu/drm/amd/amdgpu" \
+    "CFLAGS_amdgpu_trace_points.o=-I$PWD/include/trace" modules
+
+  cd "$srcdir/audio"
+  bash install.cirrus.driver.sh -k "$krel" --dkms
+  make KERNELRELEASE="$krel"
+}
+
+package() {
+  local krel ko module
+  krel="$(_krel)"
+  for ko in "linux-$_kernel/drivers/gpu/drm/amd/amdgpu/amdgpu.ko" \
+    audio/build/hda/codecs/cirrus/snd-hda-codec-cs8409.ko; do
+    # Refused here rather than failing to load on the machine.
+    [[ "$(modinfo -F vermagic "$ko")" == "$(modinfo -k "$krel" -F vermagic amdgpu)" ]]
+    module="$pkgdir/usr/lib/modules/$krel/updates/$(basename "$ko").zst"
+    install -d "$(dirname "$module")"
+    strip --strip-debug "$ko"
+    zstd -q -19 "$ko" -o "$module"
+  done
+  install -Dm644 puter-imac.conf "$pkgdir/usr/lib/modprobe.d/puter-imac.conf"
+  install -Dm644 puter-imac.hook "$pkgdir/usr/share/libalpm/hooks/90-puter-imac.hook"
+}

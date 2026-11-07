@@ -446,6 +446,8 @@ command = "labwc"
 user = "$USER"
 TOML
   sudo systemctl enable greetd.service NetworkManager.service
+  # (A machine's own package, packages.txt.)
+  if pacman -Q bluez >/dev/null 2>&1; then sudo systemctl enable bluetooth.service; fi
 }
 
 case "${1:-all}" in

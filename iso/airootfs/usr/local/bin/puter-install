@@ -94,6 +94,11 @@ Server = file://$src/offline
 CONF
 # (bash: the checkout's scripts aren't executable until it's on the disk.)
 mapfile -t pkgs < <(bash "$src/puter/bin/puter-update" packages)
+# (A stick built while puter-imac was behind Arch's kernel hasn't got it; the
+# first update brings it, once it has caught up.)
+if ! compgen -G "$src/offline/puter-imac-*" >/dev/null; then
+  mapfile -t pkgs < <(printf '%s\n' "${pkgs[@]}" | grep -vx puter-imac)
+fi
 # The stick's packages stand in for the new system's package cache, so
 # they aren't copied onto the disk as well.
 mkdir -p /mnt/var/cache/pacman/pkg
@@ -160,6 +165,16 @@ linux /$kernel
 initrd /initramfs-linux.img
 options ${console}root=UUID=$root_uuid rw quiet
 ENTRY
+# puter-imac replaces the graphics driver: a way past it, should it not bring
+# the screen up (hold space as it starts, for the menu).
+if pacman -Q puter-imac >/dev/null 2>&1; then
+  cat >/boot/loader/entries/puter-safe.conf <<ENTRY
+title puter, without the graphics driver
+linux /$kernel
+initrd /initramfs-linux.img
+options root=UUID=$root_uuid rw nomodeset
+ENTRY
+fi
 CHROOT
 
 echo "== puter"

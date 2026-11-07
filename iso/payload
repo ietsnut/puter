@@ -31,10 +31,20 @@ sed "/^\\[core\\]/i [puter]\\nSigLevel = Required\\nServer = https://github.com/
 pacman-key --init
 pacman-key --add "$repo/packages/puter.gpg"
 pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" | awk -F: '/^fpr/ {print $10; exit}')"
-mapfile -t pkgs < <(bash "$repo/bin/puter-update" packages)
+# Including what only some models take: the stick is for any machine.
+mapfile -t pkgs < <(bash "$repo/bin/puter-update" packages "$(uname -m)" iMac18,3)
 db="$work/db"
 mkdir -p "$db"
-pacman -Syw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
+pacman -Sy --config "$conf" --dbpath "$db"
+# puter-imac only works with the kernel it was built for, and a stick without
+# it is still a stick.
+version() { pacman -Si --config "$conf" --dbpath "$db" "$1" 2>/dev/null | awk '/^Version/ {print $3; exit}'; }
+imac="$(version puter-imac)"
+if [[ " ${pkgs[*]} " == *" puter-imac "* && ${imac%.*} != "$(version linux)" ]]; then
+  echo "!! puter-imac (${imac:-none}) isn't for linux $(version linux): left off the stick." >&2
+  mapfile -t pkgs < <(printf '%s\n' "${pkgs[@]}" | grep -vx puter-imac)
+fi
+pacman -Sw --noconfirm --config "$conf" --dbpath "$db" --cachedir "$offline" \
   "${pkgs[@]}"
 # (Arch's packages are zstd, Arch Linux ARM's mostly xz.)
 shopt -s extglob

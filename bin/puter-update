@@ -16,9 +16,9 @@
 #   puter-update check    what's out of date, a line each: what, tab, by how much
 #   puter-update repo     only trust and list [puter] (what the USB installer,
 #                         iso/, runs offline on the new disk)
-#   puter-update packages [ARCH]
-#                         what packages.txt says to install on this machine's
-#                         architecture (or ARCH's), a name a line
+#   puter-update packages [ARCH] [MODEL]
+#                         what packages.txt says to install on this machine
+#                         (or an ARCH and MODEL), a name a line
 #
 # The bar's update button (config/quickshell/Updates.qml) runs
 # `sudo puter-update run` and follows lines starting with "::":
@@ -100,11 +100,12 @@ fail() {
   echo "!! $1 failed"
 }
 
-# What packages.txt says to install on an architecture: every package
-# that names none, and those that name it.
-packages() { # [arch]
-  local arch="${1:-$(uname -m)}"
-  sed 's/#.*//' "$repo/packages.txt" | awk -v arch="$arch" 'NF == 1 || (NF > 1 && index(" " $0 " ", " " arch " ")) {print $1}'
+# What packages.txt says to install on a machine: every package that names
+# nothing, and those that name only its architecture and model.
+packages() { # [arch] [model]
+  local arch="${1:-$(uname -m)}" model="${2:-$(cat /sys/class/dmi/id/product_name 2>/dev/null)}"
+  sed 's/#.*//' "$repo/packages.txt" | awk -v arch="$arch" -v model="$model" '
+    NF { for (i = 2; i <= NF; i++) if ($i != arch && $i != model) next; print $1 }'
 }
 
 # puter's pacman repository, [puter]: built and signed by CI
@@ -134,13 +135,25 @@ system() {
   [[ $(uname -m) == x86_64 ]] || keyring=archlinuxarm-keyring
   pacman -Sy --needed --noconfirm "$keyring" || return 1
   # Everything in packages.txt, so what puter has added since is installed.
-  local pkgs overwrite=()
+  local pkgs overwrite=() hold=()
   mapfile -t pkgs < <(packages)
+  # puter-imac's drivers are built for one kernel: linux waits for them, so
+  # the two move together.
+  if printf '%s\n' "${pkgs[@]}" | grep -qx puter-imac; then
+    local linux imac
+    linux="$(pacman -Si linux | awk '/^Version/ {print $3; exit}')"
+    imac="$(pacman -Si puter-imac | awk '/^Version/ {print $3; exit}')"
+    if [[ ${imac%.*} != "$linux" ]]; then
+      echo "Keeping the kernel: puter-imac isn't built for linux $linux yet."
+      hold=(--ignore linux)
+      mapfile -t pkgs < <(printf '%s\n' "${pkgs[@]}" | grep -vxE 'linux|puter-imac')
+    fi
+  fi
   # puter's apps were once installed by cmake, outside pacman: their files
   # are taken over the first time they come as a package.
   pacman -Q puter-apps >/dev/null 2>&1 || overwrite=(--overwrite '/usr/bin/puter-*'
     --overwrite /usr/lib/qt6/plugins/styles/libputerstyle.so --overwrite '/usr/share/applications/puter-*')
-  pacman -Su --needed --noconfirm "${overwrite[@]}" "${pkgs[@]}" || return 1
+  pacman -Su --needed --noconfirm "${hold[@]}" "${overwrite[@]}" "${pkgs[@]}" || return 1
   # The two newest of each package are kept in pacman's cache.
   if command -v paccache >/dev/null; then paccache -rk2; fi
 }
@@ -230,9 +243,9 @@ main() {
     check) check ;;
     run) run ;;
     repo) puter_repo ;;
-    packages) packages "${2:-}" ;;
+    packages) packages "${2:-}" "${3:-}" ;;
     "") if [[ $EUID -eq 0 ]]; then run; else exec sudo "$0" run; fi ;;
-    *) echo "usage: puter-update [check|repo|packages [ARCH]]" >&2; return 1 ;;
+    *) echo "usage: puter-update [check|repo|packages [ARCH] [MODEL]]" >&2; return 1 ;;
   esac
 }
 main "$@"

@@ -1,0 +1,13 @@
+# The drivers load from the initramfs, so a change to them alone rebuilds it.
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/lib/modules/*/updates/amdgpu.ko.zst
+
+[Action]
+Description = Rebuilding the initramfs for puter-imac...
+When = PostTransaction
+Depends = mkinitcpio
+Exec = /usr/bin/mkinitcpio -P

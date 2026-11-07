@@ -1,1 +1,5 @@
+# The 5K iMac's screen at twice the size, before anything draws on it.
+if [ "$(cat /sys/class/dmi/id/product_name 2>/dev/null)" = "iMac18,3" ]; then
+  wlr-randr --output eDP-1 --scale 2
+fi
 quickshell >/dev/null 2>&1 &

@@ -50,10 +50,12 @@ jobs:
           bsdtar -xf out/puter.iso arch/boot/x86_64/vmlinuz-linux arch/boot/x86_64/initramfs-linux.img
           cp /usr/share/OVMF/OVMF_VARS_4M.fd vars.fd
           qemu-img create -f qcow2 disk.qcow2 40G
+          # It says it's the 5K iMac, so what's only for that gets installed
+          # as well (a superset of any other machine; it can't load it).
           # The stick's own kernel, started directly, so the command line
           # can say which disk: the installer then asks nothing and powers
           # off when done.
-          timeout 60m qemu-system-x86_64 -enable-kvm -machine q35 -cpu host -smp 4 -m 6G \
+          timeout 60m qemu-system-x86_64 -enable-kvm -machine q35 -cpu host -smp 4 -m 6G -smbios type=1,product=iMac18,3 \
             -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
             -drive if=pflash,format=raw,file=vars.fd \
             -drive file=out/puter.iso,media=cdrom,readonly=on \
@@ -79,7 +81,7 @@ jobs:
           sudo install -m 600 -o "$uid" -g "$uid" key.pub root/home/puter/.ssh/authorized_keys
           sudo ln -sf /usr/lib/systemd/system/sshd.service root/etc/systemd/system/multi-user.target.wants/sshd.service
           sudo umount root && sudo qemu-nbd -d /dev/nbd0
-          qemu-system-x86_64 -enable-kvm -machine q35 -cpu host -smp 4 -m 6G \
+          qemu-system-x86_64 -enable-kvm -machine q35 -cpu host -smp 4 -m 6G -smbios type=1,product=iMac18,3 \
             -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
             -drive if=pflash,format=raw,file=vars.fd \
             -drive file=disk.qcow2,if=virtio -device virtio-vga \
@@ -92,7 +94,7 @@ jobs:
           # The desktop has had the time it takes sshd to come up, and some.
           sleep 30
           echo "screendump /mnt/iso/desktop.png -f png" | socat - UNIX-CONNECT:monitor.sock
-          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version'
+          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version; modinfo -p amdgpu | grep tiled_stitch; modinfo -n snd-hda-codec-cs8409 | grep updates; systemctl is-enabled bluetooth'
 
       - uses: oras-project/setup-oras@v1
 
