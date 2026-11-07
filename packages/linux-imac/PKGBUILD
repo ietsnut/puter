@@ -3,17 +3,16 @@
 # linux, with amdgpu patched to drive both halves of the panel as one 5120x2880
 # output, and the CS8409 audio driver for its speakers and jack.
 #
-# It's one version because the patches only fit some. They fail from 7.2.14 on
-# (a hunk in link_dpms.c) and stop at 7.3, so moving this is by hand: pick a
-# newer one from archive.archlinux.org that they apply to, and bump it here.
+# packages/build moves this to each kernel Arch ships. The patches don't fit
+# them all (they stop at 7.3): a kernel they don't fit fails here, and machines
+# stay on the last one that was built until the patches are ported.
 #
 # github.com/MarkPronkin/imac5k-universal-linux-patcher has the patches, in the
 # order of its scripts/patch-imac5k-amdgpu.sh; the audio driver is its pin of
 # github.com/jackdanyell/imac18-3-cs8409-linux-audio.
 pkgname=linux-imac
 pkgver=7.2.11.arch1
-_rel=1
-pkgrel=1
+pkgrel=1.1
 pkgdesc="The iMac18,3's kernel: its 5K panel and speakers"
 arch=('x86_64')
 url='https://github.com/MarkPronkin/imac5k-universal-linux-patcher'
@@ -22,6 +21,7 @@ depends=('coreutils' 'initramfs' 'kmod')
 makedepends=('bc' 'pahole' 'flex' 'bison' 'cpio' 'git' 'wget' 'python')
 _kernel="${pkgver%.arch*}"
 _tag="${pkgver##*.}"
+_rel="${pkgrel%.*}"
 _krel="$_kernel-$_tag-$_rel"
 _arch="https://archive.archlinux.org/packages/l"
 _patcher=af9332c78f44c2f48caa9296bf84b325683710e3
@@ -52,6 +52,8 @@ prepare() {
   cd "linux-$_kernel"
   patch -p1 --batch --forward <"../linux-v$_kernel-$_tag.patch"
   local p
+  # (From 7.2.14 on, the line after the one a hunk adds to has grown a condition.)
+  sed -i 's/^\( .*should_use_dp_bw_allocation\))$/\1 \&\&/' "$srcdir/patcher/patches/imac5k-lean-core-7.2.x.patch"
   for p in imac5k-lean-core-7.2.x imac5k-stitch-layer-7.x 5k-going-down-stop-resync \
     5k-post-commit-link-recovery 5k-logical-modeset-guard 5k-resume-drop-cached-peer \
     5k-resume-arm-link-health imacpro-slave-dp-panel-mode dce120-enable-crtc-reset \

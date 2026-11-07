@@ -15,8 +15,7 @@
 # puter's own revision after the dot (1.4 on Arch's 1 is puter's fourth), so
 # it stays above Arch's and pacman never swaps them back; wlrctl and
 # qpdfview to the AUR's, with the AUR recipe's checksums (read with a regex,
-# never sourced); linux-imac stays on its one kernel until it's moved by hand;
-# JLCONE to JLCPCB's own electron-updater feed, whose sha512
+# never sourced); linux-imac to Arch's linux, as far as its patches fit; JLCONE to JLCPCB's own electron-updater feed, whose sha512
 # is the checksum; Codex (on Arch Linux ARM) to OpenAI's GitHub releases;
 # puter-apps to Qt's version and src/'s commit count. A bumped copy is
 # built; the repo isn't changed.
@@ -60,7 +59,9 @@ target() {
     labwc | qps)
       arch="$(pacman -Si "$1" | awk '/^Version/ {print $3; exit}')"
       echo "${arch%-*}-${arch##*-}.${own##*.}" ;;
-    linux-imac) echo "$own" ;;
+    linux-imac)
+      arch="$(pacman -Si linux | awk '/^Version/ {print $3; exit}')"
+      echo "${arch%-*}-${arch##*-}.${own##*.}" ;;
     puter-apps)
       echo "$(pacman -Q qt6-base | awk '{print $2}' | sed 's/-.*//').$(git -C "$repo" rev-list --count HEAD -- src packages/puter-apps)-1" ;;
     *)
@@ -76,6 +77,24 @@ target() {
 sums() { # name dir
   case $1 in
     labwc | puter-apps) ;;
+    linux-imac)
+      # The new kernel's: its packages from Arch's archive, its tarball from
+      # kernel.org's list and Arch's patch to it. The rest stay as they are.
+      local version kernel tag file url i=0
+      version="$(source "$2/PKGBUILD" && echo "$pkgver-$_rel")"
+      kernel="$(source "$2/PKGBUILD" && echo "$_kernel")"
+      tag="$(source "$2/PKGBUILD" && echo "$_tag")"
+      for url in "https://archive.archlinux.org/packages/l/linux/linux-$version-x86_64.pkg.tar.zst" \
+        "https://archive.archlinux.org/packages/l/linux-headers/linux-headers-$version-x86_64.pkg.tar.zst" \
+        "" "https://github.com/archlinux/linux/releases/download/v$kernel-$tag/linux-v$kernel-$tag.patch.zst"; do
+        if [[ -z $url ]]; then
+          curl -fsSL --max-time 20 "https://cdn.kernel.org/pub/linux/kernel/v${kernel%%.*}.x/sha256sums.asc" |
+            awk -v file="linux-$kernel.tar.xz" -v i="$i" '$2 == file {print "sha256sums[" i "]=" $1}'
+        else
+          echo "sha256sums[$i]=$(curl -fsSL --max-time 300 "$url" | sha256sum | cut -d' ' -f1)"
+        fi
+        i=$((i + 1))
+      done ;;
     qps)
       local patch
       # shellcheck disable=SC1091,SC2154  # sha256sums comes from the PKGBUILD
@@ -120,7 +139,7 @@ build() { # name version
   [[ $name == puter-apps ]] && cp -r "$repo/src" "$dir/puter-src"
   if [[ $want != "$own" ]]; then
     sed -i -e "s/^pkgver=.*/pkgver=${want%-*}/" -e "s/^pkgrel=.*/pkgrel=${want##*-}/" "$dir/PKGBUILD"
-    if [[ ${want%-*} != "${own%-*}" ]]; then sums "$name" "$dir" >>"$dir/PKGBUILD"; fi
+    if [[ ${want%-*} != "${own%-*}" || $name == linux-imac ]]; then sums "$name" "$dir" >>"$dir/PKGBUILD"; fi
   fi
   chown -R builder: "$dir"
   # zstd, as Arch's are (Arch Linux ARM's makepkg makes xz).
@@ -154,7 +173,14 @@ for name in "${recipes[@]}"; do
     continue
   fi
   echo "== $name ${have[$name]:-(none)} → $want"
-  build "$name" "$want" || failed+=("$name")
+  if ! build "$name" "$want"; then
+    # (Machines stay on the kernel that was built; that's what it's for.)
+    if [[ $name == linux-imac ]]; then
+      echo "::warning::linux-imac stays on ${have[$name]:-nothing}: $want didn't build"
+    else
+      failed+=("$name")
+    fi
+  fi
 done
 if ((${#failed[@]})); then
   echo "Failed: ${failed[*]}" >&2

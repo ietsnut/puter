@@ -37,10 +37,12 @@ reapplies settings; `install.sh packages` installs everything, as an update
 (`bin/puter-update`).
 
 The 27-inch 5K iMac of 2017 (iMac18,3) works from the first boot: on it, the
-installer adds `linux-imac` (`packages/linux-imac`), one of Arch's kernels kept
-as it is, with `amdgpu` patched for the panel and the audio driver for the
-speakers, and the screen comes up at 5120x2880, scaled twice. If it stays dark,
-hold space as it starts and pick Arch's kernel. Bluetooth keyboards pair with
+installer adds `linux-imac` (`packages/linux-imac`), Arch's kernel with `amdgpu`
+patched for the panel and the audio driver for the speakers, and the screen
+comes up at 5120x2880, scaled twice. CI moves it to each kernel Arch ships that
+its patches fit, for the update button to bring; one they don't fit leaves it
+where it is. If the screen stays dark, hold space as it starts and pick Arch's
+kernel. Bluetooth keyboards pair with
 `bluetoothctl`, so bring a USB one to install with.
 
 ## How it's built and shipped
