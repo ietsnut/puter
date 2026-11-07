@@ -53,7 +53,7 @@ only the newest of everything is kept:
 | What | Built by | Where it goes | When |
 | --- | --- | --- | --- |
 | `[puter]`, puter's pacman repository (`packages/`, `src/`), for x86_64 and aarch64, signed with `packages/puter.gpg` (the private key is the `PUTER_SIGNING_KEY` secret) | `.github/workflows/packages.yml` | the `repo` and `repo-aarch64` releases, which `puter-update` lists above Arch's own | pushes touching `packages/` or `src/`, daily (to follow Arch, the AUR, JLCPCB, OpenAI and Qt), by hand |
-| The USB installer, `puter.iso` (about 3.7 GB, x86_64), test-installed and started in QEMU before it's published | `.github/workflows/iso.yml` | `ghcr.io/ietsnut/puter-iso` (`iso/download`) | pushes touching `iso/`, weekly, by hand |
+| The USB installer, `puter.iso` (about 3.7 GB, x86_64), test-installed and started in QEMU before it's published | `.github/workflows/iso.yml` | `ghcr.io/ietsnut/puter-iso` (`iso/download`) | every push, after each build of `[puter]` (daily), by hand |
 | The Mac's virtual machine, `puter.qcow2` (about 3 GB, aarch64: Arch Linux ARM, so no JLCONE) | `.github/workflows/vm.yml` | `ghcr.io/ietsnut/puter-vm` (`vm/try`) | pushes touching `vm/build` or the installer, weekly, by hand |
 
 Machines follow `main`: `puter-update` (the bar's update button) pulls

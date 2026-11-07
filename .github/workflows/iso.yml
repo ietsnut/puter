@@ -2,16 +2,18 @@
 # QEMU and starts what it installed (screenshot and logs kept for a day as
 # the run's artifact), and only then publishes it to GitHub's container
 # registry as ghcr.io/ietsnut/puter-iso:latest, deleting the one before.
-# Download it with iso/download. Runs weekly, on pushes to main touching
-# iso/, and by hand; never for pull requests.
+# Download it with iso/download. Runs on every push to main, once [puter] has
+# been built (daily, so it has the newest of everything, linux-imac's kernel
+# included), and by hand; never for pull requests.
 name: iso
 
 on:
   push:
     branches: [main]
-    paths: [iso/**, .github/workflows/iso.yml]
-  schedule:
-    - cron: "37 5 * * 1"
+  workflow_run:
+    workflows: [packages]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
