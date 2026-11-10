@@ -165,6 +165,10 @@ export GNUPGHOME
 GNUPGHOME="$(mktemp -d)"
 gpg --batch --import <<<"${PUTER_SIGNING_KEY:?the private key, armored}"
 key="$(gpg --with-colons --list-secret-keys | awk -F: '/^fpr/ {print $10; exit}')"
+# pacman trusts what's signed with it, for the packages built here that
+# others build against (labwc installs puter's wlroots).
+pacman-key --add "$repo/packages/puter.gpg" >/dev/null
+pacman-key --lsign-key "$key" >/dev/null
 
 # What the repository has: NAME VERSION, from its database.
 declare -A have=()

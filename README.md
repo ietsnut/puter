@@ -8,6 +8,10 @@ One look, after fal.ai: an olive desk with a big pixel bug and two
 dinosaurs, a floating bar, rounded windows that float a gap apart and fade
 in and out, no outlines, a colour for every app, Geist.
 
+![puter: the desk's bug changing, search opening apps, windows side by side
+and maximized a gap apart, closing, the bar's right pill folding away, and
+the screensaver](docs/tour.gif)
+
 | Path | What it is |
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, configs, no passwords, straight into the desktop |
@@ -18,6 +22,7 @@ in and out, no outlines, a colour for every app, Geist.
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `corners.patch` (rounded windows), `gap.patch` (maximized windows keep the gap) and `animate.patch` (windows fade in and out), through its own wlroots, `wlroots0.20`, qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
+| `docs/` | `tour.gif`, the tour above, recorded in the VM (`vm/try`) |
 | `vm/` | puter on a Mac with Apple silicon: `try` downloads puter's virtual machine (the aarch64 build, installed) from `ghcr.io/ietsnut/puter-vm` and starts it in QEMU at the Mac's own speed; `build` makes it |
 
 ## Installing
