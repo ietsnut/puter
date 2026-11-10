@@ -166,7 +166,9 @@ GNUPGHOME="$(mktemp -d)"
 gpg --batch --import <<<"${PUTER_SIGNING_KEY:?the private key, armored}"
 key="$(gpg --with-colons --list-secret-keys | awk -F: '/^fpr/ {print $10; exit}')"
 # pacman trusts what's signed with it, for the packages built here that
-# others build against (labwc installs puter's wlroots).
+# others build against (labwc installs puter's wlroots); the x86_64
+# container's keyring isn't set up until it's initialised.
+pacman-key --init >/dev/null 2>&1
 pacman-key --add "$repo/packages/puter.gpg" >/dev/null
 pacman-key --lsign-key "$key" >/dev/null
 
