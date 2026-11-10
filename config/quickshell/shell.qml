@@ -13,9 +13,8 @@ ShellRoot {
     }
 
     Dismiss {
-        visible: searchPanel.visible || updatesPanel.visible || volumePanel.visible
+        visible: updatesPanel.visible || volumePanel.visible
         onClicked: {
-            searchPanel.visible = false;
             updatesPanel.visible = false;
             volumePanel.visible = false;
         }
@@ -39,11 +38,26 @@ ShellRoot {
         id: switcher
     }
 
+    Life {
+        id: life
+    }
+
+    // `qs ipc call screensaver start`: the screensaver now, for a look.
+    IpcHandler {
+        target: "screensaver"
+
+        function start(): void {
+            life.forced = true;
+        }
+    }
+
     // Super+Space: `qs ipc call search toggle`.
     IpcHandler {
         target: "search"
 
         function toggle(): void {
+            if (!searchPanel.shown)
+                bar.turn();
             searchPanel.toggle();
         }
     }

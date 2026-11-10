@@ -31,66 +31,69 @@ PanelWindow {
         bottom: true
         right: true
     }
-    margins.bottom: Theme.module
+    margins.bottom: Theme.module * 2
+    margins.right: Theme.gap
     implicitWidth: Theme.module * 12
     implicitHeight: Theme.module
     exclusionMode: ExclusionMode.Ignore
-    color: Colors.paper
+    color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "puter-volume"
 
-    PwObjectTracker {
-        objects: [panel.sink]
-    }
+    Card {
+        anchors.fill: parent
 
-    BarButton {
-        id: speaker
-        fill: "transparent"
-        icon: panel.muted ? "puter-volume-muted" : "puter-volume"
-        onClicked: {
-            if (panel.sink?.audio)
-                panel.sink.audio.muted = !panel.sink.audio.muted;
-        }
-    }
-
-    // The level: the accent from the left as far as it goes, in whole
-    // pixels; dimmed while muted.
-    Item {
-        id: track
-        anchors.left: speaker.right
-        anchors.right: percent.left
-        height: Theme.module
-
-        Rectangle {
-            width: Math.round(track.width * panel.level)
-            height: parent.height
-            color: panel.muted ? Colors.muted : Colors.accent
+        PwObjectTracker {
+            objects: [panel.sink]
         }
 
-        MouseArea {
-            anchors.fill: parent
-            onPressed: mouse => panel.setLevel(mouse.x / track.width)
-            onPositionChanged: mouse => {
-                if (pressed)
-                    panel.setLevel(mouse.x / track.width);
+        BarButton {
+            id: speaker
+            fill: "transparent"
+            icon: panel.muted ? "puter-volume-muted" : "puter-volume"
+            onClicked: {
+                if (panel.sink?.audio)
+                    panel.sink.audio.muted = !panel.sink.audio.muted;
             }
-            onWheel: wheel => panel.setLevel(Math.round(panel.level * 10 + (wheel.angleDelta.y > 0 ? 1 : -1)) / 10)
         }
-    }
 
-    Item {
-        id: percent
-        anchors.right: parent.right
-        width: Theme.module * 2
-        height: Theme.module
+        // The level: the accent from the left as far as it goes, in whole
+        // pixels; dimmed while muted.
+        Item {
+            id: track
+            anchors.left: speaker.right
+            anchors.right: percent.left
+            height: Theme.module
 
-        Label {
+            Rectangle {
+                width: Math.round(track.width * panel.level)
+                height: parent.height
+                color: panel.muted ? Colors.muted : Colors.accent
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onPressed: mouse => panel.setLevel(mouse.x / track.width)
+                onPositionChanged: mouse => {
+                    if (pressed)
+                        panel.setLevel(mouse.x / track.width);
+                }
+                onWheel: wheel => panel.setLevel(Math.round(panel.level * 10 + (wheel.angleDelta.y > 0 ? 1 : -1)) / 10)
+            }
+        }
+
+        Item {
+            id: percent
             anchors.right: parent.right
-            anchors.rightMargin: Theme.inset
-            text: Math.round(panel.level * 100) + "%"
-            color: panel.muted ? Colors.mutedInk : Colors.ink
+            width: Theme.module * 2
+            height: Theme.module
+
+            Label {
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.inset
+                text: Math.round(panel.level * 100) + "%"
+                color: panel.muted ? Colors.mutedInk : Colors.ink
+            }
         }
     }
-
-    Outline {}
 }

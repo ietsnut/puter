@@ -2,9 +2,9 @@ import QtQuick
 import Quickshell.Widgets
 
 // The atom: a flat fill one module tall and a whole number of modules wide,
-// so both its edges sit on the grid. Its label starts one inset from the left,
-// or, with an icon, the icon is centred in the first module and the label
-// starts at the second.
+// its corners half the pill's it sits in. Its label starts one inset from the
+// left, or, with an icon (an app's dot), the icon is centred in the first
+// module and the label starts at the second.
 Rectangle {
     id: chip
 
@@ -31,17 +31,22 @@ Rectangle {
     readonly property int modules: Math.ceil((lead + label.implicitWidth + Theme.inset) / Theme.module) + (badge ? 1 : 0)
 
     color: hoverable && mouse.containsMouse ? hoverFill : fill
+    radius: Theme.radius / 2
+    Behavior on color {
+        ColorAnimation {
+            duration: Theme.quick
+        }
+    }
     implicitHeight: Theme.module
     width: Math.max(minModules, Math.min(maxModules, modules)) * Theme.module
 
-    // At 24px, as labwc draws an app's icon on its title bar: an app's square
-    // (14px in its 24px icon) then lands one inset in, as on the title bar.
+    // At 16px: an app's dot is 10px across.
     IconImage {
         visible: chip.icon !== ""
         source: chip.icon
         x: (Theme.module - width) / 2
         y: (Theme.module - height) / 2
-        implicitSize: 24
+        implicitSize: 16
     }
 
     IconImage {
@@ -60,6 +65,7 @@ Rectangle {
         color: chip.hoverable && mouse.containsMouse ? chip.hoverInk : chip.ink
         elide: Text.ElideRight
         font.family: Theme.font
+        font.weight: Font.Medium
         renderType: Text.CurveRendering
         font.pixelSize: Theme.textSize
     }

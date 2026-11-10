@@ -11,20 +11,21 @@
 #                         lists them
 #
 # Each recipe follows upstream rather than waiting to be bumped by hand:
-# labwc and qps to Arch's version, still patched, their release Arch's with
-# puter's own revision after the dot (1.4 on Arch's 1 is puter's fourth), so
-# it stays above Arch's and pacman never swaps them back; wlrctl and
-# qpdfview to the AUR's, with the AUR recipe's checksums (read with a regex,
-# never sourced); linux-imac to Arch's linux, as far as its patches fit; JLCONE to JLCPCB's own electron-updater feed, whose sha512
-# is the checksum; Codex (on Arch Linux ARM) to OpenAI's GitHub releases;
-# puter-apps to Qt's version and src/'s commit count. A bumped copy is
-# built; the repo isn't changed.
+# labwc, its wlroots (wlroots0.20) and qps to Arch's version, still
+# patched, their release Arch's with puter's own revision after the dot (1.4
+# on Arch's 1 is puter's fourth), so it stays above Arch's and pacman never
+# swaps them back; wlrctl, qpdfview and ttf-geist to the AUR's, with the AUR
+# recipe's checksums (read with a regex, never sourced); linux-imac to
+# Arch's linux, as far as its patches fit; JLCONE to JLCPCB's own
+# electron-updater feed, whose sha512 is the checksum; Codex (on Arch Linux
+# ARM) to OpenAI's GitHub releases; puter-apps to Qt's version and src/'s
+# commit count. A bumped copy is built; the repo isn't changed.
 set -euo pipefail
 repo="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 out="$(readlink -f "${1:?usage: packages/build DIR}")"
 # Which recipes this architecture builds: JLCONE exists only for x86_64,
 # and Codex only needs building for Arch Linux ARM (Arch has it).
-recipes=(labwc qps wlrctl qpdfview puter-apps)
+recipes=(wlroots0.20 labwc qps wlrctl qpdfview ttf-geist puter-apps)
 case $(uname -m) in
   x86_64) recipes+=(jlcone-bin linux-imac) ;;
   aarch64) recipes+=(openai-codex) ;;
@@ -56,7 +57,7 @@ target() {
   local own arch new
   own="$(recipe_version "$1")"
   case $1 in
-    labwc | qps)
+    labwc | qps | wlroots0.20)
       arch="$(pacman -Si "$1" | awk '/^Version/ {print $3; exit}')"
       echo "${arch%-*}-${arch##*-}.${own##*.}" ;;
     linux-imac)
@@ -72,8 +73,8 @@ target() {
 
 # The checksums for a recipe bumped to a new upstream version, appended to
 # its copy (a later assignment wins when makepkg reads it). labwc builds a
-# git tag, which has none; qps takes its tarball's from Arch's recipe and
-# keeps its patch's own.
+# git tag, which has none; qps and wlroots0.20 take their source's from
+# Arch's recipe and keep their patch's own.
 sums() { # name dir
   case $1 in
     labwc | puter-apps) ;;
@@ -95,11 +96,11 @@ sums() { # name dir
         fi
         i=$((i + 1))
       done ;;
-    qps)
+    qps | wlroots0.20)
       local patch
       # shellcheck disable=SC1091,SC2154  # sha256sums comes from the PKGBUILD
       patch="$(source "$2/PKGBUILD" && echo "${sha256sums[1]}")"
-      curl -fsSL --max-time 20 "https://gitlab.archlinux.org/archlinux/packaging/packages/qps/-/raw/main/PKGBUILD" |
+      curl -fsSL --max-time 20 "https://gitlab.archlinux.org/archlinux/packaging/packages/$1/-/raw/main/PKGBUILD" |
         python3 -c '
 import re, sys
 body = re.search(r"^sha256sums=\((.*?)\)", sys.stdin.read(), re.M | re.S).group(1)
@@ -119,7 +120,11 @@ print(f"unset sha256sums; sha512sums=({base64.b64decode(sha).hex()!r})")' ;;
       local count
       # shellcheck disable=SC1091,SC2154  # source comes from the PKGBUILD
       count="$(source "$2/PKGBUILD" && echo "${#source[@]}")"
-      curl -fsSL --max-time 20 "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$1" | python3 -c '
+      # The AUR keeps a split recipe under its base's name: ttf-geist's is
+      # geist-font's.
+      local base=$1
+      [[ $1 == ttf-geist ]] && base=geist-font
+      curl -fsSL --max-time 20 "https://aur.archlinux.org/cgit/aur.git/plain/PKGBUILD?h=$base" | python3 -c '
 import re, sys
 count, text = int(sys.argv[1]), sys.stdin.read()
 print("unset md5sums sha256sums sha512sums b2sums")
@@ -142,6 +147,10 @@ build() { # name version
     if [[ ${want%-*} != "${own%-*}" || $name == linux-imac ]]; then sums "$name" "$dir" >>"$dir/PKGBUILD"; fi
   fi
   chown -R builder: "$dir"
+  # labwc builds against puter's wlroots (built before it), not Arch's.
+  if [[ $name == labwc ]]; then
+    pacman -U --noconfirm "$out"/wlroots0.20-[0-9]*.pkg.tar.zst || return 1
+  fi
   # zstd, as Arch's are (Arch Linux ARM's makepkg makes xz).
   (cd "$dir" && runuser -u builder -- env PKGEXT=.pkg.tar.zst makepkg --syncdeps --noconfirm) || return 1
   pkg="$(cd "$dir" && ls "$name"-[0-9]*.pkg.tar.zst)"

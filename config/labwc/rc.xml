@@ -15,7 +15,7 @@
            menu, as the menu button did. -->
       <layout>icon:iconify,max,close</layout>
     </titlebar>
-    <cornerRadius>0</cornerRadius>
+    <cornerRadius>4</cornerRadius>
     <dropShadows>no</dropShadows>
     <!-- Sizes in pixels, as all of puter's text is (puter's labwc reads them so:
          packages/labwc/pixels.patch). -->

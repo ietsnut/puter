@@ -4,24 +4,24 @@
     font-family: puter-sans !important;
     font-size: 15px !important;
     --toolbar-bgcolor: #ffffff !important;
-    --toolbar-color: #060606 !important;
+    --toolbar-color: #000000 !important;
     --toolbar-field-background-color: #ffffff !important;
     --toolbar-field-focus-background-color: #ffffff !important;
-    --toolbar-field-color: #060606 !important;
-    --toolbar-field-focus-color: #060606 !important;
+    --toolbar-field-color: #000000 !important;
+    --toolbar-field-focus-color: #000000 !important;
     --toolbar-field-border-color: transparent !important;
     --toolbar-field-focus-border-color: transparent !important;
     /* (The same, by the names Firefox 158 gives them.) */
     --toolbar-field-background-color-focus: #ffffff !important;
-    --toolbar-field-text-color: #060606 !important;
-    --toolbar-field-text-color-focus: #060606 !important;
+    --toolbar-field-text-color: #000000 !important;
+    --toolbar-field-text-color-focus: #000000 !important;
     --toolbar-field-border-color-focus: transparent !important;
     --toolbarbutton-border-radius: 0 !important;
     --toolbarbutton-inner-padding: 7px !important;
     --toolbarbutton-outer-padding: 0 !important;
     --toolbar-start-end-padding: 0 !important;
-    --toolbarbutton-hover-background: #d6d1cb !important;
-    --toolbarbutton-active-background: #d6d1cb !important;
+    --toolbarbutton-hover-background: #c9d3cc !important;
+    --toolbarbutton-active-background: #c9d3cc !important;
     --tab-border-radius: 0 !important;
     --tab-min-height: 30px !important;
     --tab-block-margin: 0 !important;
@@ -35,8 +35,8 @@
     --border-radius-medium: 0 !important;
     --border-radius-large: 0 !important;
     --arrowpanel-background: #ffffff !important;
-    --arrowpanel-color: #060606 !important;
-    --arrowpanel-border-color: #060606 !important;
+    --arrowpanel-color: #000000 !important;
+    --arrowpanel-border-color: #e5ece7 !important;
     --arrowpanel-border-radius: 0 !important;
     --panel-border-radius: 0 !important;
     --panel-shadow-margin: 0 !important;
@@ -64,12 +64,12 @@
     background: #ffffff !important;
 }
 #nav-bar {
-    border-bottom: 1px solid #d6d1cb !important;
+    border-bottom: 1px solid #c9d3cc !important;
 }
 /* The tab bar in the title colour, as the title bar above it, so the open
    tab, in paper, runs on into the navigation bar below. */
 #TabsToolbar {
-    background: #f1f0ec !important;
+    background: #e5ece7 !important;
 }
 
 /* The menu bar only while Alt shows it, each menu's name one inset in. */
@@ -84,8 +84,8 @@
     border-radius: 0 !important;
 }
 #main-menubar > menu[_moz-menuactive] {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 
 /* Tabs: eight modules wide, the last one its close button; no icons or
@@ -113,17 +113,17 @@
     border-radius: 0 !important;
     box-shadow: none !important;
     outline: none !important;
-    background: #f1f0ec !important;
+    background: #e5ece7 !important;
 }
 .tab-background:is([selected], [multiselected]) {
     background: #ffffff !important;
 }
 .tabbrowser-tab:hover > .tab-stack > .tab-background:not([selected]) {
-    background: #d6d1cb !important;
+    background: #c9d3cc !important;
 }
 .tab-content {
     padding: 0 0 0 8px !important;
-    color: #060606 !important;
+    color: #000000 !important;
 }
 /* The close button and the new-tab button: a module square each, the
    glyph in its middle. */
@@ -140,7 +140,7 @@
     display: flex !important;
 }
 .tab-close-button:hover, #tabs-newtab-button:hover > .toolbarbutton-icon {
-    background: #d6d1cb !important;
+    background: #c9d3cc !important;
 }
 #tabs-newtab-button > .toolbarbutton-icon {
     width: 30px !important;
@@ -208,7 +208,7 @@
     --urlbar-input-growth-open-block: 0px !important;
     --urlbar-background-border: none !important;
     --urlbar-background-border-focused: none !important;
-    --urlbar-background-border-open: 1px solid #060606 !important;
+    --urlbar-background-border-open: 1px solid #e5ece7 !important;
     --urlbar-background-outline-focused: none !important;
     --urlbar-background-box-shadow-open: none !important;
     --urlbar-input-container-border: none !important;
@@ -252,19 +252,19 @@
     border-radius: 0 !important;
 }
 .urlbarView-row:hover {
-    background: #d6d1cb !important;
+    background: #c9d3cc !important;
 }
 .urlbarView-row[selected] {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 
 /* Menus: paper with the outline, an item per module, a light rule between
    sections. */
 menupopup {
     --panel-background: #ffffff !important;
-    --panel-color: #060606 !important;
-    --panel-border-color: #060606 !important;
+    --panel-color: #000000 !important;
+    --panel-border-color: #e5ece7 !important;
     --panel-padding: 0 !important;
 }
 menupopup menuitem, menupopup menu {
@@ -274,11 +274,11 @@ menupopup menuitem, menupopup menu {
     border-radius: 0 !important;
 }
 menupopup menuitem[_moz-menuactive], menupopup menu[_moz-menuactive] {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 menupopup menuseparator {
     padding: 0 !important;
     margin: 0 !important;
-    border-top: 1px solid #d6d1cb !important;
+    border-top: 1px solid #c9d3cc !important;
 }

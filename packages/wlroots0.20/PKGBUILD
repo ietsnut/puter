@@ -1,0 +1,46 @@
+# puter's wlroots: Arch's package (gitlab.archlinux.org/archlinux/packaging/
+# packages/wlroots0.20) with corners.patch, which lets a scene tree round
+# the corners of a box (wlr_scene_tree_set_corners()): nothing in it is
+# drawn outside the arcs, a staircase of the output's own pixels, what's
+# beneath shows through, and such a buffer is never scanned out directly;
+# puter's labwc rounds its windows with it. Checked by its hash rather than
+# its authors' signature (no key to fetch on a fresh install), as qps is.
+# Built by CI (packages/build), which keeps it to Arch's version.
+#
+# Maintainer: Robin Candau <antiz@archlinux.org>
+
+pkgname=wlroots0.20
+_pkgname=wlroots
+pkgver=0.20.2
+pkgrel=1.1
+pkgdesc="Modular Wayland compositor library"
+url="https://gitlab.freedesktop.org/wlroots/wlroots"
+license=('MIT')
+arch=('x86_64' 'aarch64')
+depends=('glibc' 'libdisplay-info.so' 'libdrm' 'libglvnd' 'libinput' 'liblcms2.so' 'libliftoff.so' 'libpixman-1.so'
+         'libseat.so' 'libudev.so' 'libvulkan.so' 'libwayland-client.so' 'libwayland-server.so' 'libxcb' 'libxkbcommon.so'
+         'wayland-protocols' 'opengl-driver' 'xcb-util-errors' 'xcb-util-renderutil' 'xcb-util-wm')
+makedepends=('git' 'glslang' 'meson' 'ninja' 'systemd' 'vulkan-headers' 'xorg-xwayland')
+optdepends=('xorg-xwayland: Xwayland support'
+            'vulkan-validation-layers: validation layers for the experimental vulkan renderer backend')
+provides=("libwlroots-${pkgver%.*}.so")
+source=("${pkgname}::git+${url}.git#tag=${pkgver}"
+        corners.patch)
+sha256sums=('6c8595da579a8df74bc307294c2485e90f5379b84390381f500da33ff3f276d2'
+            '878c2b865f8a0c3af59efb9a262e46e4cc549d3b19748e76659a5b669320b21f')
+
+prepare() {
+	cd "${pkgname}"
+	# Fails if wlroots ever moves the lines the patch touches.
+	patch -p1 < ../corners.patch
+}
+
+build() {
+	arch-meson "${pkgname}" build
+	ninja -C build
+}
+
+package() {
+	DESTDIR="${pkgdir}" ninja -C build install
+	install -Dm 644 "${pkgname}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -19,7 +19,7 @@ git config --global --add safe.directory "$repo"
 
 # Every package puter installs, and everything they need: downloaded into
 # an empty database's view, so nothing counts as installed already. [puter]
-# is listed first, so its labwc and qps are the ones taken.
+# is listed first, so its labwc, wlroots and qps are the ones taken.
 offline="$dir/offline"
 mkdir -p "$offline"
 conf="$work/pacman.conf"

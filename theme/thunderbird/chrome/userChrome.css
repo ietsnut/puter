@@ -9,21 +9,21 @@
     --layout-background-2: #ffffff !important;
     --layout-background-3: #ffffff !important;
     --layout-background-4: #ffffff !important;
-    --layout-color-0: #060606 !important;
-    --layout-color-1: #060606 !important;
-    --layout-color-2: #6b6459 !important;
-    --layout-color-3: #6b6459 !important;
-    --layout-border-0: #d6d1cb !important;
-    --layout-border-1: #d6d1cb !important;
-    --layout-border-2: #d6d1cb !important;
+    --layout-color-0: #000000 !important;
+    --layout-color-1: #000000 !important;
+    --layout-color-2: #8a8a7f !important;
+    --layout-color-3: #8a8a7f !important;
+    --layout-border-0: #c9d3cc !important;
+    --layout-border-1: #c9d3cc !important;
+    --layout-border-2: #c9d3cc !important;
     --toolbar-bgcolor: #ffffff !important;
-    --toolbar-color: #060606 !important;
+    --toolbar-color: #000000 !important;
     --toolbar-field-background-color: #ffffff !important;
-    --toolbar-field-color: #060606 !important;
-    --toolbar-field-border-color: #060606 !important;
+    --toolbar-field-color: #000000 !important;
+    --toolbar-field-border-color: #e5ece7 !important;
     --toolbarbutton-border-radius: 0 !important;
-    --toolbarbutton-hover-background: #d6d1cb !important;
-    --toolbarbutton-active-background: #d6d1cb !important;
+    --toolbarbutton-hover-background: #c9d3cc !important;
+    --toolbarbutton-active-background: #c9d3cc !important;
     --button-border-radius: 0 !important;
     --border-radius-small: 0 !important;
     --border-radius-medium: 0 !important;
@@ -32,22 +32,22 @@
     --border-radius-circle: 0 !important;
     --focus-outline-width: 0 !important;
     --focus-outline-color: transparent !important;
-    --selected-item-color: #e0a9df !important;
-    --selected-item-text-color: #060606 !important;
-    --listbox-selected-bg: #e0a9df !important;
-    --listbox-selected-color: #060606 !important;
-    --listbox-focused-selected-bg: #e0a9df !important;
-    --listbox-hover: #d6d1cb !important;
-    --treeitem-background-hover: #d6d1cb !important;
+    --selected-item-color: #99edff !important;
+    --selected-item-text-color: #000000 !important;
+    --listbox-selected-bg: #99edff !important;
+    --listbox-selected-color: #000000 !important;
+    --listbox-focused-selected-bg: #99edff !important;
+    --listbox-hover: #c9d3cc !important;
+    --treeitem-background-hover: #c9d3cc !important;
     --tree-view-bg: #ffffff !important;
     --tree-pane-background: #ffffff !important;
     --sidebar-background: #ffffff !important;
     --sidebar-background-color: #ffffff !important;
     --foldertree-background: #ffffff !important;
-    --splitter-color: #d6d1cb !important;
+    --splitter-color: #c9d3cc !important;
     --arrowpanel-background: #ffffff !important;
-    --arrowpanel-color: #060606 !important;
-    --arrowpanel-border-color: #060606 !important;
+    --arrowpanel-color: #000000 !important;
+    --arrowpanel-border-color: #e5ece7 !important;
     --arrowpanel-border-radius: 0 !important;
     --panel-border-radius: 0 !important;
     --panel-shadow-margin: 0 !important;
@@ -104,7 +104,7 @@
     margin: 0 !important;
     background: #ffffff !important;
     border: none !important;
-    border-bottom: 1px solid #d6d1cb !important;
+    border-bottom: 1px solid #c9d3cc !important;
     box-shadow: none !important;
     appearance: none !important;
 }
@@ -115,8 +115,8 @@
     border-radius: 0 !important;
 }
 #mail-menubar > menu[_moz-menuactive], #mail-menubar > menu[open] {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 
 /* Tabs: only with two or more, eight modules wide, square; the open one in
@@ -131,7 +131,7 @@
     padding: 0 !important;
     margin: 0 !important;
     background: #ffffff !important;
-    border-bottom: 1px solid #d6d1cb !important;
+    border-bottom: 1px solid #c9d3cc !important;
 }
 .tabmail-tab {
     min-height: 29px !important;
@@ -149,7 +149,7 @@
     background: #ffffff !important;
 }
 .tabmail-tab[selected] .tab-background {
-    background: #f1f0ec !important;
+    background: #e5ece7 !important;
 }
 .tabmail-tab::before, .tabmail-tab::after, .tabmail-tab .tab-line {
     display: none !important;
@@ -173,7 +173,7 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
 }
 #folderPaneSplitter, #messagePaneSplitter {
     --splitter-width: 1px !important;
-    background: #d6d1cb !important;
+    background: #c9d3cc !important;
     width: 1px !important;
     min-width: 1px !important;
     border: none !important;
@@ -259,19 +259,19 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     content: url("icons/expanded.svg") !important;
 }
 :root {
-    --folder-color-folder: #060606 !important;
-    --folder-color-inbox: #060606 !important;
-    --folder-color-sent: #060606 !important;
-    --folder-color-draft: #060606 !important;
-    --folder-color-outbox: #060606 !important;
-    --folder-color-trash: #060606 !important;
-    --folder-color-archive: #060606 !important;
-    --folder-color-spam: #060606 !important;
-    --folder-color-template: #060606 !important;
-    --folder-color-newsletter: #060606 !important;
-    --folder-color-rss: #060606 !important;
-    --folder-color-folder-rss: #060606 !important;
-    --folder-color-folder-filter: #060606 !important;
+    --folder-color-folder: #000000 !important;
+    --folder-color-inbox: #000000 !important;
+    --folder-color-sent: #000000 !important;
+    --folder-color-draft: #000000 !important;
+    --folder-color-outbox: #000000 !important;
+    --folder-color-trash: #000000 !important;
+    --folder-color-archive: #000000 !important;
+    --folder-color-spam: #000000 !important;
+    --folder-color-template: #000000 !important;
+    --folder-color-newsletter: #000000 !important;
+    --folder-color-rss: #000000 !important;
+    --folder-color-folder-rss: #000000 !important;
+    --folder-color-folder-filter: #000000 !important;
 }
 #folderTree .unread-count, #folderTree .total-count, #folderTree .folder-size {
     background: transparent !important;
@@ -306,10 +306,10 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     box-sizing: border-box !important;
     height: 30px !important;
     max-height: 30px !important;
-    background: #f1f0ec !important;
+    background: #e5ece7 !important;
     border: none !important;
-    border-inline-end: 1px solid #d6d1cb !important;
-    box-shadow: inset 0 -1px 0 #d6d1cb !important;
+    border-inline-end: 1px solid #c9d3cc !important;
+    box-shadow: inset 0 -1px 0 #c9d3cc !important;
     font-weight: normal !important;
     padding: 0 !important;
 }
@@ -326,18 +326,18 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     border: none !important;
 }
 #threadTree tr.selected, #threadTree tr.selected td {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 #threadTree tr:not(.selected):hover {
-    background: #d6d1cb !important;
+    background: #c9d3cc !important;
 }
 #folderTree li.selected > .container {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 #folderTree li:not(.selected) > .container:hover {
-    background: #d6d1cb !important;
+    background: #c9d3cc !important;
 }
 
 /* about:message, the message: a ledger of one-module rows on paper (who
@@ -400,7 +400,7 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
    no gradients, pictures, branding or Thundermail. */
 .account-hub-dialog, dialog.account-hub-dialog {
     background: #ffffff !important;
-    border: 1px solid #060606 !important;
+    border: 1px solid #e5ece7 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     --hub-input-border-radius: 0 !important;
@@ -428,8 +428,8 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
 /* Popups and menus: paper, a 1px outline, 30px items, no shadow. */
 menupopup, panel {
     --panel-background: #ffffff !important;
-    --panel-color: #060606 !important;
-    --panel-border-color: #060606 !important;
+    --panel-color: #000000 !important;
+    --panel-border-color: #e5ece7 !important;
     --panel-border-radius: 0 !important;
     --panel-padding: 0 !important;
     --panel-shadow-margin: 0 !important;
@@ -442,12 +442,12 @@ menupopup menu, menupopup menuitem {
     margin: 0 !important;
 }
 menupopup menu[_moz-menuactive], menupopup menuitem[_moz-menuactive] {
-    background: #e0a9df !important;
-    color: #060606 !important;
+    background: #99edff !important;
+    color: #000000 !important;
 }
 menuseparator {
     padding: 0 !important;
     margin: 0 !important;
-    border-top: 1px solid #d6d1cb !important;
+    border-top: 1px solid #c9d3cc !important;
     appearance: none !important;
 }

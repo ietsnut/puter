@@ -9,7 +9,7 @@ colour of each app).
   theme/labwc/themerc            title bars, menus, the window switcher
   theme/labwc/*.svg              the window buttons
   theme/icons/                   the icon theme (theme/icons.map, from
-                                 Carbon), and each app's square in its colour
+                                 Carbon), and each app's dot in its colour
   theme/gtk-3.0/colors.css       the roles, for GTK 3 apps
   theme/qt6ct/puter.qss          the Qt stylesheet, from theme/qt/puter.qss
   theme/qt6ct/puter.conf         the Qt palette
@@ -60,7 +60,7 @@ C, FONTS, APPS = read_palette()
 
 
 # The shell.
-SHELL_ROLES = ("desk", "desk-dot", "bar", "bar-ink", "bar-edge", "search", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "title", "title-ink", "button-hover", "button-hover-ink", "attention", "attention-ink")
+SHELL_ROLES = ("desk", "desk-dot", "mark", "dino-1", "dino-2", "life-1", "life-2", "life-3", "life-4", "bar", "bar-ink", "bar-edge", "search", "search-ink", "tab", "tab-ink", "tab-active", "tab-active-ink", "paper", "ink", "accent", "accent-ink", "muted", "muted-ink", "outline", "title", "title-ink", "button-hover", "button-hover-ink", "attention", "attention-ink")
 (repo / "config" / "quickshell" / "Colors.qml").write_text(
     "pragma Singleton\nimport QtQuick\nimport Quickshell\n\n"
     "// Written by theme/make from theme/palette; edit those, not this.\n"
@@ -108,15 +108,15 @@ for app in ("firefox", "thunderbird"):
 
 # labwc: title bars and menus.
 (theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
-# A one-module title bar in the title colour, focused or not, paper bodies,
-# square and flat, with a 1px outline. The buttons are the SVGs beside this
-# file.
-border.width: 1
+# A one-module title tab, paper when focused so it joins its body, in the
+# title colour when not; paper bodies, flat and without outlines (the corners
+# are rc.xml's). The buttons are the SVGs beside this file.
+border.width: 0
 window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
 window.label.text.justify: left
 
-window.active.title.bg.color: {C['title']}
+window.active.title.bg.color: {C['title-active']}
 window.inactive.title.bg.color: {C['title']}
 window.active.label.text.color: {C['title-ink']}
 window.inactive.label.text.color: {C['title-ink']}
@@ -127,12 +127,12 @@ window.button.width: 30
 window.button.height: 30
 window.button.spacing: 0
 window.button.hover.bg.color: {C['paper']}
-window.button.hover.bg.corner-radius: 0
+window.button.hover.bg.corner-radius: 4
 
 window.active.shadow.size: 0
 window.inactive.shadow.size: 0
 
-menu.border.width: 1
+menu.border.width: 0
 menu.border.color: {C['outline']}
 menu.items.bg.color: {C['paper']}
 menu.items.text.color: {C['ink']}
@@ -221,7 +221,7 @@ def glyph(name, canvas, box, ink, fill=None):
     body, grid = carbon(name, small=box <= 16)
     dx, dy = hint(name) if box == 16 else (0, 0)
     offset, scale = (canvas - box) // 2, box / grid
-    square = f'<rect width="{canvas}" height="{canvas}" fill="{fill}"/>' if fill else ""
+    square = f'<rect width="{canvas}" height="{canvas}" rx="4" fill="{fill}"/>' if fill else ""
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{canvas}" height="{canvas}" '
             f'viewBox="0 0 {canvas} {canvas}">{square}'
             f'<g transform="translate({offset + dx:g} {offset + dy:g}) scale({scale:g})" fill="{ink}">{body}</g></svg>\n')
@@ -261,12 +261,11 @@ for name, icon in (("window-close", "close"), ("window-minimize", "subtract"),
     DRAWN[24, "actions", name] = glyph(icon, 24, 16, C["ink"])
 
 
-# Apps: a solid square in the app's colour, 10px at 16 and 14px at 24, so a
-# title bar, a taskbar tab and search show which app is which by colour.
+# Apps: a solid dot in the app's colour, 10px at 16 and 14px at 24, so a
+# title tab, a taskbar tab and search show which app is which by colour.
 def square(size, side, color):
-    o = (size - side) // 2
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
-            f'<rect x="{o}" y="{o}" width="{side}" height="{side}" fill="{color}"/></svg>\n')
+            f'<circle cx="{size / 2:g}" cy="{size / 2:g}" r="{side / 2:g}" fill="{color}"/></svg>\n')
 
 
 for name, color in APPS.items():

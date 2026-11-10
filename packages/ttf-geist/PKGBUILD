@@ -1,0 +1,20 @@
+# Geist and Geist Mono (from the AUR's geist-font recipe): the type of the
+# stack palette, Vercel's, under the OFL. One package for both, the static
+# TTFs only; built by CI (packages/build), which follows the AUR's version.
+pkgname=ttf-geist
+pkgver=1.9.2
+pkgrel=1
+pkgdesc='Geist and Geist Mono, by Vercel and Basement Studio'
+url='https://vercel.com/font'
+arch=('any')
+license=('OFL-1.1')
+provides=('ttf-geist-mono')
+conflicts=('ttf-geist-mono')
+source=("https://github.com/vercel/geist-font/releases/download/v${pkgver}/geist-font-v${pkgver}.zip")
+sha256sums=('15f066d58dcb99fb10014a49913009fdaf41e464cfb8851a44b44e593c95d3d8')
+
+package() {
+  cd geist-font
+  install -Dm644 Geist/ttf/*.ttf GeistMono/ttf/*.ttf -t "$pkgdir/usr/share/fonts/TTF"
+  install -Dm644 OFL.txt -t "$pkgdir/usr/share/licenses/$pkgname"
+}

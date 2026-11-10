@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Widgets
 
-// A square in the bar's colours, a module unless told otherwise, holding a
+// A rounded square in the bar's colours, a module unless told otherwise, holding a
 // glyph from puter's icons (IBM's Carbon, theme/icons.map) in its middle,
 // 16px unless told otherwise; the hover colour under the pointer.
 Rectangle {
@@ -19,6 +19,12 @@ Rectangle {
     width: Theme.module
     height: Theme.module
     color: mouse.containsMouse ? Colors.buttonHover : fill
+    radius: Theme.radius / 2
+    Behavior on color {
+        ColorAnimation {
+            duration: Theme.quick
+        }
+    }
 
     IconImage {
         x: (button.width - width) / 2

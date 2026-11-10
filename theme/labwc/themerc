@@ -1,41 +1,41 @@
 # Written by theme/make from theme/palette; edit those, not this.
-# A one-module title bar in the title colour, focused or not, paper bodies,
-# square and flat, with a 1px outline. The buttons are the SVGs beside this
-# file.
-border.width: 1
+# A one-module title tab, paper when focused so it joins its body, in the
+# title colour when not; paper bodies, flat and without outlines (the corners
+# are rc.xml's). The buttons are the SVGs beside this file.
+border.width: 0
 window.titlebar.padding.width: 0
 window.titlebar.padding.height: 0
 window.label.text.justify: left
 
-window.active.title.bg.color: #f1f0ec
-window.inactive.title.bg.color: #f1f0ec
-window.active.label.text.color: #060606
-window.inactive.label.text.color: #060606
-window.active.border.color: #060606
-window.inactive.border.color: #060606
+window.active.title.bg.color: #ffffff
+window.inactive.title.bg.color: #e5ece7
+window.active.label.text.color: #000000
+window.inactive.label.text.color: #000000
+window.active.border.color: #e5ece7
+window.inactive.border.color: #e5ece7
 
 window.button.width: 30
 window.button.height: 30
 window.button.spacing: 0
 window.button.hover.bg.color: #ffffff
-window.button.hover.bg.corner-radius: 0
+window.button.hover.bg.corner-radius: 4
 
 window.active.shadow.size: 0
 window.inactive.shadow.size: 0
 
-menu.border.width: 1
-menu.border.color: #060606
+menu.border.width: 0
+menu.border.color: #e5ece7
 menu.items.bg.color: #ffffff
-menu.items.text.color: #060606
-menu.items.active.bg.color: #e0a9df
-menu.items.active.text.color: #060606
+menu.items.text.color: #000000
+menu.items.active.bg.color: #99edff
+menu.items.active.text.color: #000000
 menu.items.padding.x: 8
 menu.items.padding.y: 6
 menu.width.min: 180
 menu.separator.width: 1
 menu.separator.padding.width: 0
 menu.separator.padding.height: 0
-menu.separator.color: #d6d1cb
+menu.separator.color: #c9d3cc
 
 # Where a dragged window will snap: a plain 2px outline in ink, no fill.
 snapping.overlay.region.bg.enabled: no
@@ -44,5 +44,5 @@ snapping.overlay.region.border.enabled: yes
 snapping.overlay.edge.border.enabled: yes
 snapping.overlay.region.border.width: 2
 snapping.overlay.edge.border.width: 2
-snapping.overlay.region.border.color: #060606
-snapping.overlay.edge.border.color: #060606
+snapping.overlay.region.border.color: #000000
+snapping.overlay.edge.border.color: #000000

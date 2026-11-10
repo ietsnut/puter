@@ -3,11 +3,12 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// Search: apps by name. It stands on the strip, flush against the right side
-// of the search square, sixteen modules wide and one module per row, the best match nearest
-// the input; with nothing typed it lists the apps opened most recently. Every
-// edge is on the grid. Type to filter, point or use Up and Down to pick,
-// click or Return to open, Escape to close.
+// Search: apps by name, in a card centred a little above the middle of the
+// screen, as Spotlight is. The query is set large; below it, the matches, the
+// best first, with nothing typed the apps opened most recently. The card
+// rises in and grows with its results; the selection glides between them.
+// Type to filter, point or use Up and Down to pick, click or Return to open,
+// Escape or a click anywhere else to close.
 PanelWindow {
     id: panel
 
@@ -23,16 +24,29 @@ PanelWindow {
     readonly property var results: query === "" && recentApps.length > 0 ? recentApps
         : apps.filter(entry => entry.name.toLowerCase().includes(query.toLowerCase()))
               .sort((a, b) => a.name.localeCompare(b.name))
-              .slice(0, 10)
+              .slice(0, 8)
+
+    // Opening shows the window and lets the card in; closing lets it out
+    // first, and the window goes once it has.
+    property bool shown: false
 
     function toggle() {
-        visible = !visible;
+        if (shown)
+            close();
+        else {
+            visible = true;
+            shown = true;
+        }
+    }
+
+    function close() {
+        shown = false;
     }
 
     function open(entry) {
         remember(entry);
         entry.execute();
-        visible = false;
+        close();
     }
 
     // Most recent first, ten at most, kept on disk across restarts.
@@ -78,85 +92,104 @@ PanelWindow {
 
     visible: false
     anchors {
+        top: true
         bottom: true
         left: true
+        right: true
     }
-    margins.bottom: Theme.module
-    margins.left: Theme.module * 2
-    implicitWidth: Theme.module * 16
-    implicitHeight: Theme.module * (results.length + 1)
     exclusionMode: ExclusionMode.Ignore
-    color: Colors.paper
+    color: "transparent"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
-    // Every open starts afresh: no text, the most recent app selected.
-    onVisibleChanged: {
+    // Every open starts afresh: no text, the first result selected.
+    onShownChanged: {
+        if (!shown)
+            return;
         input.clear();
         query = "";
         selected = 0;
-        if (visible)
-            input.forceActiveFocus();
+        input.forceActiveFocus();
     }
     onQueryChanged: selected = 0
 
-    Column {
-        width: parent.width
+    // A click anywhere off the card closes it.
+    MouseArea {
+        anchors.fill: parent
+        onClicked: panel.close()
+    }
 
-        // Best match last, right above the input; Up moves away from it.
-        Repeater {
-            model: panel.results.slice().reverse()
+    Rectangle {
+        id: card
+        width: Theme.module * 20
+        height: field.height + (list.count > 0 ? list.height + Theme.gap / 2 : 0) + Theme.gap / 2 * 2
+        x: (panel.width - width) / 2
+        y: panel.height * 0.22 + (panel.shown ? 0 : Theme.gap)
+        radius: Theme.radius
+        // The bar's colour, so it stands apart from the paper windows
+        // without an outline.
+        color: Colors.bar
+        clip: true
+        opacity: panel.shown ? 1 : 0
+        scale: panel.shown ? 1 : 0.97
 
-            Rectangle {
-                required property var modelData
-                required property int index
-                readonly property bool current: panel.results.length - 1 - index === panel.selected
-
-                width: parent.width
-                height: Theme.module
-                color: current ? Colors.accent : Colors.paper
-
-                Text {
-                    x: Theme.inset
-                    width: parent.width - Theme.inset * 2
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: modelData.name
-                    elide: Text.ElideRight
-                    color: current ? Colors.accentInk : Colors.ink
-                    font.family: Theme.font
-                    renderType: Text.CurveRendering
-                    font.pixelSize: Theme.textSize
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onEntered: panel.selected = panel.results.length - 1 - index
-                    onClicked: panel.open(modelData)
+        Behavior on height {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on y {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on scale {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Theme.open * 0.7
+                easing.type: Easing.OutCubic
+                onRunningChanged: {
+                    if (!running && !panel.shown)
+                        panel.visible = false;
                 }
             }
         }
 
-        Rectangle {
-            width: parent.width
-            height: Theme.module
-            color: Colors.ink
+        // Clicks on the card stay on it.
+        MouseArea {
+            anchors.fill: parent
+        }
+
+        Item {
+            id: field
+            x: Theme.gap / 2
+            y: Theme.gap / 2
+            width: card.width - Theme.gap
+            height: Theme.module * 2 - Theme.gap
 
             TextInput {
                 id: input
-                x: Theme.inset
-                width: parent.width - Theme.inset * 2
+                x: Theme.inset + Theme.gap / 2
+                width: parent.width - x * 2
                 anchors.verticalCenter: parent.verticalCenter
-                color: Colors.paper
-                selectionColor: Colors.paper
-                selectedTextColor: Colors.ink
+                color: Colors.ink
+                selectionColor: Colors.accent
+                selectedTextColor: Colors.accentInk
                 font.family: Theme.font
-                font.pixelSize: Theme.textSize
+                font.pixelSize: Theme.queryText
+                font.weight: Font.Medium
                 onTextChanged: panel.query = text
 
-                Keys.onEscapePressed: panel.visible = false
-                Keys.onUpPressed: panel.selected = Math.min(panel.selected + 1, panel.results.length - 1)
-                Keys.onDownPressed: panel.selected = Math.max(panel.selected - 1, 0)
+                Keys.onEscapePressed: panel.close()
+                Keys.onUpPressed: panel.selected = Math.max(panel.selected - 1, 0)
+                Keys.onDownPressed: panel.selected = Math.min(panel.selected + 1, panel.results.length - 1)
                 Keys.onReturnPressed: {
                     if (panel.results.length > 0)
                         panel.open(panel.results[panel.selected]);
@@ -164,13 +197,68 @@ PanelWindow {
 
                 Text {
                     visible: !input.text
-                    text: panel.recentApps.length > 0 ? "Search, or pick a recent app" : "Search"
-                    color: Colors.muted
+                    text: "Search"
+                    color: Colors.mutedInk
                     font: input.font
                 }
             }
         }
-    }
 
-    Outline {}
+        ListView {
+            id: list
+            x: Theme.gap / 2
+            y: field.y + field.height + Theme.gap / 2
+            width: field.width
+            height: count * Theme.bar
+            interactive: false
+            model: panel.results
+            currentIndex: panel.selected
+
+            // One highlight, gliding to whichever row is selected.
+            highlightFollowsCurrentItem: true
+            highlightMoveDuration: Theme.quick * 1.5
+            highlightMoveVelocity: -1
+            highlight: Rectangle {
+                radius: Theme.radius / 2
+                color: Colors.accent
+            }
+
+            delegate: Item {
+                required property var modelData
+                required property int index
+                width: list.width
+                height: Theme.bar
+
+                Image {
+                    id: icon
+                    x: (Theme.bar - width) / 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 16
+                    height: 16
+                    sourceSize: Qt.size(16, 16)
+                    source: Quickshell.iconPath(modelData.icon, true)
+                }
+
+                Text {
+                    x: Theme.bar
+                    width: parent.width - x - Theme.inset
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: modelData.name
+                    elide: Text.ElideRight
+                    color: index === panel.selected ? Colors.accentInk : Colors.ink
+                    font.family: Theme.font
+                    font.pixelSize: Theme.textSize
+                    font.weight: Font.Medium
+                    renderType: Text.CurveRendering
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onEntered: panel.selected = index
+                    onClicked: panel.open(modelData)
+                }
+            }
+        }
+    }
 }

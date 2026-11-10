@@ -5,16 +5,16 @@ import Quickshell.Wayland
 
 // Alt+Tab: the open windows as cards in the middle of the screen, the one
 // used last first, each a preview of the window over a title strip with
-// the app's square and the window's title. Holding Alt, Tab steps on
+// the app's dot and the window's title. Holding Alt, Tab steps on
 // (Shift+Tab back, or the arrow keys); letting go of Alt goes to the one
 // picked. A quick Alt+Tab goes straight back to the last window: the cards
 // only show once Alt has been held a moment. A click picks one too, Escape
 // or a click elsewhere goes back, Delete closes the picked window.
 //
 // Cards are six modules tall (five of preview, one of title) and as wide as
-// their window's preview needs, in whole modules (five to fourteen): flush
-// side by side so neighbours share an edge, as many to a row as fit the
-// screen, straight on the desk. The previews are taken as it opens and four
+// their window's preview needs, in whole modules (five to fourteen), a gap
+// apart on one card in the bar's colour, as many to a row as fit the screen;
+// the picked one has the accent behind it. The previews are taken as it opens and four
 // times a second while it's open: grim captures each window on its own
 // (`grim -T`, by the identifier puter-windows lists, src/windows), since
 // Quickshell can only capture single windows on Hyprland.
@@ -262,25 +262,83 @@ PanelWindow {
 
     onOpenChanged: if (open) keys.forceActiveFocus()
 
-    // The cards together, in the middle of the screen with every edge on
-    // the grid.
+    // The cards together on one card in the bar's colour, as search is, in
+    // the middle of the screen; it rises in as it opens. The picked window
+    // has the accent behind it, gliding from one to the next.
     Rectangle {
         id: sheet
         visible: switcher.shown
-        width: flow.childrenRect.width
-        height: flow.childrenRect.height
-        x: Math.round((switcher.width - width) / 2 / Theme.module) * Theme.module
-        y: Math.round((switcher.height - Theme.module - height) / 2 / Theme.module) * Theme.module
-        color: "transparent"
+        width: flow.childrenRect.width + Theme.gap * 2
+        height: flow.childrenRect.height + Theme.gap * 2
+        x: Math.round((switcher.width - width) / 2)
+        y: Math.round((switcher.height - Theme.module * 2 - height) / 2) + (switcher.shown ? 0 : Theme.gap)
+        radius: Theme.radius
+        color: Colors.bar
+        opacity: switcher.shown ? 1 : 0
+        scale: switcher.shown ? 1 : 0.97
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: Theme.open * 0.7
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on scale {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
+        Behavior on y {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
 
         // Takes clicks between the cards, so they don't go back.
         MouseArea {
             anchors.fill: parent
         }
 
+        // The picked card's highlight: half a gap round the card, so the
+        // highlights of neighbours would meet midway.
+        Rectangle {
+            readonly property var target: cards.count > 0 ? cards.itemAt(switcher.selected) : null
+            visible: target !== null
+            x: flow.x + (target?.x ?? 0) - Theme.gap / 2
+            y: flow.y + (target?.y ?? 0) - Theme.gap / 2
+            width: (target?.width ?? 0) + Theme.gap
+            height: (target?.height ?? 0) + Theme.gap
+            radius: Theme.radius
+            color: Colors.accent
+
+            Behavior on x {
+                NumberAnimation {
+                    duration: Theme.quick * 1.5
+                    easing.type: Easing.OutCubic
+                }
+            }
+            Behavior on y {
+                NumberAnimation {
+                    duration: Theme.quick * 1.5
+                    easing.type: Easing.OutCubic
+                }
+            }
+            Behavior on width {
+                NumberAnimation {
+                    duration: Theme.quick * 1.5
+                    easing.type: Easing.OutCubic
+                }
+            }
+        }
+
         Flow {
             id: flow
+            x: Theme.gap
+            y: Theme.gap
             width: switcher.rowWidth
+            spacing: Theme.gap
 
             Repeater {
                 id: cards
@@ -290,34 +348,26 @@ PanelWindow {
                     id: card
                     required property var modelData
                     required property int index
-                    readonly property bool current: index === switcher.selected
                     readonly property var entry: DesktopEntries.heuristicLookup(modelData.appId)
 
-                    // The preview at the card's full height (less an inset
-                    // above and below), and the card the whole modules
-                    // around it, an inset either side.
+                    // The preview at five modules tall, and the card the
+                    // whole modules around it.
                     width: shot.implicitHeight > 0
-                        ? Math.max(5, Math.min(14, Math.ceil(((Theme.module * 5 - Theme.inset * 2) * shot.implicitWidth / shot.implicitHeight + Theme.inset * 2) / Theme.module))) * Theme.module
+                        ? Math.max(5, Math.min(14, Math.ceil((Theme.module * 5 * shot.implicitWidth / shot.implicitHeight) / Theme.module))) * Theme.module
                         : switcher.cardWidth
                     height: switcher.cardHeight
 
-                    // The preview, fitted inside the card one inset from its
-                    // edges, on the bar's colour, or the accent for the
-                    // picked card (and only that, until the first one's
-                    // taken). Loaded in step, so a new frame replaces the
-                    // last without a gap.
-                    Rectangle {
+                    Item {
                         id: preview
                         width: parent.width
                         height: Theme.module * 5
-                        color: card.current ? Colors.accent : Colors.muted
 
                         Image {
                             id: shot
                             readonly property string id: switcher.frame >= 0 ? switcher.identifier(card.modelData) : ""
                             anchors.centerIn: parent
-                            width: preview.width - Theme.inset * 2
-                            height: preview.height - Theme.inset * 2
+                            width: preview.width
+                            height: preview.height
                             fillMode: Image.PreserveAspectFit
                             asynchronous: false
                             cache: false
@@ -331,42 +381,25 @@ PanelWindow {
                         }
                     }
 
+                    // The app's dot and the window's title under it.
                     Chip {
                         y: Theme.module * 5
                         minModules: card.width / Theme.module
                         maxModules: card.width / Theme.module
                         text: card.modelData.title || card.entry?.name || card.modelData.appId
                         icon: Quickshell.iconPath(card.entry?.icon ?? card.modelData.appId, true)
-                        // The picked one in ink, so every app's square shows on it.
-                        fill: card.current ? Colors.ink : Colors.title
-                        ink: card.current ? Colors.paper : Colors.titleInk
-                    }
-
-                    // Each card's edge; where two meet they share a line.
-                    Outline {
-                        edgeLeft: card.x === 0
-                        edgeTop: card.y === 0
-                    }
-
-                    // The line between preview and title.
-                    Rectangle {
-                        y: Theme.module * 5
-                        width: parent.width
-                        height: 1
-                        color: Colors.outline
-                        z: 2
+                        fill: "transparent"
+                        ink: Colors.ink
                     }
 
                     MouseArea {
                         anchors.fill: parent
                         hoverEnabled: true
-                        z: 3
                         onEntered: switcher.selected = card.index
                         onClicked: switcher.pick()
                     }
                 }
             }
         }
-
     }
 }

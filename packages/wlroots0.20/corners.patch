@@ -1,0 +1,226 @@
+diff --git a/include/wlr/types/wlr_scene.h b/include/wlr/types/wlr_scene.h
+index 6c627b1..6efa7ff 100644
+--- a/include/wlr/types/wlr_scene.h
++++ b/include/wlr/types/wlr_scene.h
+@@ -92,6 +92,20 @@ struct wlr_scene_tree {
+ 	struct wlr_scene_node node;
+ 
+ 	struct wl_list children; // wlr_scene_node.link
++
++	// puter: see wlr_scene_tree_set_corners()
++	struct {
++		int width, height, radius;
++		uint32_t corners; // enum wlr_scene_corner
++	} WLR_PRIVATE;
++};
++
++// puter: the corners wlr_scene_tree_set_corners() rounds
++enum wlr_scene_corner {
++	WLR_SCENE_CORNER_TOP_LEFT = 1 << 0,
++	WLR_SCENE_CORNER_TOP_RIGHT = 1 << 1,
++	WLR_SCENE_CORNER_BOTTOM_RIGHT = 1 << 2,
++	WLR_SCENE_CORNER_BOTTOM_LEFT = 1 << 3,
+ };
+ 
+ /** The root scene-graph node. */
+@@ -388,6 +402,16 @@ void wlr_scene_set_color_manager_v1(struct wlr_scene *scene, struct wlr_color_ma
+  */
+ struct wlr_scene_tree *wlr_scene_tree_create(struct wlr_scene_tree *parent);
+ 
++/**
++ * puter: rounds the given corners (enum wlr_scene_corner) of the box at the
++ * tree's origin, width by height, to radius for everything in the tree:
++ * nothing of it is drawn outside the arcs, in a staircase of whole output
++ * pixels, and what's beneath shows through. A tree in a rounded tree rounds
++ * by its own box instead. No corners, or a radius of 0, makes them square.
++ */
++void wlr_scene_tree_set_corners(struct wlr_scene_tree *tree,
++	int width, int height, int radius, uint32_t corners);
++
+ /**
+  * Add a node displaying a single surface to the scene-graph.
+  *
+diff --git a/types/scene/wlr_scene.c b/types/scene/wlr_scene.c
+index 7bc8b76..61324ea 100644
+--- a/types/scene/wlr_scene.c
++++ b/types/scene/wlr_scene.c
+@@ -256,6 +256,91 @@ static bool scene_nodes_in_box(struct wlr_scene_node *node, struct wlr_box *box,
+ 	return _scene_nodes_in_box(node, box, iterator, user_data, x, y);
+ }
+ 
++/*
++ * puter: the rounded box of a node's nearest rounded ancestor, for the node
++ * at x, y, with its radius (no more than half its width or height) and
++ * corners; false when there's none.
++ */
++static bool scene_node_rounded(struct wlr_scene_node *node, int x, int y,
++		struct wlr_box *box, int *radius, uint32_t *corners) {
++	for (; node->parent != NULL; node = &node->parent->node) {
++		x -= node->x;
++		y -= node->y;
++		struct wlr_scene_tree *tree = node->parent;
++		if (tree->corners == 0) {
++			continue;
++		}
++		*box = (struct wlr_box){ x, y, tree->width, tree->height };
++		*radius = tree->radius;
++		if (*radius > box->width / 2) {
++			*radius = box->width / 2;
++		}
++		if (*radius > box->height / 2) {
++			*radius = box->height / 2;
++		}
++		*corners = tree->corners;
++		return *radius > 0;
++	}
++	return false;
++}
++
++/*
++ * puter: adds a box's corners to region: the pixels whose centres lie
++ * outside each corner's arc, or with whole, its radius-sized square.
++ */
++static void corners_region(pixman_region32_t *region, const struct wlr_box *box,
++		int radius, uint32_t corners, bool whole) {
++	for (int row = 0; row < radius; row++) {
++		int width = radius;
++		if (!whole) {
++			// In half pixels from the arc's centre, compared squared
++			int dy = 2 * (radius - row) - 1;
++			width = 0;
++			while (width < radius && (2 * (radius - width) - 1) * (2 * (radius - width) - 1)
++					+ dy * dy > 4 * radius * radius) {
++				width++;
++			}
++			if (width == 0) {
++				break;
++			}
++		}
++		int top = box->y + row, bottom = box->y + box->height - 1 - row;
++		int left = box->x, right = box->x + box->width - width;
++		if (corners & WLR_SCENE_CORNER_TOP_LEFT) {
++			pixman_region32_union_rect(region, region, left, top, width, 1);
++		}
++		if (corners & WLR_SCENE_CORNER_TOP_RIGHT) {
++			pixman_region32_union_rect(region, region, right, top, width, 1);
++		}
++		if (corners & WLR_SCENE_CORNER_BOTTOM_RIGHT) {
++			pixman_region32_union_rect(region, region, right, bottom, width, 1);
++		}
++		if (corners & WLR_SCENE_CORNER_BOTTOM_LEFT) {
++			pixman_region32_union_rect(region, region, left, bottom, width, 1);
++		}
++	}
++}
++
++/*
++ * puter: a rounded node isn't opaque in its corners' squares, so what's
++ * beneath is drawn there, for scene_entry_render() to cut the arcs out of
++ * at the output's own pixels.
++ */
++static void scene_node_opaque_corners(struct wlr_scene_node *node, int x, int y,
++		pixman_region32_t *opaque) {
++	struct wlr_box box;
++	int radius;
++	uint32_t corners;
++	if (!scene_node_rounded(node, x, y, &box, &radius, &corners)) {
++		return;
++	}
++	pixman_region32_t squares;
++	pixman_region32_init(&squares);
++	corners_region(&squares, &box, radius, corners, true);
++	pixman_region32_subtract(opaque, opaque, &squares);
++	pixman_region32_fini(&squares);
++}
++
+ static void scene_node_opaque_region(struct wlr_scene_node *node, int x, int y,
+ 		pixman_region32_t *opaque) {
+ 	int width, height;
+@@ -281,12 +366,14 @@ static void scene_node_opaque_region(struct wlr_scene_node *node, int x, int y,
+ 			pixman_region32_copy(opaque, &scene_buffer->opaque_region);
+ 			pixman_region32_intersect_rect(opaque, opaque, 0, 0, width, height);
+ 			pixman_region32_translate(opaque, x, y);
++			scene_node_opaque_corners(node, x, y, opaque);
+ 			return;
+ 		}
+ 	}
+ 
+ 	pixman_region32_fini(opaque);
+ 	pixman_region32_init_rect(opaque, x, y, width, height);
++	scene_node_opaque_corners(node, x, y, opaque);
+ }
+ 
+ struct scene_update_data {
+@@ -1260,6 +1347,23 @@ void wlr_scene_node_set_position(struct wlr_scene_node *node, int x, int y) {
+ 	scene_node_update(node, NULL);
+ }
+ 
++void wlr_scene_tree_set_corners(struct wlr_scene_tree *tree,
++		int width, int height, int radius, uint32_t corners) {
++	if (width <= 0 || height <= 0 || radius <= 0 || corners == 0) {
++		width = height = radius = 0;
++		corners = 0;
++	}
++	if (tree->width == width && tree->height == height &&
++			tree->radius == radius && tree->corners == corners) {
++		return;
++	}
++	tree->width = width;
++	tree->height = height;
++	tree->radius = radius;
++	tree->corners = corners;
++	scene_node_update(&tree->node, NULL);
++}
++
+ void wlr_scene_node_place_above(struct wlr_scene_node *node,
+ 		struct wlr_scene_node *sibling) {
+ 	assert(node != sibling);
+@@ -1457,14 +1561,30 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 	pixman_region32_translate(&render_region, -data->logical.x, -data->logical.y);
+ 	logical_to_buffer_coords(&render_region, data, true);
+ 	pixman_region32_intersect(&render_region, &render_region, &data->damage);
++
++	int x = entry->x - data->logical.x;
++	int y = entry->y - data->logical.y;
++
++	// puter: a rounded node's corners are cut out at the output's pixels
++	struct wlr_box rounded;
++	int radius;
++	uint32_t corners;
++	if (scene_node_rounded(node, x, y, &rounded, &radius, &corners)) {
++		scale_box(&rounded, data->scale);
++		pixman_region32_t cut;
++		pixman_region32_init(&cut);
++		corners_region(&cut, &rounded, round(radius * data->scale), corners, false);
++		wlr_region_transform(&cut, &cut, wlr_output_transform_invert(data->transform),
++			data->trans_width, data->trans_height);
++		pixman_region32_subtract(&render_region, &render_region, &cut);
++		pixman_region32_fini(&cut);
++	}
++
+ 	if (pixman_region32_empty(&render_region)) {
+ 		pixman_region32_fini(&render_region);
+ 		return;
+ 	}
+ 
+-	int x = entry->x - data->logical.x;
+-	int y = entry->y - data->logical.y;
+-
+ 	struct wlr_box dst_box = {
+ 		.x = x,
+ 		.y = y,
+@@ -2072,6 +2192,14 @@ static enum scene_direct_scanout_result scene_entry_try_direct_scanout(
+ 		return SCANOUT_INELIGIBLE;
+ 	}
+ 
++	// puter: the output can't round a buffer's corners
++	struct wlr_box rounded;
++	int radius;
++	uint32_t corners;
++	if (scene_node_rounded(node, entry->x, entry->y, &rounded, &radius, &corners)) {
++		return SCANOUT_INELIGIBLE;
++	}
++
+ 	if (state->committed & (WLR_OUTPUT_STATE_MODE |
+ 			WLR_OUTPUT_STATE_ENABLED |
+ 			WLR_OUTPUT_STATE_RENDER_FORMAT)) {

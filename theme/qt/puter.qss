@@ -7,20 +7,23 @@
    8px inset in. The puter widget style (src/style) takes away the frames and
    margins Qt keeps around bars and menus, which a stylesheet can't reach;
    the heights here pin each styled widget to its module (Qt adds pixels of
-   its own to styled widgets, so padding alone doesn't land them). Square corners, no shadows, a 1px outline around
-   popups and fields, light rules inside, gray under the pointer. */
+   its own to styled widgets, so padding alone doesn't land them). No outlines
+   and no shadows: buttons, fields and popups are fills in the muted colour
+   at a 4px corner, so they part from paper by colour alone; the rules inside
+   are dotted. */
 
 * {
     outline: none;
 }
 
 QToolTip {
-    background: @paper;
+    background: @muted;
     color: @ink;
-    border: 1px solid @outline;
-    padding: 0 7px;
-    min-height: 28px;
-    max-height: 28px;
+    border: none;
+    border-radius: 4px;
+    padding: 0 8px;
+    min-height: 30px;
+    max-height: 30px;
 }
 
 /* The menu bar: paper, each menu's name one inset in, a light rule along its
@@ -29,7 +32,7 @@ QMenuBar {
     background: @paper;
     color: @ink;
     border: none;
-    border-bottom: 1px solid @rule;
+    border-bottom: 1px dotted @rule;
     padding: 0;
     spacing: 0;
 }
@@ -41,12 +44,12 @@ QMenuBar::item:selected, QMenuBar::item:pressed {
     color: @accent-ink;
 }
 
-/* Menus: paper with the outline, an item per module, a light rule between
-   sections. */
+/* Menus: in the muted colour, standing off the paper windows they open
+   over, an item per module, a dotted rule between sections. */
 QMenu {
-    background: @paper;
+    background: @muted;
     color: @ink;
-    border: 1px solid @outline;
+    border: none;
     padding: 0;
     margin: 0;
 }
@@ -163,14 +166,15 @@ Fm--PathBar QToolButton:checked {
     color: @title-ink;
 }
 
-/* Buttons with words, as on the desk: paper with the 1px outline. */
+/* Buttons with words, as on the bar: a muted fill at the corner. */
 QPushButton {
-    background: @paper;
+    background: @muted;
     color: @ink;
-    border: 1px solid @outline;
+    border: none;
+    border-radius: 4px;
     padding: 0 8px;
-    min-height: 28px;
-    max-height: 28px;
+    min-height: 30px;
+    max-height: 30px;
     min-width: 60px;
 }
 QPushButton:hover, QPushButton:pressed, QPushButton:checked {
@@ -179,18 +183,15 @@ QPushButton:hover, QPushButton:pressed, QPushButton:checked {
 }
 QPushButton:disabled {
     color: @muted-ink;
-    border-color: @rule;
-}
-QPushButton:default {
-    border: 1px solid @outline;
 }
 
-/* Fields: paper with the 1px outline, one module tall, text one inset in. */
+/* Fields: a muted fill at the corner, one module tall, text one inset in. */
 QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
-    background: @paper;
+    background: @muted;
     color: @ink;
-    border: 1px solid @outline;
-    padding: 4px 7px;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 8px;
     selection-background-color: @accent;
     selection-color: @accent-ink;
 }
@@ -201,9 +202,9 @@ QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
     background: transparent;
 }
 QComboBox QAbstractItemView {
-    background: @paper;
+    background: @muted;
     color: @ink;
-    border: 1px solid @outline;
+    border: none;
     selection-background-color: @accent;
     selection-color: @accent-ink;
     outline: none;
@@ -214,7 +215,7 @@ QComboBox QAbstractItemView {
    rather than each outlined. */
 Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
     border: none;
-    border-top: 1px solid @rule;
+    border-top: 1px dotted @rule;
     padding: 0 8px;
     min-height: 29px;
     max-height: 29px;
@@ -222,8 +223,8 @@ Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
 Fm--FileDialog QDialogButtonBox QPushButton,
 Fm--FileDialog QDialogButtonBox QPushButton:default {
     border: none;
-    border-top: 1px solid @rule;
-    border-left: 1px solid @rule;
+    border-top: 1px dotted @rule;
+    border-left: 1px dotted @rule;
     min-height: 29px;
     max-height: 29px;
 }
@@ -238,7 +239,7 @@ QCheckBox, QRadioButton {
    than outlined boxes, which double their outlines where they stack. */
 QDialog QLineEdit, QDialog QComboBox, QDialog QSpinBox, QDialog QDoubleSpinBox {
     border: none;
-    border-bottom: 1px solid @outline;
+    border-bottom: 1px dotted @rule;
     padding: 0 8px;
     min-height: 29px;
     max-height: 29px;
@@ -257,7 +258,7 @@ QDialog QCheckBox, QDialog QRadioButton {
    text), no lines between them, the open one in the title colour. */
 QTabWidget::pane {
     border: none;
-    border-top: 1px solid @rule;
+    border-top: 1px dotted @rule;
     top: -1px;
 }
 QTabBar {
@@ -323,8 +324,8 @@ QHeaderView::section {
     background: @muted;
     color: @ink;
     border: none;
-    border-right: 1px solid @rule;
-    border-bottom: 1px solid @outline;
+    border-right: 1px dotted @rule;
+    border-bottom: 1px dotted @rule;
     padding: 0 8px;
     height: 29px;
 }
@@ -332,22 +333,22 @@ QHeaderView::section {
    rule under each, the table's outline beside them. */
 QHeaderView::section:vertical {
     padding: 0 8px;
-    border-right: 1px solid @outline;
-    border-bottom: 1px solid @rule;
+    border-right: 1px dotted @rule;
+    border-bottom: 1px dotted @rule;
     color: @muted-ink;
 }
 QTableView QTableCornerButton::section {
     background: @muted;
     border: none;
-    border-right: 1px solid @rule;
-    border-bottom: 1px solid @outline;
+    border-right: 1px dotted @rule;
+    border-bottom: 1px dotted @rule;
 }
 
 /* The status bar: one module, a light rule along its top. */
 QStatusBar {
     background: @paper;
     color: @ink;
-    border-top: 1px solid @rule;
+    border-top: 1px dotted @rule;
 }
 QStatusBar::item {
     border: none;
@@ -362,14 +363,14 @@ QScrollBar:vertical {
     width: 30px;
     margin: 0;
     border: none;
-    border-left: 1px solid @rule;
+    border-left: 1px dotted @rule;
 }
 QScrollBar:horizontal {
     background: @paper;
     height: 30px;
     margin: 0;
     border: none;
-    border-top: 1px solid @rule;
+    border-top: 1px dotted @rule;
 }
 QScrollBar::handle {
     background: @rule;
@@ -405,7 +406,7 @@ QDockWidget {
 QDockWidget::title {
     background: @muted;
     padding: 5px 8px 4px 8px;
-    border-bottom: 1px solid @rule;
+    border-bottom: 1px dotted @rule;
 }
 
 /* A group is its title, a heading row over what it holds, and no box (whose
@@ -422,7 +423,8 @@ QGroupBox::title {
 
 QProgressBar {
     background: @muted;
-    border: 1px solid @outline;
+    border: none;
+    border-radius: 4px;
     text-align: center;
     min-height: 20px;
 }
@@ -436,7 +438,7 @@ QProgressBar::chunk {
    paper, operators on bone, equals in the accent. */
 QLineEdit#calcInput {
     border: none;
-    border-top: 1px solid @rule;
+    border-top: 1px dotted @rule;
     /* A field keeps 2px of its own around the text: 6 + 2 is the inset. */
     padding: 0 6px;
     min-height: 29px;

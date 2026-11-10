@@ -1,5 +1,5 @@
 /* GTK 3 apps (Thunar, KiCad, Chromium's frame) in puter's look: Adwaita's
-   layout, redrawn in the palette's roles, square and flat, IBM Plex Sans at 15px, and
+   layout, redrawn in the palette's roles, square and flat, Geist at 15px, and
    every bar and row one module (30px) tall. The colours are colors.css,
    written by ../make from ../colors. */
 @import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained.css");
@@ -378,7 +378,7 @@ paned > separator, paned.horizontal > separator {
 }
 
 /* Tree rows (file dialogs, Thunar's list view): one module tall. A row of
-   IBM Plex Sans at 15px is 25px (26px in Thunar, whose cells pad by a pixel);
+   Geist at 15px is 25px (26px in Thunar, whose cells pad by a pixel);
    GTK adds its vertical separator once per row (CSS padding would be added
    once per column), so that makes up the rest. */
 treeview.view {

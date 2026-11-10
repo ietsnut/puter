@@ -1,0 +1,123 @@
+diff --git a/include/ssd.h b/include/ssd.h
+index 9c61747..08d4d98 100644
+--- a/include/ssd.h
++++ b/include/ssd.h
+@@ -44,6 +44,7 @@ int ssd_get_corner_width(void);
+ void ssd_update_margin(struct ssd *ssd);
+ void ssd_set_active(struct ssd *ssd, bool active);
+ void ssd_update_title(struct ssd *ssd);
++int ssd_get_tab_width(struct ssd *ssd);
+ void ssd_update_geometry(struct ssd *ssd);
+ void ssd_destroy(struct ssd *ssd);
+ void ssd_set_titlebar(struct ssd *ssd, bool enabled);
+diff --git a/include/view.h b/include/view.h
+index 46943ab..80b79ed 100644
+--- a/include/view.h
++++ b/include/view.h
+@@ -495,6 +495,7 @@ void view_resize_relative(struct view *view,
+ void view_move_relative(struct view *view, int x, int y);
+ void view_move(struct view *view, int x, int y);
+ void view_moved(struct view *view);
++void view_update_corners(struct view *view);
+ void view_minimize(struct view *view, bool minimized);
+ bool view_compute_centered_position(struct view *view,
+ 	const struct wlr_box *ref, int w, int h, int *x, int *y);
+diff --git a/src/ssd/ssd-titlebar.c b/src/ssd/ssd-titlebar.c
+index 44735ae..5dbad14 100644
+--- a/src/ssd/ssd-titlebar.c
++++ b/src/ssd/ssd-titlebar.c
+@@ -467,6 +467,19 @@ update_tab(struct ssd *ssd)
+ 			wlr_scene_node_set_position(button->node, x, y);
+ 		}
+ 	}
++	/* puter: the window's top right is square where the tab reaches it */
++	view_update_corners(ssd->view);
++}
++
++/* puter: the shown tab's width, or 0 without a title bar */
++int
++ssd_get_tab_width(struct ssd *ssd)
++{
++	if (!ssd || ssd->titlebar.height <= 0) {
++		return 0;
++	}
++	bool active = ssd->titlebar.subtrees[SSD_ACTIVE].tree->node.enabled;
++	return get_tab_width(ssd, active ? SSD_ACTIVE : SSD_INACTIVE);
+ }
+ 
+ void
+diff --git a/src/ssd/ssd.c b/src/ssd/ssd.c
+index e2ab637..9c80b96 100644
+--- a/src/ssd/ssd.c
++++ b/src/ssd/ssd.c
+@@ -325,6 +325,8 @@ ssd_set_active(struct ssd *ssd, bool active)
+ 				active == active_state);
+ 		}
+ 	}
++	/* puter: the tabs can differ in width */
++	view_update_corners(ssd->view);
+ }
+ 
+ void
+diff --git a/src/view.c b/src/view.c
+index 22e13fc..303a48a 100644
+--- a/src/view.c
++++ b/src/view.c
+@@ -585,12 +585,40 @@ view_moved(struct view *view)
+ 	}
+ 	view_update_outputs(view);
+ 	ssd_update_geometry(view->ssd);
++	view_update_corners(view);
+ 	cursor_update_focus();
+ 	if (rc.resize_indicator && server.grabbed_view == view) {
+ 		resize_indicator_update(view);
+ 	}
+ }
+ 
++/*
++ * puter: the window is rounded at the title bar's radius, and square where
++ * its title bar is (maximized, snapped and fullscreen): the bottom corners;
++ * the top right unless the tab reaches it; the top left without a title bar.
++ */
++void
++view_update_corners(struct view *view)
++{
++	if (!view->scene_tree) {
++		return;
++	}
++	uint32_t corners = 0;
++	if (!view->fullscreen && view->maximized != VIEW_AXIS_BOTH
++			&& !view_is_tiled_and_notify_tiled(view)) {
++		int tab_width = ssd_get_tab_width(view->ssd);
++		corners = WLR_SCENE_CORNER_BOTTOM_LEFT | WLR_SCENE_CORNER_BOTTOM_RIGHT;
++		if (tab_width < view->current.width) {
++			corners |= WLR_SCENE_CORNER_TOP_RIGHT;
++		}
++		if (!tab_width) {
++			corners |= WLR_SCENE_CORNER_TOP_LEFT;
++		}
++	}
++	wlr_scene_tree_set_corners(view->scene_tree, view->current.width,
++		view->current.height, rc.corner_radius, corners);
++}
++
+ void
+ view_move_resize(struct view *view, struct wlr_box geo)
+ {
+@@ -1624,6 +1652,8 @@ decorate(struct view *view)
+ 		view->ssd = ssd_create(view,
+ 			view == server.active_view);
+ 	}
++	/* puter: the top corners follow the title bar */
++	view_update_corners(view);
+ }
+ 
+ static void
+@@ -1631,6 +1661,7 @@ undecorate(struct view *view)
+ {
+ 	ssd_destroy(view->ssd);
+ 	view->ssd = NULL;
++	view_update_corners(view);
+ }
+ 
+ bool

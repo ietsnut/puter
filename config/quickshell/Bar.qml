@@ -1,13 +1,15 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Widgets
 import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 
-// The bottom bar, on the bottom edge: a strip one module tall with the search
-// square standing two modules tall in the left corner, open windows right after it,
-// then the network and volume, the date and time, updates, and restart and
-// shut down in the right corner, each a one-module glyph from puter's icons.
+// The bar floats over the bottom two modules, a gap off every edge, as
+// three pieces: the gear at the left (search), the open windows in a pill
+// right beside it, and the network, volume, the date and time, updates,
+// restart and shut down in a pill at the right. The desk shows between them,
+// and clicks there reach the windows behind.
 PanelWindow {
     id: bar
 
@@ -35,106 +37,220 @@ PanelWindow {
     readonly property bool muted: !sink || !sink.audio || sink.audio.muted || sink.audio.volume === 0
     property bool online: false
 
+    // Search opened another way still turns the gear.
+    function turn() {
+        gear.turn();
+    }
+
     anchors {
         bottom: true
         left: true
         right: true
     }
     implicitHeight: Theme.module * 2
-    exclusiveZone: Theme.module
+    exclusiveZone: Theme.module * 2
     color: "transparent"
 
-    // Only the strip and the square take clicks; the rest of the top row is
-    // the desk, so clicks there reach the windows behind it.
     mask: Region {
-        item: strip
+        item: gear
 
         Region {
-            item: searchButton
+            item: windows
+        }
+        Region {
+            item: status
         }
     }
 
-    Rectangle {
-        id: strip
-        y: Theme.module
-        width: bar.width
-        height: Theme.module
-        color: Colors.bar
-    }
-
-    // The strip's top edge: a 1px line in bar-edge, drawn over the top pixel
-    // of the strip and its tabs so nothing moves off the grid, and left out
-    // where the palette gives it the bar's own colour (a dark bar needs none).
-    // The search square has its own edge, so the line starts beside it.
-    Rectangle {
-        visible: Colors.barEdge !== Colors.bar
-        x: searchButton.width
-        y: Theme.module
-        z: 1
-        width: bar.width - x
-        height: 1
-        color: Colors.barEdge
-    }
-
-    // Search: a two-module square in the search colour, the magnifier at
-    // 32px, outlined only where the bar is (palettes whose bar-edge isn't the
-    // bar's own colour); a coloured square stands on the desk without one.
-    BarButton {
-        id: searchButton
-        width: Theme.module * 2
-        height: Theme.module * 2
-        iconSize: 32
-        icon: "puter-search"
-        fill: Colors.search
+    Gear {
+        id: gear
+        x: Theme.gap
+        y: Theme.gap
         onClicked: bar.search()
-
-        Outline {
-            visible: Colors.barEdge !== Colors.bar
-            edgeBottom: false
-            edgeLeft: false
-        }
     }
 
-    // Windows sit flush, side by side, straight after the search square: each
-    // tab three to eight modules wide, the app's icon in its first module.
-    Row {
-        x: Theme.module * 2
-        y: Theme.module
-        spacing: 0
+    // The windows, each a tab inside the pill: its app's dot and its title,
+    // the focused one on paper.
+    Rectangle {
+        id: windows
+        visible: tabs.count > 0
+        x: gear.x + gear.width + Theme.gap
+        y: Theme.gap
+        width: row.implicitWidth + (Theme.bar - Theme.module)
+        height: Theme.bar
+        radius: Theme.radius
+        color: Colors.bar
+        Behavior on width {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
 
-        Repeater {
-            model: ToplevelManager.toplevels
+        Row {
+            id: row
+            x: (Theme.bar - Theme.module) / 2
+            y: (Theme.bar - Theme.module) / 2
+            spacing: 0
 
-            Chip {
-                id: tab
-                required property var modelData
-                // An agent's state (bar.agents): its glyph in the tab's last
-                // module, and the whole tab in the attention colour while it
-                // waits for you. "done" shows until you've been to the window.
-                readonly property string agent: bar.agents[modelData.title] ?? ""
-                readonly property bool waiting: agent === "waiting"
-                text: modelData.title
-                // The app's icon from its desktop file, or, without one, the icon
-                // named after the app (as labwc does for its title bar).
-                icon: Quickshell.iconPath(DesktopEntries.heuristicLookup(modelData.appId)?.icon ?? modelData.appId, true)
-                badge: agent && !(agent === "done" && modelData.activated) ? Quickshell.iconPath("puter-agent-" + agent) : ""
-                minModules: 3
-                maxModules: 8
-                hoverable: true
-                fill: waiting ? Colors.attention : modelData.activated ? Colors.tabActive : Colors.tab
-                ink: waiting ? Colors.attentionInk : modelData.activated ? Colors.tabActiveInk : Colors.tabInk
-                onClicked: modelData.activate()
+            Repeater {
+                id: tabs
+                model: ToplevelManager.toplevels
 
-                Connections {
-                    target: tab.modelData
+                Chip {
+                    id: tab
+                    required property var modelData
+                    // An agent's state (bar.agents): its glyph at the tab's end,
+                    // and the whole tab in the attention colour while it waits
+                    // for you. "done" shows until you've been to the window.
+                    readonly property string agent: bar.agents[modelData.title] ?? ""
+                    readonly property bool waiting: agent === "waiting"
+                    text: modelData.title
+                    // The app's icon from its desktop file, or, without one, the
+                    // icon named after the app (as labwc does for its title bar).
+                    icon: Quickshell.iconPath(DesktopEntries.heuristicLookup(modelData.appId)?.icon ?? modelData.appId, true)
+                    badge: agent && !(agent === "done" && modelData.activated) ? Quickshell.iconPath("puter-agent-" + agent) : ""
+                    minModules: 3
+                    maxModules: 8
+                    hoverable: true
+                    fill: waiting ? Colors.attention : modelData.activated ? Colors.tabActive : Colors.tab
+                    ink: waiting ? Colors.attentionInk : modelData.activated ? Colors.tabActiveInk : Colors.tabInk
+                    onClicked: modelData.activate()
 
-                    function onActivatedChanged() {
-                        if (!tab.modelData.activated && tab.agent === "done")
-                            bar.setAgent(tab.modelData.title, "");
+                    Connections {
+                        target: tab.modelData
+
+                        function onActivatedChanged() {
+                            if (!tab.modelData.activated && tab.agent === "done")
+                                bar.setAgent(tab.modelData.title, "");
+                        }
                     }
                 }
             }
         }
+    }
+
+    // The right pill: its buttons and the clock side by side, a gap's half
+    // in from its ends, as the windows sit in theirs. A tab on its left with
+    // a chevron folds it away off the screen's right edge, leaving only the
+    // tab there, flush with the edge; the tab brings it back, its chevron
+    // turning to point the way the pill will go.
+    property bool folded: false
+
+    Item {
+        id: status
+        y: Theme.gap
+        width: fold.width + pill.width
+        height: Theme.bar
+        x: bar.folded ? bar.width - fold.width : bar.width - width - Theme.gap
+        Behavior on x {
+            NumberAnimation {
+                duration: Theme.open
+                easing.type: Easing.OutCubic
+            }
+        }
+
+        Rectangle {
+            id: fold
+            width: Theme.gap * 2
+            height: Theme.bar
+            // Rounded on the left; flush against the pill, or the screen's
+            // edge when folded, on the right.
+            topLeftRadius: Theme.radius
+            bottomLeftRadius: Theme.radius
+            color: foldMouse.containsMouse ? Colors.buttonHover : Colors.bar
+            Behavior on color {
+                ColorAnimation {
+                    duration: Theme.quick
+                }
+            }
+
+            IconImage {
+                anchors.centerIn: parent
+                implicitSize: 16
+                source: Quickshell.iconPath("puter-fold")
+                rotation: bar.folded ? 180 : 0
+                Behavior on rotation {
+                    NumberAnimation {
+                        duration: Theme.open
+                        easing.type: Easing.OutCubic
+                    }
+                }
+            }
+
+            MouseArea {
+                id: foldMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: bar.folded = !bar.folded
+            }
+        }
+
+        Rectangle {
+            id: pill
+            x: fold.width
+            width: statusRow.implicitWidth + (Theme.bar - Theme.module)
+            height: Theme.bar
+            topRightRadius: Theme.radius
+            bottomRightRadius: Theme.radius
+            color: Colors.bar
+
+            Row {
+                id: statusRow
+                x: (Theme.bar - Theme.module) / 2
+                y: (Theme.bar - Theme.module) / 2
+
+                // The network: signal bars, struck through when offline; opens
+                // nmtui in the terminal (networks, Wi-Fi and its passwords).
+                BarButton {
+                    icon: bar.online ? "puter-network" : "puter-network-off"
+                    onClicked: Quickshell.execDetached(["qterminal", "-e", "nmtui"])
+                }
+
+                // Volume: a speaker, muted or not; a click opens its slider
+                // (Volume.qml), the wheel turns it up or down a tenth at a time.
+                BarButton {
+                    icon: bar.muted ? "puter-volume-muted" : "puter-volume"
+                    onClicked: bar.volume()
+                    onScrolled: steps => {
+                        if (!bar.sink?.audio)
+                            return;
+                        bar.sink.audio.muted = false;
+                        bar.sink.audio.volume = Math.max(0, Math.min(1, Math.round(bar.sink.audio.volume * 10 + steps) / 10));
+                    }
+                }
+
+                Chip {
+                    text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
+                    fill: Colors.bar
+                    ink: Colors.barInk
+                }
+
+                // Updates (Updates.qml): the glyph turns while one runs, and the
+                // button takes the attention colour when it wants a restart.
+                BarButton {
+                    icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
+                    fill: bar.updates === "restart" ? Colors.attention : Colors.bar
+                    onClicked: bar.update()
+                }
+
+                BarButton {
+                    icon: "puter-restart"
+                    onClicked: Quickshell.execDetached(["systemctl", "reboot"])
+                }
+
+                BarButton {
+                    icon: "puter-power"
+                    onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
+                }
+            }
+        }
+    }
+
+    // The clock ticks once a minute.
+    SystemClock {
+        id: clock
+        precision: SystemClock.Minutes
     }
 
     PwObjectTracker {
@@ -158,74 +274,5 @@ PanelWindow {
         stdout: StdioCollector {
             onStreamFinished: bar.online = text.split("\n").some(state => state === "connected")
         }
-    }
-
-    // The network: signal bars, struck through when offline; opens nmtui
-    // in the terminal (networks, Wi-Fi and its passwords).
-    BarButton {
-        id: network
-        anchors.right: volume.left
-        y: Theme.module
-        icon: bar.online ? "puter-network" : "puter-network-off"
-        onClicked: Quickshell.execDetached(["qterminal", "-e", "nmtui"])
-    }
-
-    // Volume: a speaker, muted or not; a click opens its slider (Volume.qml),
-    // the wheel turns it up or down a tenth at a time.
-    BarButton {
-        id: volume
-        anchors.right: time.left
-        y: Theme.module
-        icon: bar.muted ? "puter-volume-muted" : "puter-volume"
-        onClicked: bar.volume()
-        onScrolled: steps => {
-            if (!bar.sink?.audio)
-                return;
-            bar.sink.audio.muted = false;
-            bar.sink.audio.volume = Math.max(0, Math.min(1, Math.round(bar.sink.audio.volume * 10 + steps) / 10));
-        }
-    }
-
-    // The clock ticks once a minute.
-    SystemClock {
-        id: clock
-        precision: SystemClock.Minutes
-    }
-
-    Chip {
-        id: time
-        anchors.right: update.left
-        y: Theme.module
-        text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
-        fill: Colors.bar
-        ink: Colors.barInk
-    }
-
-    // Updates (Updates.qml): the glyph turns while one runs, and the button
-    // takes the attention colour when it wants a restart to finish.
-    BarButton {
-        id: update
-        anchors.right: restart.left
-        y: Theme.module
-        icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
-        fill: bar.updates === "restart" ? Colors.attention : Colors.bar
-        onClicked: bar.update()
-    }
-
-    // Power, in the corner.
-    BarButton {
-        id: restart
-        anchors.right: shutDown.left
-        y: Theme.module
-        icon: "puter-restart"
-        onClicked: Quickshell.execDetached(["systemctl", "reboot"])
-    }
-
-    BarButton {
-        id: shutDown
-        anchors.right: parent.right
-        y: Theme.module
-        icon: "puter-power"
-        onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
     }
 }

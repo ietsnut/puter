@@ -1,6 +1,6 @@
 # Everything puter installs: Arch's packages, and puter's own from its
-# pacman repository, [puter] (listed first, so its labwc and qps are the
-# patched ones), which CI builds and signs from packages/ and src/
+# pacman repository, [puter] (listed first, so its labwc, wlroots and qps
+# are the patched ones), which CI builds and signs from packages/ and src/
 # (packages/build). The apps are Qt Widgets ones, styled by puter's Qt
 # style and stylesheet through qt6ct.
 #
@@ -79,7 +79,7 @@ bluez                 iMac18,3
 bluez-utils           iMac18,3
 
 # Fonts
-ttf-ibm-plex
+ttf-geist
 noto-fonts
 noto-fonts-emoji
 

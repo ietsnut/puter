@@ -1,46 +1,56 @@
-# Stack: after Koto's identity for Stack Overflow (2026) and Butterfly's
-# Pond. A brown desk dotted on the grid, paper windows under bone title
-# bars, and a few strong colours that mark rather than fill: every app has
-# its own, shown as a square on its title bar and taskbar tab. Set in IBM
-# Plex Sans.
+# Stack: after fal.ai's identity (2026). An olive desk with puter's lockup in
+# its middle (a big pixel bug), a floating mint bar, white windows under
+# mint tabs, no outlines anywhere: things part by colour alone, at a 4px
+# corner. Strong flat colours, each app its own, shown as a dot on its tab.
+# Set in Geist.
 # Roles on the left, the palette's colours on the right. `theme/make` writes
 # every app's colours from the palette named in theme/palette.
 
 # The interface.
-desk          plum
-desk-dot      bone            # a dot at every module corner on the desk
-bar           bone            # the taskbar strip and the clock
+desk          olive
+desk-dot      olive           # no grid
+# The big bug in the desk's middle (Desk.qml).
+mark          mint
+# The dinosaurs standing on the bar (Desk.qml).
+dino-1        lilac
+dino-2        lime
+# The screensaver's life (Life.qml): four colours of cell on the desk.
+life-1        lime
+life-2        cyan
+life-3        pink
+life-4        lilac
+bar           mint            # the floating bar's pills and the clock
 bar-ink       ink
-bar-edge      bone            # a line along the bar's top: the bar's colour, so none
-search        bone            # the search square in the bar's corner
+bar-edge      mint            # no line along the bar
+search        cyan            # the search mark's tile
 search-ink    ink
-tab           bone            # a window's tab on the taskbar
+tab           mint            # a window's tab on the bar
 tab-ink       ink
 tab-active    paper           # the focused window's tab
 tab-active-ink  ink
 paper         paper
 ink           ink
-accent        lilac           # highlights and selections
+accent        cyan            # highlights and selections
 accent-ink    ink
-muted         bone            # headers, the bar's other tabs
-muted-ink     stone-dark
-outline       ink             # the thin edge around windows, menus and popups
-rule          sand            # the lighter lines inside: table grids, dividers
-title         bone            # title bars, and the open tab inside apps
+muted         mint            # headers, the bar's other tabs
+muted-ink     stone
+outline       mint            # no outlines: where an edge must be drawn, it's the faintest fill
+rule          mint-dark       # the lines inside: table grids, dividers
+title         mint            # title tabs, and the open tab inside apps
 title-ink     ink
+title-active  paper           # the focused window's tab: it joins its body
 
 # What's under the pointer inside apps: buttons, tabs, the scroll bar.
-hover         sand
+hover         mint-dark
 hover-ink     ink
 
-# The bar's buttons and tabs, and the window buttons, under the pointer: the
-# square in pink, the glyph as it was.
-button-hover      pink
+# The bar's buttons and tabs, and the window buttons, under the pointer.
+button-hover      lime
 button-hover-ink  ink
-close-hover       orange
+close-hover       pink
 close-hover-ink   ink
 # An agent's taskbar tab while it waits for you (bin/puter-agent).
-attention         orange
+attention         pink
 attention-ink     ink
 
 # Syntax highlighting in the text editor, on paper.
@@ -48,13 +58,13 @@ code-comment   stone-dark
 code-keyword   periwinkle-dark
 code-string    lime-dark
 code-number    orange
-code-type      ink
+code-type      forest
 code-constant  lilac-dark
 code-function  blue-dark
-code-builtin   plum
+code-builtin   pink-dark
 code-regex     red
 code-tag       purple
-code-value     cyan
+code-value     cyan-dark
 code-other     yellow-dark
 
 # The terminal's sixteen ANSI colours, on paper.
@@ -136,68 +146,75 @@ sch-hidden        sand
 3d-silk           white
 
 [fonts]
-sans      IBM Plex Sans
-mono      IBM Plex Mono
-headline  IBM Plex Sans
+sans      Geist
+mono      Geist Mono
+headline  Geist
 
-# Each app's square, by its icon name.
+# Each app's dot, by its icon name.
 [apps]
 featherpad            orange
 pcmanfm-qt            lilac
 utilities-terminal    lime
-lximage-qt            periwinkle
+lximage-qt            pink
 firefox               yellow
-x-office-spreadsheet  sky
+x-office-spreadsheet  blue
 jlcone                peach
-kicad                 plum
-pcbnew                plum
-eeschema              plum
-mpv                   pink
-# The file dialog every app gets (LXQt's portal, by its app ID, as it has
-# no desktop file of that name): the files colour.
+kicad                 forest
+pcbnew                forest
+eeschema              forest
+mpv                   pink-dark
 xdg-desktop-portal-lxqt  lilac
-org.mozilla.Thunderbird  yellow-dark
+org.mozilla.Thunderbird  cyan-dark
 qpdfview              red
-lxqt-archiver         purple
-accessories-calculator  periwinkle-dark
+lxqt-archiver         violet
+accessories-calculator  blue-light
 qps                   lime-dark
-# The agents (bin/puter-agent), each in its own terminal window.
 claude                coral-dark
 codex                 cyan
 
 [colors]
-ink              #060606
-charcoal         #231f20
-charcoal-light   #4a4446
-stone-dark       #6b6459
-stone            #958d79
-sand             #d6d1cb
-bone             #f1f0ec
+ink              #000000
+charcoal         #1a1a14
+charcoal-light   #3d3d33
+stone-dark       #5c5c52
+stone            #8a8a7f
+sand             #c9d3cc
+bone             #e5ece7
 paper            #ffffff
-orange           #e4722c
-peach            #f0a27a
-yellow           #f2c14e
-lime             #9cb747
-lime-dark        #5f7a1e
-lilac            #e0a9df
-lilac-dark       #a2589f
-pink             #e88fb0
-periwinkle       #a9a7f9
-periwinkle-dark  #5552c4
-sky              #c9d1e2
-plum             #583127
+mint             #e5ece7
+mint-dark        #c9d3cc
+olive            #403700
+olive-light      #6b5d00
+cyan             #99edff
+cyan-dark        #1f8fa8
+cyan-light       #c5e9ff
+lime             #adff00
+lime-dark        #4f7a00
+lime-pale        #f1ffd2
+blue             #115ef3
+blue-dark        #0b3fa8
+blue-light       #8fb4ff
+violet           #5718c0
+lilac            #ab77ff
+lilac-dark       #7a3fe0
+lilac-light      #d5bbff
+pink             #ffc4d8
+pink-dark        #e0457b
+forest           #004012
+orange           #ff7a1a
+peach            #ffc49e
+yellow           #ffd600
+yellow-dark      #b28600
+sky              #c5e9ff
+plum             #403700
+periwinkle       #8fb4ff
+periwinkle-dark  #115ef3
 black            #000000
 white            #ffffff
-blue             #5552c4
-blue-dark        #3b38a0
-blue-light       #a9a7f9
-coral            #e4722c
-coral-dark       #b85926
-magenta          #a2589f
-red              #c8372d
-green            #5f7a1e
-green-light      #9cb747
-yellow-dark      #b28600
-cyan             #3e8fa8
-cyan-light       #8ccbdc
-purple           #7a52c4
+coral            #ff7a1a
+coral-dark       #d4520a
+magenta          #7a3fe0
+red              #e0243c
+green            #4f7a00
+green-light      #adff00
+purple           #5718c0

@@ -1,22 +1,22 @@
 # puter
 
 My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
-search, and Qt Widgets apps, all on a 30px module, square and flat, with IBM's
+search, and Qt Widgets apps, all on a 30px module, flat, at a 4px corner, with
 Carbon icons. Made for workshops and machines with nothing sensitive on
 them: nothing asks for a password (sudo, polkit, the login), like Kali.
-Two looks, one palette file each: `stack` (a
-dotted brown desk, bone title bars, a colour for every app)
-and `mulholland` (black, white and gray, IBM Plex).
+One look, after fal.ai: an olive desk with a big pixel bug and two
+dinosaurs, a floating bar, title tabs, no outlines, a colour for every app,
+Geist.
 
 | Path | What it is |
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, configs, no passwords, straight into the desktop |
 | `packages.txt` | everything it installs: Arch's packages and puter's own (`[puter]`), a few marked for one architecture |
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
-| `theme/` | the look: `palettes/mulholland` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
+| `theme/` | the look: `palettes/stack` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
-| `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
+| `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line) and `corners.patch` (rounded windows, through its own wlroots, `wlroots0.20`), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
 | `vm/` | puter on a Mac with Apple silicon: `try` downloads puter's virtual machine (the aarch64 build, installed) from `ghcr.io/ietsnut/puter-vm` and starts it in QEMU at the Mac's own speed; `build` makes it |
 

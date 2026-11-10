@@ -24,8 +24,8 @@ PanelWindow {
         top: true
         right: true
     }
-    margins.top: Theme.module
-    margins.right: Theme.module
+    margins.top: Theme.gap
+    margins.right: Theme.gap
     implicitWidth: Theme.module * 12
     implicitHeight: Math.max(1, stack.height)
     visible: server.trackedNotifications.values.length > 0
@@ -59,11 +59,12 @@ PanelWindow {
     Column {
         id: stack
         width: toasts.width
+        spacing: Theme.gap
 
         Repeater {
             model: server.trackedNotifications.values.slice().reverse().slice(0, toasts.shown)
 
-            Rectangle {
+            Card {
                 id: toast
                 required property var modelData
                 readonly property bool critical: modelData.urgency === NotificationUrgency.Critical
@@ -99,6 +100,8 @@ PanelWindow {
                     id: strip
                     width: parent.width
                     height: Theme.module
+                    topLeftRadius: Theme.radius
+                    topRightRadius: Theme.radius
                     // Critical ones in the attention colour, whatever the app.
                     color: toast.critical ? Colors.attention : toasts.color(toast.modelData)
 
@@ -202,19 +205,6 @@ PanelWindow {
                     color: Colors.outline
                 }
 
-                // Its edge; the top one is left to the toast above, so two
-                // toasts meet on one line.
-                Outline {
-                    edgeTop: toast.modelData === server.trackedNotifications.values[server.trackedNotifications.values.length - 1]
-                }
-
-                // Under the strip, the edge between it and the text.
-                Rectangle {
-                    y: Theme.module - 1
-                    width: parent.width
-                    height: 1
-                    color: Colors.outline
-                }
             }
         }
     }

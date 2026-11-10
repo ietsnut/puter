@@ -5,7 +5,13 @@
 # border further out, so windows meet on one line and no border is drawn
 # along the screen's edge; and pixels.patch, which reads a font's size in
 # pixels rather than points, so its text is 15px like all of puter's (in
-# whole points it could only be 14.67 or 16). Built by CI (packages/build),
+# whole points it could only be 14.67 or 16); and tab.patch, which makes the
+# title bar a tab, only as wide as its icon, title and buttons, at the
+# window's top left, with nothing drawn to its right; and corners.patch,
+# which rounds the window's other corners at the title bar's radius (all
+# four without a title bar, the top right square where the tab reaches it,
+# none when maximized, snapped or fullscreen), through puter's wlroots
+# (packages/wlroots0.20), which it needs. Built by CI (packages/build),
 # which keeps it to Arch's version.
 #
 # Maintainer: Peter Jung <ptr1337@archlinux.org>
@@ -13,7 +19,7 @@
 
 pkgname=labwc
 pkgver=0.20.2
-pkgrel=1.4
+pkgrel=1.5
 pkgdesc='stacking wayland compositor with look and feel from openbox'
 url="https://github.com/labwc/labwc"
 arch=('x86_64' 'aarch64')
@@ -26,7 +32,7 @@ depends=(
   libpng
   librsvg
   libsfdo
-  libwlroots-0.20.so
+  wlroots0.20
   libxcb
   libxkbcommon
   libxml2
@@ -49,16 +55,22 @@ optdepends=(
 )
 source=("git+https://github.com/labwc/labwc#tag=${pkgver}"
         snap.patch
-        pixels.patch)
+        pixels.patch
+        tab.patch
+        corners.patch)
 b2sums=('8f8023a5bc31e7fe52d80f1c99b02c59bd9ff9a3779145b9077dac3c2c4a78e291b99dc770039f90ac1ff548ff53adfeddad35de07f5d14d736b4c562ce3554f'
         'a1a6935e2d4f96def23f9e024208d2786239f7be34f163d6c0920f3843fbea4ce9c536aff4e2fef4c6f21db77973e13264c165538780a67ced19aa71ed9ff28c'
-        '424411849e09b5dbae818b1b934414385b20af6b2ba60a1b0e4917a4ae109087a19a0d7af8ca531ce73e16e512fafeb467267baa984fff87283c8de836a48d18')
+        '424411849e09b5dbae818b1b934414385b20af6b2ba60a1b0e4917a4ae109087a19a0d7af8ca531ce73e16e512fafeb467267baa984fff87283c8de836a48d18'
+        '428ab83254f66b553ba23e711febab1234348696e49d6a75aa80e725db5ea6cf87fef875d042a32c05da04ee6303f54c4d9ce8a40d77fd749eee116fc7eeec0e'
+        '5bac528a6d24fa4a850280c5f608a1571545f8d26b253ad2663ba01087f9aa95c7a4852e1d413695e3157eac5702525a25217c5062bad1a3d4567792399c980a')
 
 prepare() {
   cd $pkgname
   # Fails if labwc ever moves the lines the patch touches.
   patch -p1 < ../snap.patch
   patch -p1 < ../pixels.patch
+  patch -p1 < ../tab.patch
+  patch -p1 < ../corners.patch
 }
 
 build() {

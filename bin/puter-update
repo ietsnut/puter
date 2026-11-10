@@ -3,9 +3,10 @@
 #
 #   1. Arch and puter's own packages: the keyring first, then every package
 #      (the kernel, firmware files, the apps, Codex), and any package puter
-#      has added to packages.txt since. puter's own (labwc and qps patched,
-#      wlrctl, qpdfview, JLCONE, and its apps from src/) come from its pacman
-#      repository, [puter], which CI builds and signs (packages/build)
+#      has added to packages.txt since. puter's own (labwc, wlroots and qps
+#      patched, wlrctl, qpdfview, JLCONE, and its apps from src/) come from
+#      its pacman repository, [puter], which CI builds and signs
+#      (packages/build)
 #   2. firmware, through fwupd (the machine's own: disks, the BIOS, docks)
 #   3. puter itself, from its git remote, when this checkout has one
 #   4. Claude Code, through its own updater
@@ -118,7 +119,7 @@ packages() { # [arch] [model]
 # puter's pacman repository, [puter]: built and signed by CI
 # (packages/build), trusted through puter's key (packages/puter.gpg, taken
 # again each time, so a new key only needs committing) and listed before
-# Arch's own, so its labwc and qps, patched, are the ones installed.
+# Arch's own, so its labwc, wlroots and qps, patched, are the ones installed.
 puter_repo() {
   pacman-key --add "$repo/packages/puter.gpg" >/dev/null || return 1
   pacman-key --lsign-key "$(gpg --with-colons --show-keys "$repo/packages/puter.gpg" |
