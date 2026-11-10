@@ -108,7 +108,7 @@ for app in ("firefox", "thunderbird"):
 
 # labwc: title bars and menus.
 (theme / "labwc" / "themerc").write_text(f"""# Written by theme/make from theme/palette; edit those, not this.
-# A one-module title tab, paper when focused so it joins its body, in the
+# A one-module title bar, paper when focused so it joins its body, in the
 # title colour when not; paper bodies, flat and without outlines (the corners
 # are rc.xml's). The buttons are the SVGs beside this file.
 border.width: 0
@@ -262,7 +262,7 @@ for name, icon in (("window-close", "close"), ("window-minimize", "subtract"),
 
 
 # Apps: a solid dot in the app's colour, 10px at 16 and 14px at 24, so a
-# title tab, a taskbar tab and search show which app is which by colour.
+# title bar, a taskbar tab and search show which app is which by colour.
 def square(size, side, color):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
             f'<circle cx="{size / 2:g}" cy="{size / 2:g}" r="{side / 2:g}" fill="{color}"/></svg>\n')

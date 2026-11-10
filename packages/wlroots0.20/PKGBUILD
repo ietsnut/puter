@@ -3,7 +3,9 @@
 # the corners of a box (wlr_scene_tree_set_corners()): nothing in it is
 # drawn outside the arcs, a staircase of the output's own pixels, what's
 # beneath shows through, and such a buffer is never scanned out directly;
-# puter's labwc rounds its windows with it. Checked by its hash rather than
+# and effect.patch, which fades a scene tree and shrinks it about a point
+# (wlr_scene_tree_set_effect()), for windows opening and closing; puter's
+# labwc rounds and animates its windows with them. Checked by its hash rather than
 # its authors' signature (no key to fetch on a fresh install), as qps is.
 # Built by CI (packages/build), which keeps it to Arch's version.
 #
@@ -12,7 +14,7 @@
 pkgname=wlroots0.20
 _pkgname=wlroots
 pkgver=0.20.2
-pkgrel=1.1
+pkgrel=1.2
 pkgdesc="Modular Wayland compositor library"
 url="https://gitlab.freedesktop.org/wlroots/wlroots"
 license=('MIT')
@@ -25,14 +27,17 @@ optdepends=('xorg-xwayland: Xwayland support'
             'vulkan-validation-layers: validation layers for the experimental vulkan renderer backend')
 provides=("libwlroots-${pkgver%.*}.so")
 source=("${pkgname}::git+${url}.git#tag=${pkgver}"
-        corners.patch)
+        corners.patch
+        effect.patch)
 sha256sums=('6c8595da579a8df74bc307294c2485e90f5379b84390381f500da33ff3f276d2'
-            '878c2b865f8a0c3af59efb9a262e46e4cc549d3b19748e76659a5b669320b21f')
+            '878c2b865f8a0c3af59efb9a262e46e4cc549d3b19748e76659a5b669320b21f'
+            '23483789a3e4eb2445b81948816ae98a7e575a890eb6dd784685b345fc979f8f')
 
 prepare() {
 	cd "${pkgname}"
 	# Fails if wlroots ever moves the lines the patch touches.
 	patch -p1 < ../corners.patch
+	patch -p1 < ../effect.patch
 }
 
 build() {

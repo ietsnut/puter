@@ -1,5 +1,5 @@
 # Written by theme/make from theme/palette; edit those, not this.
-# A one-module title tab, paper when focused so it joins its body, in the
+# A one-module title bar, paper when focused so it joins its body, in the
 # title colour when not; paper bodies, flat and without outlines (the corners
 # are rc.xml's). The buttons are the SVGs beside this file.
 border.width: 0

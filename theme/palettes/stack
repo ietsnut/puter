@@ -36,7 +36,7 @@ muted         mint            # headers, the bar's other tabs
 muted-ink     stone
 outline       mint            # no outlines: where an edge must be drawn, it's the faintest fill
 rule          mint-dark       # the lines inside: table grids, dividers
-title         mint            # title tabs, and the open tab inside apps
+title         mint            # title bars, and the open tab inside apps
 title-ink     ink
 title-active  paper           # the focused window's tab: it joins its body
 

@@ -1,0 +1,256 @@
+diff --git a/include/animate.h b/include/animate.h
+new file mode 100644
+index 00000000..122fcf39
+--- /dev/null
++++ b/include/animate.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++#ifndef LABWC_ANIMATE_H
++#define LABWC_ANIMATE_H
++
++struct view;
++
++/* puter: a window fades and grows in as it's shown */
++void animate_open(struct view *view);
++
++/* puter: a copy of a window fades and shrinks away as it's hidden */
++void animate_close(struct view *view);
++
++#endif /* LABWC_ANIMATE_H */
+diff --git a/src/animate.c b/src/animate.c
+new file mode 100644
+index 00000000..ad2f6eea
+--- /dev/null
++++ b/src/animate.c
+@@ -0,0 +1,193 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * puter: windows open and close with a little life: opening, a window
++ * fades in as it grows to its size from a touch smaller; closing (or
++ * minimizing), a copy of its last frame fades out as it shrinks.
++ */
++#include "animate.h"
++#include <stdlib.h>
++#include <time.h>
++#include <wlr/types/wlr_scene.h>
++#include "common/mem.h"
++#include "labwc.h"
++#include "view.h"
++
++#define OPEN_MS 200
++#define CLOSE_MS 150
++/* The size a window grows from and shrinks to */
++#define SMALL 0.9f
++#define FRAME_MS 8
++
++struct animation {
++	struct wlr_scene_tree *tree;
++	/* Opening: the window, for its size as it settles; NULL closing */
++	struct view *view;
++	int cx, cy;
++	int64_t start;
++	struct wl_event_source *timer;
++	struct wl_listener destroy;
++	struct wl_list link;
++};
++
++static struct wl_list animations = { &animations, &animations };
++
++static int64_t
++now_ms(void)
++{
++	struct timespec ts;
++	clock_gettime(CLOCK_MONOTONIC, &ts);
++	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
++}
++
++static void
++finish(struct animation *animation)
++{
++	wl_list_remove(&animation->link);
++	wl_list_remove(&animation->destroy.link);
++	wl_event_source_remove(animation->timer);
++	free(animation);
++}
++
++static void
++handle_destroy(struct wl_listener *listener, void *data)
++{
++	struct animation *animation =
++		wl_container_of(listener, animation, destroy);
++	finish(animation);
++}
++
++static int
++handle_frame(void *data)
++{
++	struct animation *animation = data;
++	float t = (float)(now_ms() - animation->start)
++		/ (animation->view ? OPEN_MS : CLOSE_MS);
++	if (t > 1) {
++		t = 1;
++	}
++	if (animation->view) {
++		struct view *view = animation->view;
++		/* Out, quickly then gently */
++		float p = 1 - (1 - t) * (1 - t) * (1 - t);
++		wlr_scene_tree_set_effect(animation->tree, p,
++			SMALL + (1 - SMALL) * p,
++			view->current.width / 2, view->current.height / 2);
++		if (t == 1) {
++			finish(animation);
++			return 0;
++		}
++	} else {
++		/* In, gently then quickly */
++		float p = t * t;
++		wlr_scene_tree_set_effect(animation->tree, 1 - p,
++			1 - (1 - SMALL) * p, animation->cx, animation->cy);
++		if (t == 1) {
++			/* Its destroy handler finishes it */
++			wlr_scene_node_destroy(&animation->tree->node);
++			return 0;
++		}
++	}
++	wl_event_source_timer_update(animation->timer, FRAME_MS);
++	return 0;
++}
++
++static void
++start(struct wlr_scene_tree *tree, struct view *view, int cx, int cy)
++{
++	struct animation *animation = znew(*animation);
++	animation->tree = tree;
++	animation->view = view;
++	animation->cx = cx;
++	animation->cy = cy;
++	animation->start = now_ms();
++	animation->timer = wl_event_loop_add_timer(server.wl_event_loop,
++		handle_frame, animation);
++	animation->destroy.notify = handle_destroy;
++	wl_signal_add(&tree->node.events.destroy, &animation->destroy);
++	wl_list_insert(&animations, &animation->link);
++	handle_frame(animation);
++}
++
++void
++animate_open(struct view *view)
++{
++	struct animation *animation, *tmp;
++	wl_list_for_each_safe(animation, tmp, &animations, link) {
++		if (animation->tree == view->scene_tree) {
++			finish(animation);
++		}
++	}
++	start(view->scene_tree, view, 0, 0);
++}
++
++static bool
++accepts_no_input(struct wlr_scene_buffer *buffer, double *sx, double *sy)
++{
++	return false;
++}
++
++/*
++ * A copy of node as it's drawn now, in parent. The window's own surfaces'
++ * trees are hidden as they unmap, before we're told, so with unmapped they
++ * count as shown (what has nothing to show has no buffer).
++ */
++static void
++copy(struct wlr_scene_node *node, struct wlr_scene_tree *parent, bool unmapped)
++{
++	if (!node->enabled && !(unmapped && node->type == WLR_SCENE_NODE_TREE)) {
++		return;
++	}
++	struct wlr_scene_node *to = NULL;
++	switch (node->type) {
++	case WLR_SCENE_NODE_TREE: {
++		struct wlr_scene_tree *tree = wlr_scene_tree_create(parent);
++		struct wlr_scene_node *child;
++		wl_list_for_each(child,
++				&wlr_scene_tree_from_node(node)->children, link) {
++			copy(child, tree, unmapped);
++		}
++		to = &tree->node;
++		break;
++	}
++	case WLR_SCENE_NODE_RECT: {
++		struct wlr_scene_rect *rect = wlr_scene_rect_from_node(node);
++		to = &wlr_scene_rect_create(parent, rect->width, rect->height,
++			rect->color)->node;
++		break;
++	}
++	case WLR_SCENE_NODE_BUFFER: {
++		struct wlr_scene_buffer *buffer = wlr_scene_buffer_from_node(node);
++		if (!buffer->buffer) {
++			return;
++		}
++		struct wlr_scene_buffer *same =
++			wlr_scene_buffer_create(parent, buffer->buffer);
++		wlr_scene_buffer_set_source_box(same, &buffer->src_box);
++		wlr_scene_buffer_set_dest_size(same,
++			buffer->dst_width, buffer->dst_height);
++		wlr_scene_buffer_set_transform(same, buffer->transform);
++		wlr_scene_buffer_set_opacity(same, buffer->opacity);
++		wlr_scene_buffer_set_filter_mode(same, buffer->filter_mode);
++		same->point_accepts_input = accepts_no_input;
++		to = &same->node;
++		break;
++	}
++	}
++	wlr_scene_node_set_position(to, node->x, node->y);
++}
++
++void
++animate_close(struct view *view)
++{
++	struct wlr_scene_tree *from = view->scene_tree;
++	struct wlr_scene_tree *tree = wlr_scene_tree_create(from->node.parent);
++	wlr_scene_node_set_position(&tree->node, from->node.x, from->node.y);
++	wlr_scene_node_place_above(&tree->node, &from->node);
++	struct wlr_scene_node *child;
++	wl_list_for_each(child, &from->children, link) {
++		copy(child, tree, view->content_tree
++			&& child == &view->content_tree->node);
++	}
++	view_round(view, tree);
++	start(tree, NULL, view->current.width / 2, view->current.height / 2);
++}
+diff --git a/src/meson.build b/src/meson.build
+index 05163cfa..6e10b2e6 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -1,5 +1,6 @@
+ labwc_sources = files(
+   'action.c',
++  'animate.c',
+   'buffer.c',
+   'debug.c',
+   'desktop.c',
+diff --git a/src/view.c b/src/view.c
+index 18f3c15e..54830863 100644
+--- a/src/view.c
++++ b/src/view.c
+@@ -9,6 +9,7 @@
+ #include <wlr/types/wlr_security_context_v1.h>
+ #include <wlr/types/wlr_xdg_shell.h>
+ #include "action.h"
++#include "animate.h"
+ #include "buffer.h"
+ #include "common/box.h"
+ #include "common/list.h"
+@@ -2416,7 +2417,14 @@ view_update_visibility(struct view *view)
+ 		return;
+ 	}
+ 
++	/* puter: it opens and closes with a little life */
++	if (!visible) {
++		animate_close(view);
++	}
+ 	wlr_scene_node_set_enabled(&view->scene_tree->node, visible);
++	if (visible) {
++		animate_open(view);
++	}
+ 
+ 	/*
+ 	 * Show top layer when a fullscreen view is hidden.

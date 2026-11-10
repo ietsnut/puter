@@ -8,6 +8,13 @@
     <cascadeOffset x="30" y="30" />
   </placement>
 
+  <!-- Maximized and snapped windows float a gap (Theme.qml's) from the
+       screen's edges, the bar and each other, rounded like any window
+       (packages/labwc/gap.patch, corners.patch). -->
+  <core>
+    <gap>10</gap>
+  </core>
+
   <theme>
     <name>puter</name>
     <titlebar>

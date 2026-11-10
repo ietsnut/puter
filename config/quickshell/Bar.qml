@@ -48,7 +48,9 @@ PanelWindow {
         right: true
     }
     implicitHeight: Theme.module * 2
-    exclusiveZone: Theme.module * 2
+    // Up to the pills' tops: windows keep the gap from them (labwc's
+    // <gap>), as from every edge.
+    exclusiveZone: Theme.gap + Theme.bar
     color: "transparent"
 
     mask: Region {

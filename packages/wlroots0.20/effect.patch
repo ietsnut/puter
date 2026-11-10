@@ -1,0 +1,187 @@
+diff --git a/include/wlr/types/wlr_scene.h b/include/wlr/types/wlr_scene.h
+index 6efa7ff4d..5d21d8d65 100644
+--- a/include/wlr/types/wlr_scene.h
++++ b/include/wlr/types/wlr_scene.h
+@@ -97,6 +97,10 @@ struct wlr_scene_tree {
+ 	struct {
+ 		int width, height, radius;
+ 		uint32_t corners; // enum wlr_scene_corner
++		// puter: see wlr_scene_tree_set_effect()
++		bool effect;
++		float opacity, scale;
++		int cx, cy;
+ 	} WLR_PRIVATE;
+ };
+ 
+@@ -412,6 +416,15 @@ struct wlr_scene_tree *wlr_scene_tree_create(struct wlr_scene_tree *parent);
+ void wlr_scene_tree_set_corners(struct wlr_scene_tree *tree,
+ 	int width, int height, int radius, uint32_t corners);
+ 
++/**
++ * puter: draws everything in the tree at opacity, and scaled by scale (at
++ * most 1) about the point (cx, cy) from the tree's origin, as a window
++ * opening or closing: nothing of it is opaque meanwhile. Input still finds
++ * it where it would be. An opacity and scale of 1 draw it as it is.
++ */
++void wlr_scene_tree_set_effect(struct wlr_scene_tree *tree,
++	float opacity, float scale, int cx, int cy);
++
+ /**
+  * Add a node displaying a single surface to the scene-graph.
+  *
+diff --git a/types/scene/wlr_scene.c b/types/scene/wlr_scene.c
+index 61324ea21..d8d134e5a 100644
+--- a/types/scene/wlr_scene.c
++++ b/types/scene/wlr_scene.c
+@@ -284,6 +284,38 @@ static bool scene_node_rounded(struct wlr_scene_node *node, int x, int y,
+ 	return false;
+ }
+ 
++/*
++ * puter: the nearest tree over node with an effect (see
++ * wlr_scene_tree_set_effect()), its opacity, scale and centre in the
++ * coordinates node is at (x, y) in.
++ */
++static bool scene_node_effect(struct wlr_scene_node *node, int x, int y,
++		float *opacity, float *scale, int *cx, int *cy) {
++	for (; node->parent != NULL; node = &node->parent->node) {
++		x -= node->x;
++		y -= node->y;
++		struct wlr_scene_tree *tree = node->parent;
++		if (tree->effect) {
++			*opacity = tree->opacity;
++			*scale = tree->scale;
++			*cx = x + tree->cx;
++			*cy = y + tree->cy;
++			return true;
++		}
++	}
++	return false;
++}
++
++// puter: a box scaled about (cx, cy)
++static void effect_box(struct wlr_box *box, float scale, int cx, int cy) {
++	int right = round(cx + (box->x + box->width - cx) * scale);
++	int bottom = round(cy + (box->y + box->height - cy) * scale);
++	box->x = round(cx + (box->x - cx) * scale);
++	box->y = round(cy + (box->y - cy) * scale);
++	box->width = right - box->x;
++	box->height = bottom - box->y;
++}
++
+ /*
+  * puter: adds a box's corners to region: the pixels whose centres lie
+  * outside each corner's arc, or with whole, its radius-sized square.
+@@ -346,6 +378,14 @@ static void scene_node_opaque_region(struct wlr_scene_node *node, int x, int y,
+ 	int width, height;
+ 	scene_node_get_size(node, &width, &height);
+ 
++	// puter: nothing is opaque while it fades or shrinks
++	float effect_opacity, effect_scale;
++	int effect_x, effect_y;
++	if (scene_node_effect(node, x, y, &effect_opacity, &effect_scale,
++			&effect_x, &effect_y)) {
++		return;
++	}
++
+ 	if (node->type == WLR_SCENE_NODE_RECT) {
+ 		struct wlr_scene_rect *scene_rect = wlr_scene_rect_from_node(node);
+ 		if (scene_rect->color[3] != 1) {
+@@ -1364,6 +1404,21 @@ void wlr_scene_tree_set_corners(struct wlr_scene_tree *tree,
+ 	scene_node_update(&tree->node, NULL);
+ }
+ 
++void wlr_scene_tree_set_effect(struct wlr_scene_tree *tree,
++		float opacity, float scale, int cx, int cy) {
++	bool effect = opacity != 1 || scale != 1;
++	if (!effect && !tree->effect) {
++		return;
++	}
++	assert(scale <= 1);
++	tree->effect = effect;
++	tree->opacity = opacity;
++	tree->scale = scale;
++	tree->cx = cx;
++	tree->cy = cy;
++	scene_node_update(&tree->node, NULL);
++}
++
+ void wlr_scene_node_place_above(struct wlr_scene_node *node,
+ 		struct wlr_scene_node *sibling) {
+ 	assert(node != sibling);
+@@ -1565,11 +1620,18 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 	int x = entry->x - data->logical.x;
+ 	int y = entry->y - data->logical.y;
+ 
++	// puter: a fading or shrinking tree's (wlr_scene_tree_set_effect())
++	float alpha = 1, effect_scale = 1;
++	int effect_x = 0, effect_y = 0;
++	scene_node_effect(node, x, y, &alpha, &effect_scale, &effect_x, &effect_y);
++
+ 	// puter: a rounded node's corners are cut out at the output's pixels
+ 	struct wlr_box rounded;
+ 	int radius;
+ 	uint32_t corners;
+ 	if (scene_node_rounded(node, x, y, &rounded, &radius, &corners)) {
++		effect_box(&rounded, effect_scale, effect_x, effect_y);
++		radius = round(radius * effect_scale);
+ 		scale_box(&rounded, data->scale);
+ 		pixman_region32_t cut;
+ 		pixman_region32_init(&cut);
+@@ -1590,6 +1652,7 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 		.y = y,
+ 	};
+ 	scene_node_get_size(node, &dst_box.width, &dst_box.height);
++	effect_box(&dst_box, effect_scale, effect_x, effect_y);
+ 	transform_output_box(&dst_box, data);
+ 
+ 	pixman_region32_t opaque;
+@@ -1611,7 +1674,7 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 				.r = scene_rect->color[0],
+ 				.g = scene_rect->color[1],
+ 				.b = scene_rect->color[2],
+-				.a = scene_rect->color[3],
++				.a = scene_rect->color[3] * alpha,
+ 			},
+ 			.clip = &render_region,
+ 		});
+@@ -1628,7 +1691,7 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 					.g = (float)scene_buffer->single_pixel_buffer_color[1] / (float)UINT32_MAX,
+ 					.b = (float)scene_buffer->single_pixel_buffer_color[2] / (float)UINT32_MAX,
+ 					.a = (float)scene_buffer->single_pixel_buffer_color[3] /
+-						(float)UINT32_MAX * scene_buffer->opacity,
++						(float)UINT32_MAX * scene_buffer->opacity * alpha,
+ 				},
+ 				.clip = &render_region,
+ 			});
+@@ -1657,6 +1720,7 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 		wlr_color_transfer_function_get_default_luminance(
+ 			WLR_COLOR_TRANSFER_FUNCTION_SRGB, &srgb_lum);
+ 		float luminance_multiplier = get_luminance_multiplier(&src_lum, &srgb_lum);
++		float opacity = scene_buffer->opacity * alpha;
+ 
+ 		wlr_render_pass_add_texture(data->render_pass, &(struct wlr_render_texture_options) {
+ 			.texture = texture,
+@@ -1664,7 +1728,7 @@ static void scene_entry_render(struct render_list_entry *entry, const struct ren
+ 			.dst_box = dst_box,
+ 			.transform = transform,
+ 			.clip = &render_region,
+-			.alpha = &scene_buffer->opacity,
++			.alpha = &opacity,
+ 			.filter_mode = scene_buffer->filter_mode,
+ 			.blend_mode = !data->output->scene->calculate_visibility ||
+ 					!pixman_region32_empty(&opaque) ?
+@@ -2199,6 +2263,13 @@ static enum scene_direct_scanout_result scene_entry_try_direct_scanout(
+ 	if (scene_node_rounded(node, entry->x, entry->y, &rounded, &radius, &corners)) {
+ 		return SCANOUT_INELIGIBLE;
+ 	}
++	// puter: nor fade or shrink it
++	float effect_opacity, effect_scale;
++	int effect_x, effect_y;
++	if (scene_node_effect(node, entry->x, entry->y, &effect_opacity, &effect_scale,
++			&effect_x, &effect_y)) {
++		return SCANOUT_INELIGIBLE;
++	}
+ 
+ 	if (state->committed & (WLR_OUTPUT_STATE_MODE |
+ 			WLR_OUTPUT_STATE_ENABLED |

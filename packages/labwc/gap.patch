@@ -1,0 +1,17 @@
+diff --git a/src/view.c b/src/view.c
+index edae907b..18f3c15e 100644
+--- a/src/view.c
++++ b/src/view.c
+@@ -1295,6 +1295,12 @@ view_apply_maximized_geometry(struct view *view)
+ 
+ 	struct wlr_box box = output_usable_area_in_layout_coords(output);
+ 
++	/* puter: a maximized window keeps the gap from the edges too */
++	box.x += rc.gap;
++	box.y += rc.gap;
++	box.width -= 2 * rc.gap;
++	box.height -= 2 * rc.gap;
++
+ 	/*
+ 	 * If one axis (horizontal or vertical) is unmaximized, it
+ 	 * should use the natural geometry. But if that geometry is not

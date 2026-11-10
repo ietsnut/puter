@@ -5,8 +5,8 @@ search, and Qt Widgets apps, all on a 30px module, flat, at a 4px corner, with
 Carbon icons. Made for workshops and machines with nothing sensitive on
 them: nothing asks for a password (sudo, polkit, the login), like Kali.
 One look, after fal.ai: an olive desk with a big pixel bug and two
-dinosaurs, a floating bar, title tabs, no outlines, a colour for every app,
-Geist.
+dinosaurs, a floating bar, rounded windows that float a gap apart and fade
+in and out, no outlines, a colour for every app, Geist.
 
 | Path | What it is |
 | --- | --- |
@@ -16,7 +16,7 @@ Geist.
 | `theme/` | the look: `palettes/stack` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
-| `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `snap.patch` (windows meet on one line) and `corners.patch` (rounded windows, through its own wlroots, `wlroots0.20`), qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
+| `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `corners.patch` (rounded windows), `gap.patch` (maximized windows keep the gap) and `animate.patch` (windows fade in and out), through its own wlroots, `wlroots0.20`, qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
 | `vm/` | puter on a Mac with Apple silicon: `try` downloads puter's virtual machine (the aarch64 build, installed) from `ghcr.io/ietsnut/puter-vm` and starts it in QEMU at the Mac's own speed; `build` makes it |
 
