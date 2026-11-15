@@ -105,23 +105,25 @@ PanelWindow {
                     // Critical ones in the attention colour, whatever the app.
                     color: toast.critical ? Colors.attention : toasts.color(toast.modelData)
 
-                    IconImage {
+                    Glyph {
                         x: (Theme.module - width) / 2
                         y: (Theme.module - height) / 2
-                        implicitSize: 16
-                        source: Quickshell.iconPath(toast.critical ? "puter-notification-urgent" : "puter-notification")
+                        on: strip.color
+                        glyph: Quickshell.iconPath(toast.critical ? "puter-notification-urgent" : "puter-notification")
                     }
 
                     Label {
                         x: Theme.module
                         width: parent.width - Theme.module * 2
                         elide: Text.ElideRight
+                        color: Theme.inkOn(strip.color, Colors.titleInk)
                         text: toast.modelData.appName || "Notification"
                     }
 
                     BarButton {
                         anchors.right: parent.right
                         fill: "transparent"
+                        on: strip.color
                         icon: "window-close"
                         onClicked: toast.modelData.dismiss()
                     }

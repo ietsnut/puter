@@ -171,11 +171,11 @@ PanelWindow {
             topRightRadius: Theme.radius
             color: Colors.title
 
-            IconImage {
+            Glyph {
                 x: (Theme.module - width) / 2
                 y: (Theme.module - height) / 2
-                implicitSize: 16
-                source: Quickshell.iconPath("puter-update")
+                on: strip.color
+                glyph: Quickshell.iconPath("puter-update")
             }
 
             Label {

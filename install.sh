@@ -105,6 +105,8 @@ config() {
   # Each config folder is linked into ~/.config, so editing the repo edits the
   # live desktop. Anything already there is moved aside first.
   mkdir -p "$HOME/.config"
+  # The desk shows ~/Desktop (config/quickshell/Desk.qml).
+  mkdir -p "$HOME/Desktop"
   for dir in labwc quickshell fontconfig gtk-3.0 xdg-desktop-portal; do
     target="$HOME/.config/$dir"
     if [[ -e $target && ! -L $target ]]; then

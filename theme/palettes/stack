@@ -1,24 +1,18 @@
-# Stack: after fal.ai's identity (2026). An olive desk with puter's lockup in
-# its middle (a big pixel bug), a floating mint bar, white windows under
-# mint tabs, no outlines anywhere: things part by colour alone, at a 4px
+# Stack: after fal.ai's identity (2026). A deep brown desk with puter's
+# scarab in its middle (a big pixel bug), a floating mint bar, white
+# windows under mint tabs, no outlines anywhere: things part by colour alone, at a 4px
 # corner. Strong flat colours, each app its own, shown as a dot on its tab.
 # Set in Geist.
 # Roles on the left, the palette's colours on the right. `theme/make` writes
 # every app's colours from the palette named in theme/palette.
 
 # The interface.
-desk          olive
-desk-dot      olive           # no grid
-# The big bug in the desk's middle (Desk.qml).
+desk          cherry          # deep cherry-wood brown
+desk-dot      cherry          # no grid
+# The scarab in the desk's middle, and the names under its icons (Desk.qml).
 mark          mint
-# The dinosaurs standing on the bar (Desk.qml).
-dino-1        lilac
-dino-2        lime
-# The screensaver's life (Life.qml): four colours of cell on the desk.
-life-1        lime
-life-2        cyan
-life-3        pink
-life-4        lilac
+# The desk's folders (Desk.qml): flat pixel folders.
+folder        cyan
 bar           mint            # the floating bar's pills and the clock
 bar-ink       ink
 bar-edge      mint            # no line along the bar
@@ -186,6 +180,7 @@ mint             #e5ece7
 mint-dark        #c9d3cc
 olive            #403700
 olive-light      #6b5d00
+cherry           #2a1810
 cyan             #99edff
 cyan-dark        #1f8fa8
 cyan-light       #c5e9ff

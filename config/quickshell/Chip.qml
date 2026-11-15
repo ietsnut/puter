@@ -44,12 +44,12 @@ Rectangle {
         implicitSize: 16
     }
 
-    IconImage {
+    Glyph {
         visible: chip.badge !== ""
-        source: chip.badge
+        glyph: chip.badge
         x: chip.width - Theme.module + (Theme.module - width) / 2
         y: (Theme.module - height) / 2
-        implicitSize: 16
+        on: chip.color
     }
 
     Text {

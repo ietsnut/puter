@@ -1,13 +1,8 @@
 /* Written by theme/make from theme/palette; edit those, not this. */
-@define-color desk #403700;
-@define-color desk_dot #403700;
+@define-color desk #2a1810;
+@define-color desk_dot #2a1810;
 @define-color mark #e5ece7;
-@define-color dino_1 #ab77ff;
-@define-color dino_2 #adff00;
-@define-color life_1 #adff00;
-@define-color life_2 #99edff;
-@define-color life_3 #ffc4d8;
-@define-color life_4 #ab77ff;
+@define-color folder #99edff;
 @define-color bar #262622;
 @define-color bar_ink #e8ebe6;
 @define-color bar_edge #262622;

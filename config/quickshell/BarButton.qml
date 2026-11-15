@@ -12,6 +12,8 @@ Rectangle {
     property string icon: ""
     // Its colour at rest: the bar's, or whatever it stands on.
     property color fill: Colors.bar
+    // What shows through a transparent fill, so the glyph reads on it.
+    property color on: Colors.bar
     property int iconSize: 16
     signal clicked
     signal scrolled(int steps)
@@ -21,11 +23,12 @@ Rectangle {
     color: mouse.containsMouse ? Colors.buttonHover : fill
     radius: Theme.radius / 2
 
-    IconImage {
+    Glyph {
         x: (button.width - width) / 2
         y: (button.height - height) / 2
         implicitSize: button.iconSize
-        source: Quickshell.iconPath(button.icon)
+        on: button.color.a > 0 ? button.color : button.on
+        glyph: Quickshell.iconPath(button.icon)
     }
 
     MouseArea {

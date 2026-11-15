@@ -28,4 +28,16 @@ Singleton {
     // instant.
     readonly property int quick: 120
     readonly property int open: 260
+
+    // A fill bright enough that what's on it is black (the hover lime, the
+    // accent, attention, a bright app colour): text and glyphs on it go dark.
+    function bright(c: color): bool {
+        return c.a > 0.5 && 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b > 0.5;
+    }
+
+    // The ink for text on a fill: black on a bright one, the palette's
+    // otherwise.
+    function inkOn(c: color, otherwise: color): color {
+        return bright(c) ? Colors.buttonHoverInk : otherwise;
+    }
 }

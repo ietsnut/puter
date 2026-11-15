@@ -60,11 +60,22 @@ def focus(window):
     return f"Focused {window}."
 
 
+def scale():
+    """The screen's scale: screenshots are in its pixels, the pointer moves
+    in the compositor's (half as many on a screen at twice the size)."""
+    try:
+        outputs = json.loads(run("wlr-randr", "--json"))
+        return max(o.get("scale") or 1 for o in outputs if o.get("enabled", True)) or 1
+    except (RuntimeError, OSError, ValueError):
+        return 1
+
+
 def move(x, y):
     # wlrctl moves by an offset: parked in the top-left corner first, the
     # offset is the point.
+    s = scale()
     run("wlrctl", "pointer", "move", "-10000", "-10000")
-    run("wlrctl", "pointer", "move", str(int(x)), str(int(y)))
+    run("wlrctl", "pointer", "move", str(round(x / s)), str(round(y / s)))
     return f"The pointer is at {int(x)}, {int(y)}."
 
 

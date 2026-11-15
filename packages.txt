@@ -64,20 +64,20 @@ jlcone-bin            x86_64
 puter-apps
 
 # Agents (bin/puter-agent): Codex, and foot for their windows; Claude Code
-# comes from Anthropic's installer (install.sh). The pointer and typing for
-# puter-desktop.
+# comes from Anthropic's installer (install.sh). The pointer, typing and the
+# screen's scale for puter-desktop (and the iMac's screen at twice the size,
+# config/labwc/autostart).
 foot
 openai-codex
 wlrctl
 wtype
+wlr-randr
 
 # The 27-inch 5K iMac of 2017: its panel and speakers (packages/linux-imac, in
-# linux's place, as they'd share a folder), LTS as the way back, the screen at
-# twice the size (config/labwc/autostart) and its keyboard and mouse, over
-# Bluetooth
+# linux's place, as they'd share a folder), LTS as the way back, and its
+# keyboard and mouse, over Bluetooth
 linux-imac            x86_64 iMac18,3
 linux-lts             x86_64 iMac18,3
-wlr-randr             iMac18,3
 bluez                 iMac18,3
 bluez-utils           iMac18,3
 

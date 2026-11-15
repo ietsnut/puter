@@ -225,18 +225,19 @@ PanelWindow {
                     spacing: Theme.gap / 2
 
                     Rectangle {
+                        id: line
                         width: parent.width
                         height: Theme.module
                         radius: Theme.radius / 2
                         color: row.containsMouse && !entry.active ? Colors.buttonHover : entry.active ? Colors.accent : "transparent"
 
                         // The signal: the bars, fainter the weaker it is.
-                        IconImage {
+                        Glyph {
                             x: (Theme.module - width) / 2
                             y: (Theme.module - height) / 2
-                            implicitSize: 16
+                            on: line.color
                             opacity: entry.busy ? 1 : 0.35 + 0.65 * entry.modelData.signal / 100
-                            source: Quickshell.iconPath(entry.busy ? "puter-agent-working" : "puter-network")
+                            glyph: Quickshell.iconPath(entry.busy ? "puter-agent-working" : "puter-network")
                         }
 
                         Label {
@@ -244,7 +245,7 @@ PanelWindow {
                             width: parent.width - x - Theme.module - (status.visible ? status.implicitWidth + Theme.inset : 0)
                             elide: Text.ElideRight
                             text: entry.modelData.ssid
-                            color: entry.active ? Colors.accentInk : Colors.ink
+                            color: Theme.inkOn(line.color, Colors.ink)
                             font.weight: entry.active ? Font.Medium : Font.Normal
                         }
 
@@ -252,16 +253,16 @@ PanelWindow {
                             id: status
                             x: parent.width - Theme.module - implicitWidth
                             visible: entry.active || entry.busy
-                            color: entry.active ? Colors.accentInk : Colors.mutedInk
+                            color: Theme.inkOn(line.color, Colors.mutedInk)
                             text: entry.busy ? "Joining" : "Connected"
                         }
 
-                        IconImage {
+                        Glyph {
                             x: parent.width - Theme.module + (Theme.module - width) / 2
                             y: (Theme.module - height) / 2
-                            implicitSize: 16
+                            on: line.color
                             visible: entry.modelData.secure
-                            source: Quickshell.iconPath("puter-locked")
+                            glyph: Quickshell.iconPath("puter-locked")
                         }
 
                         MouseArea {

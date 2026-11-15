@@ -4,22 +4,21 @@ My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
 search, and Qt Widgets apps, all on a 30px module, flat, at a 4px corner, with
 Carbon icons. Made for workshops and machines with nothing sensitive on
 them: nothing asks for a password (sudo, polkit, the login), like Kali.
-One look, after fal.ai: an olive desk with a big pixel bug and two
-dinosaurs, a floating bar, rounded windows that float a gap apart and fade
-in and out, dark, a 1px frame round every window and pill, a colour for
-every app, Geist.
+One look, after fal.ai: a deep brown desk with a pixel scarab and
+~/Desktop on it as flat pixel folders and files, a floating bar, rounded
+windows that float a gap apart and fade in and out, dark, a 1px frame
+round every window and pill, a colour for every app, Geist.
 
-![puter: the desk's bug changing, search opening apps, windows side by side
-and maximized a gap apart, closing, the bar's right pill folding away, and
-the screensaver](docs/tour.gif)
+![puter: search opening apps, windows side by side and maximized a gap
+apart, closing, and the bar's right pill folding away](docs/tour.gif)
 
 | Path | What it is |
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, configs, no passwords, straight into the desktop |
 | `packages.txt` | everything it installs: Arch's packages and puter's own (`[puter]`), a few marked for one architecture |
-| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks, Claude Code's keys, and what they're told), `apps.names` (what each app is called), `ssh/authorized_keys` (who may log in over SSH), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
+| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk and its icons, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks, Claude Code's keys, and what they're told), `apps.names` (what each app is called), `ssh/authorized_keys` (who may log in over SSH), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palette` names the palette in use, `dark` (the default) or `stack` (light), each in `palettes/` assigning colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
-| `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
+| `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-desk` (the desk's file work: moving, copying, renaming, deleting), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `corners.patch` (rounded windows), `gap.patch` (maximized windows keep the gap) and `animate.patch` (windows fade in and out), through its own wlroots, `wlroots0.20`, qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
