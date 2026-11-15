@@ -101,6 +101,22 @@ config() {
     systemctl --user daemon-reload 2>/dev/null || true
   fi
 
+  # git signs in to GitHub through gh, once `gh auth login` has been run (the
+  # token stays in ~/.config/gh, never in the repo).
+  git config --global --replace-all credential.https://github.com.helper ''
+  git config --global --add credential.https://github.com.helper '!/usr/bin/gh auth git-credential'
+  git config --global --replace-all credential.https://gist.github.com.helper ''
+  git config --global --add credential.https://gist.github.com.helper '!/usr/bin/gh auth git-credential'
+  # and commits as that GitHub account, at its private noreply address.
+  if command -v gh >/dev/null && gh auth status >/dev/null 2>&1; then
+    local gh_user gh_id gh_login gh_name
+    if gh_user="$(gh api user --jq '"\(.id) \(.login) \(.name // .login)"' 2>/dev/null)"; then
+      read -r gh_id gh_login gh_name <<<"$gh_user"
+      git config --global user.name "$gh_name"
+      git config --global user.email "$gh_id+$gh_login@users.noreply.github.com"
+    fi
+  fi
+
   # The agents' terminal, foot: its settings and colours (theme/foot, from
   # theme/make).
   ln -sfn "$repo/theme/foot" "$HOME/.config/foot"

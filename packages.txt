@@ -102,8 +102,10 @@ slurp
 qt6ct
 breeze-icons
 
-# puter itself is a git checkout (puter-update pulls it)
+# puter itself is a git checkout (puter-update pulls it), and gh signs git
+# in to GitHub (gh auth login; install.sh makes it git's credential helper)
 git
+github-cli
 
 # Updates (bin/puter-update): checkupdates and paccache, and the
 # machine's firmware
