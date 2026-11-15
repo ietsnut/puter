@@ -818,8 +818,8 @@ PanelWindow {
         onClicked: desk.asking = []
     }
 
-    // Twelve modules wide, a half gap in all round: what, why, and the
-    // two buttons, a module each with a half gap between.
+    // Twelve modules wide, a half gap in all round: what, and the two
+    // buttons, a module each with a half gap between.
     PanelWindow {
         visible: desk.asking.length > 0
         implicitWidth: Theme.module * 12 + Theme.gap
@@ -853,16 +853,6 @@ PanelWindow {
                         elide: Text.ElideMiddle
                         font.weight: Font.Medium
                         text: desk.asking.length === 1 ? "Delete “" + desk.asking[0] + "”?" : "Delete " + desk.asking.length + " items?"
-                    }
-                }
-
-                Item {
-                    width: parent.width
-                    height: Theme.module
-
-                    Label {
-                        color: Colors.mutedInk
-                        text: "It's gone for good: there's no trash."
                     }
                 }
 
