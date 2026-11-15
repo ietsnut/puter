@@ -275,8 +275,12 @@ CONF
   # QTerminal: puter's colours (theme/qterminal/, from theme/make), puter-mono,
   # no margin (nor the 2px it keeps around a terminal to outline the focused
   # one of a split), the tab bar only with more than one tab; 24 x 18 modules.
-  mkdir -p "$HOME/.local/share/qtermwidget6/color-schemes"
-  ln -sfn "$repo/theme/qterminal/puter.colorscheme" "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
+  # Its own schemes are read from ~/.local/share/qterminal/color-schemes
+  # (qtermwidget6's folder there isn't, so the link once made there goes).
+  rm -f "$HOME/.local/share/qtermwidget6/color-schemes/puter.colorscheme"
+  rmdir -p "$HOME/.local/share/qtermwidget6/color-schemes" 2>/dev/null || true
+  mkdir -p "$HOME/.local/share/qterminal/color-schemes"
+  ln -sfn "$repo/theme/qterminal/puter.colorscheme" "$HOME/.local/share/qterminal/color-schemes/puter.colorscheme"
   local q="$HOME/.config/qterminal.org/qterminal.ini"
   ini "$q" General colorScheme puter
   ini "$q" General fontFamily "puter-mono"
