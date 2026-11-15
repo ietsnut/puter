@@ -1,0 +1,43 @@
+diff --git a/src/ssd/ssd-border.c b/src/ssd/ssd-border.c
+index c2c99f8..b88193a 100644
+--- a/src/ssd/ssd-border.c
++++ b/src/ssd/ssd-border.c
+@@ -129,6 +129,15 @@ ssd_border_update(struct ssd *ssd)
+ 		? 0
+ 		: theme->border_width + corner_width;
+ 
++	/*
++	 * puter: the frame follows the window's round bottom corners
++	 * (corners.patch): its bottom strip reaches up behind them, and its
++	 * tree rounds at its own box, a border wider each way, at the radius
++	 * plus the border, so the frame is an even line round the arcs.
++	 */
++	int reach = !ssd->state.was_squared && !view->fullscreen
++		? MIN(rc.corner_radius, height) : 0;
++
+ 	enum ssd_active_state active;
+ 	FOR_EACH_ACTIVE_STATE(active) {
+ 		struct ssd_border_subtree *subtree = &ssd->border.subtrees[active];
+@@ -144,15 +153,20 @@ ssd_border_update(struct ssd *ssd)
+ 			theme->border_width + width, side_y);
+ 
+ 		wlr_scene_rect_set_size(subtree->bottom,
+-			full_width, theme->border_width);
++			full_width, theme->border_width + reach);
+ 		wlr_scene_node_set_position(&subtree->bottom->node,
+-			0, height);
++			0, height - reach);
+ 
+ 		wlr_scene_rect_set_size(subtree->top,
+ 			top_width, theme->border_width);
+ 		wlr_scene_node_set_position(&subtree->top->node,
+ 			top_x, -(ssd->titlebar.height + theme->border_width));
+ 	}
++
++	wlr_scene_tree_set_corners(ssd->border.tree, full_width,
++		height + theme->border_width,
++		reach > 0 ? rc.corner_radius + theme->border_width : 0,
++		WLR_SCENE_CORNER_BOTTOM_LEFT | WLR_SCENE_CORNER_BOTTOM_RIGHT);
+ }
+ 
+ void
