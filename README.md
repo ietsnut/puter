@@ -18,7 +18,7 @@ apart, closing, and the bar's right pill folding away](docs/tour.gif)
 | `packages.txt` | everything it installs: Arch's packages and puter's own (`[puter]`), a few marked for one architecture |
 | `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk and its icons, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks, Claude Code's keys, and what they're told), `apps.names` (what each app is called), `ssh/authorized_keys` (who may log in over SSH), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palette` names the palette in use, `dark` (the default) or `stack` (light), each in `palettes/` assigning colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
-| `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-desk` (the desk's file work: moving, copying, renaming, deleting), `puter-update` (everything to the newest) |
+| `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-desk` (the desk's file work: moving, copying, renaming, deleting), `puter-sync` (the desktop up to GitHub), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
 | `packages/` | puter's pacman repository, `[puter]`, built and signed in CI (`build`, `.github/workflows/packages.yml`): labwc with `corners.patch` (rounded windows), `gap.patch` (maximized windows keep the gap) and `animate.patch` (windows fade in and out), through its own wlroots, `wlroots0.20`, qps, wlrctl, qpdfview, JLCONE from JLCPCB's .deb, and `puter-apps` (`src/`); `puter.gpg` is its key |
 | `iso/` | the USB installer: `build` makes it (Arch's install medium with every package on it, so it installs offline), `airootfs/usr/local/bin/puter-install` asks which disk and installs, `download` fetches the newest from `ghcr.io/ietsnut/puter-iso` |
@@ -163,8 +163,13 @@ it's working, waiting for you (orange) or done, and both can see and use the
 desktop.
 Notifications come up as toasts in the top-right corner, each with a strip
 in its app's colour (orange when critical). Left of the clock, the network (click for the Wi-Fi panel: networks in reach, joining one, Wi-Fi on or off, and nmtui for the
-rest) and the volume (click to mute, scroll to turn it up or down);
-right of it, updates, then restart and shut down in the bar's right corner.
+rest), the volume (click to mute, scroll to turn it up or down) and the
+desktop's sync; right of it, updates, then lock and shut down in the bar's
+right corner. The desktop, `~/Desktop`, is your own private `desktop`
+repository on GitHub (made and cloned by `install.sh config` once `gh auth
+login` has been run): the sync button commits what changed on it and pushes
+(`bin/puter-sync`), and never pulls; bring other machines' changes in with
+`git pull` in `~/Desktop`.
 Updates shows what's out of date and, with one click, brings everything to
 the newest there is (`bin/puter-update`): Arch and the kernel, puter's own
 packages (`[puter]`), firmware, puter itself and Claude Code, with the

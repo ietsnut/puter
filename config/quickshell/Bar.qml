@@ -7,8 +7,8 @@ import Quickshell.Services.Pipewire
 
 // The bar floats over the bottom two modules, a gap off every edge, as
 // three pieces (the pills in a 1px frame): the gear at the left (search), the open windows in a pill
-// right beside it, and the network, volume, the date and time, updates,
-// the lock, restart and shut down in a pill at the right. The desk shows between them,
+// right beside it, and the network, volume, the desktop's sync, the date and
+// time, updates, the lock and shut down in a pill at the right. The desk shows between them,
 // and clicks there reach the windows behind.
 PanelWindow {
     id: bar
@@ -34,6 +34,15 @@ PanelWindow {
 
     // The update's state (Updates.qml): running, restart, or nothing.
     property string updates: ""
+    // The desktop's sync (bin/puter-sync): running, failed, or nothing.
+    property string sync: ""
+
+    function syncDesktop() {
+        if (sync === "running")
+            return;
+        sync = "running";
+        syncer.running = true;
+    }
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool muted: !sink || !sink.audio || sink.audio.muted || sink.audio.volume === 0
@@ -188,6 +197,16 @@ PanelWindow {
                 }
             }
 
+            // The desktop's sync: commits and pushes what changed on
+            // ~/Desktop (bin/puter-sync). The glyph turns while it runs, and
+            // the button takes the attention colour when it didn't go through
+            // (its notification says why).
+            BarButton {
+                icon: bar.sync === "running" ? "puter-agent-working" : "puter-sync"
+                fill: bar.sync === "failed" ? Colors.attention : Colors.bar
+                onClicked: bar.syncDesktop()
+            }
+
             Chip {
                 text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
                 fill: Colors.bar
@@ -209,11 +228,6 @@ PanelWindow {
             }
 
             BarButton {
-                icon: "puter-restart"
-                onClicked: Quickshell.execDetached(["systemctl", "reboot"])
-            }
-
-            BarButton {
                 icon: "puter-power"
                 onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
             }
@@ -224,6 +238,12 @@ PanelWindow {
     SystemClock {
         id: clock
         precision: SystemClock.Minutes
+    }
+
+    Process {
+        id: syncer
+        command: [Quickshell.shellDir + "/../../bin/puter-sync"]
+        onExited: code => bar.sync = code === 0 ? "" : "failed"
     }
 
     PwObjectTracker {

@@ -217,7 +217,7 @@ puter-locked                  actions     locked
 puter-renew                   actions     renew
 puter-settings                actions     settings
 puter-update                  actions     upgrade
-puter-restart                 actions     restart
+puter-sync                    actions     restart
 puter-power                   actions     power
 # An agent's state on its taskbar tab (config/quickshell/Agents.qml).
 puter-agent-working           status      in-progress

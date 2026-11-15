@@ -105,8 +105,13 @@ config() {
   # Each config folder is linked into ~/.config, so editing the repo edits the
   # live desktop. Anything already there is moved aside first.
   mkdir -p "$HOME/.config"
-  # The desk shows ~/Desktop (config/quickshell/Desk.qml).
+  # The desk shows ~/Desktop (config/quickshell/Desk.qml): your own private
+  # `desktop` repository on GitHub, once gh is signed in (bin/puter-sync; the
+  # bar's sync button pushes it). Without a login it's just a folder.
   mkdir -p "$HOME/Desktop"
+  if [[ ! -d $HOME/Desktop/.git ]] && gh auth status >/dev/null 2>&1; then
+    "$repo/bin/puter-sync" join || true
+  fi
   for dir in labwc quickshell fontconfig gtk-3.0 xdg-desktop-portal; do
     target="$HOME/.config/$dir"
     if [[ -e $target && ! -L $target ]]; then

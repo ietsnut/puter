@@ -54,10 +54,14 @@ qps
 qpdfview
 
 # Electronics: KiCad with its symbols, footprints and 3D models, and
-# JLCONE (JLCPCB's ordering app; JLCPCB only makes it for x86_64)
+# JLCONE (JLCPCB's ordering app; JLCPCB only makes it for x86_64), and shapely
+# and numpy (which Arch's shapely needs but doesn't pull in) for fil
+# (~/Desktop/Tools/fil: KiCad's pcbnew, shapely and Pillow in one Python)
 kicad
 kicad-library
 kicad-library-3d
+python-shapely
+python-numpy
 jlcone-bin            x86_64
 
 # puter's own apps (src/): the Qt style, Sheet, Calculator, puter-windows

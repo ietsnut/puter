@@ -1,0 +1,95 @@
+#!/bin/bash
+# puter-sync: ~/Desktop up to GitHub. The desktop is a git checkout of your
+# own private `desktop` repository; when something on it changed, this
+# commits it and pushes. It never pulls: bring in other machines' changes by
+# hand (git pull in ~/Desktop). The bar's sync button runs it
+# (config/quickshell/Bar.qml).
+#
+#   puter-sync        commit and push what changed here, if anything did
+#   puter-sync join   make ~/Desktop the checkout (install.sh config runs it
+#                     once gh is signed in; plain puter-sync does it first
+#                     too): the repository's files come down, made on GitHub
+#                     if there isn't one yet, and whatever was on the desktop
+#                     stays, a file that differs set beside it as "name 2.ext"
+#                     (as bin/puter-desk names a copy)
+#
+# A file over GitHub's 100 MB stays on this machine only, and says so.
+# Problems show as a notification and the exit code; the bar's button takes
+# the attention colour until a sync goes through.
+set -uo pipefail
+desk=${PUTER_DESK:-$HOME/Desktop}
+name=desktop
+
+say() {
+  echo "puter-sync: $1" >&2
+  gdbus call --session --dest org.freedesktop.Notifications \
+    --object-path /org/freedesktop/Notifications \
+    --method org.freedesktop.Notifications.Notify \
+    "Desktop" 0 "puter-sync" "Desktop sync" "$1" "[]" "{}" -1 >/dev/null 2>&1 || true
+}
+fail() {
+  say "$1"
+  exit 1
+}
+
+# The first free "name N.ext" beside a path (a dotfile or a name without an
+# extension gets the number at its end).
+free() {
+  local dir base stem ext n=2
+  dir=$(dirname "$1") base=$(basename "$1")
+  if [[ $base == ?*.* ]]; then stem=${base%.*} ext=.${base##*.}; else stem=$base ext=; fi
+  while [[ -e "$dir/$stem $n$ext" ]]; do n=$((n + 1)); done
+  printf '%s\n' "$dir/$stem $n$ext"
+}
+
+join() {
+  gh auth status >/dev/null 2>&1 || fail "Sign in to GitHub first: gh auth login"
+  login=$(gh api user --jq .login) || fail "Couldn't reach GitHub."
+  if ! gh repo view "$login/$name" >/dev/null 2>&1; then
+    gh repo create "$name" --private --description "My desktop (puter-sync)" >/dev/null ||
+      fail "Couldn't make the $name repository on GitHub."
+  fi
+  git init -q -b main
+  git remote add origin "https://github.com/$login/$name.git"
+  git fetch -q origin 2>/dev/null || fail "Couldn't reach GitHub."
+  if git rev-parse -q --verify origin/main >/dev/null; then
+    git reset -q origin/main
+    git branch -q -u origin/main
+    git ls-files -z --deleted | xargs -0 -r git checkout -q --
+    git diff -z --name-only | while IFS= read -r -d '' file; do
+      mv "$file" "$(free "$file")"
+      git checkout -q -- "$file"
+    done
+  fi
+}
+
+mkdir -p "$desk"
+cd "$desk" || exit 1
+[[ -d .git ]] || join
+[[ ${1:-} == join ]] && exit 0
+
+git add -A
+# GitHub won't take a file over 100 MB: it stays here, out of the commit.
+big=()
+while IFS= read -r -d '' file; do
+  [[ -f $file ]] && (($(stat -c %s "$file") > 100 * 1000 * 1000)) && big+=("$file")
+done < <(git diff --cached -z --name-only --diff-filter=AM)
+((${#big[@]})) && git reset -q -- "${big[@]}"
+
+if ! git diff --cached --quiet; then
+  git commit -q -m "From $(cat /etc/hostname 2>/dev/null || echo puter)" -m "$(git diff --cached --name-status)" ||
+    fail "Couldn't commit the desktop's changes."
+fi
+
+# Push only what's here and not on GitHub yet.
+if [[ -n $(git log --oneline '@{u}..' 2>/dev/null || git log --oneline -1 2>/dev/null) ]]; then
+  if ! out=$(git push -q -u origin HEAD:main 2>&1); then
+    if [[ $out == *rejected* || $out == *fetch\ first* || $out == *non-fast-forward* ]]; then
+      fail "Another machine synced first: git pull in ~/Desktop, then sync again."
+    fi
+    fail "Couldn't push to GitHub."
+  fi
+fi
+
+((${#big[@]})) && fail "Kept on this machine only, over GitHub's 100 MB: ${big[*]}"
+exit 0
