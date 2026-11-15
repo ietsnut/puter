@@ -428,7 +428,8 @@ for path in (home / ".claude/settings.json", home / ".codex/hooks.json"):
 # Claude Code's settings (config/agents/claude.json), merged into its own,
 # which it rewrites: neither agent asks before it acts, since puter has nothing
 # sensitive on it, so it starts in bypass-permissions mode without the
-# warning; and its status line is bin/puter-statusline. It updates itself
+# warning; its status line is bin/puter-statusline; and dictation is on
+# (hold Space to speak). It updates itself
 # (bin/puter-update runs `claude update` too), so nothing turns that off.
 claude = home / ".claude/settings.json"
 settings = json.loads(claude.read_text())

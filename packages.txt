@@ -90,6 +90,10 @@ noto-fonts-emoji
 networkmanager
 pipewire
 pipewire-pulse
+# ALSA programs through PipeWire, and arecord: Claude Code's dictation
+# records with it when its own recorder can't load
+pipewire-alsa
+alsa-utils
 wireplumber
 wl-clipboard
 # Getting in from another machine to fix it: SSH by key only
