@@ -42,10 +42,16 @@ if [[ -z $image && ! -d /sys/firmware/efi ]]; then
 fi
 
 if [[ -z $disk ]]; then
-  # The disks, without the stick itself.
-  stick="$(lsblk -no PKNAME "$(findmnt -no SOURCE /run/archiso/bootmnt 2>/dev/null)" 2>/dev/null || true)"
-  mapfile -t disks < <(lsblk -dpno NAME,TYPE,SIZE,MODEL | awk -v stick="/dev/$stick" \
-    '$2 == "disk" && $1 != stick && $1 !~ /zram/ {name = $1; $1 = $2 = ""; print name " " $0}')
+  # The disks, without the stick itself. archiso mounts the stick on
+  # bootmnt, but lets go of it once it has copied the live system to memory
+  # (as it does from a stick, given the room), so the stick is also what
+  # holds the filesystem it searched for (archisosearchuuid): the disk
+  # under it, whether that's a partition or the whole disk.
+  uuid="$(sed -n 's/.*archisosearchuuid=\([^ ]*\).*/\1/p' /proc/cmdline)"
+  stick="$({ findmnt -no SOURCE /run/archiso/bootmnt; [[ -n $uuid ]] && blkid -o device -t "UUID=$uuid"; } 2>/dev/null |
+    xargs -r lsblk -lpsno NAME,TYPE 2>/dev/null | awk '$2 == "disk" {printf " %s ", $1}' || true)"
+  mapfile -t disks < <(lsblk -dpno NAME,TYPE,SIZE,MODEL | awk -v stick="$stick" \
+    '$2 == "disk" && !index(stick, " " $1 " ") && $1 !~ /zram/ {name = $1; $1 = $2 = ""; print name " " $0}')
   if ((${#disks[@]} == 0)); then
     echo "There's no disk to install puter on."
     exit 1
