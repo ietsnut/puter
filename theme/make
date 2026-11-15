@@ -341,9 +341,15 @@ if len(set(syntax_colors)) < len(syntax_colors) or {"#ffffff", "#000000"} & set(
     sys.exit(f"theme/make: FeatherPad needs its code-* colours all different, and neither white "
              f"nor black: {dict((r, C[r]) for _, r in SYNTAX)}")
 (theme / "featherpad").mkdir(exist_ok=True)
-(theme / "featherpad" / "fp_light_syntax_colors.conf").write_text(
-    "[General]\n" + "".join(f"{key}={C[role]}\n" for key, role in SYNTAX)
-)
+# The same colours under both its schemes' names: it reads the dark one with
+# its dark scheme on (install.sh turns it on for a dark palette), whose page
+# is a grey of its own (0 to 50), not a colour: paper's nearest grey.
+for scheme in ("light", "dark"):
+    (theme / "featherpad" / f"fp_{scheme}_syntax_colors.conf").write_text(
+        "[General]\n" + "".join(f"{key}={C[role]}\n" for key, role in SYNTAX)
+    )
+paper_rgb = [int(C["paper"][i:i + 2], 16) for i in (1, 3, 5)]
+(theme / "featherpad" / "dark-page").write_text(f"{min(50, round(sum(paper_rgb) / 3))}\n")
 (theme / "qt6ct" / "puter.conf").write_text(
     "# Written by theme/make from theme/palette; edit those, not this.\n[ColorScheme]\n"
     f"active_colors={qt_palette('ink', 'muted-ink')}\n"

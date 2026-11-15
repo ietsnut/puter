@@ -220,10 +220,20 @@ CONF
   ini "$HOME/.config/featherpad/fp.conf" window hideSingleTab true
   ini "$HOME/.config/featherpad/fp.conf" window size none
   ini "$HOME/.config/featherpad/fp.conf" window startSize "@Size(720 540)"
+  # Its dark scheme with a dark palette (theme/mode), on paper's nearest grey
+  # (theme/featherpad/dark-page): its light one paints the page white.
+  if [[ $(cat "$repo/theme/mode") == dark ]]; then
+    ini "$HOME/.config/featherpad/fp.conf" text darkColorScheme true
+    ini "$HOME/.config/featherpad/fp.conf" text darkBgColorValue "$(cat "$repo/theme/featherpad/dark-page")"
+  else
+    ini "$HOME/.config/featherpad/fp.conf" text darkColorScheme false
+  fi
   # Its syntax colours a copy, not a link: it writes them back as it quits
   # (into this checkout, were they a link).
-  rm -f "$HOME/.config/featherpad/fp_light_syntax_colors.conf"
-  cp "$repo/theme/featherpad/fp_light_syntax_colors.conf" "$HOME/.config/featherpad/"
+  for scheme in light dark; do
+    rm -f "$HOME/.config/featherpad/fp_${scheme}_syntax_colors.conf"
+    cp "$repo/theme/featherpad/fp_${scheme}_syntax_colors.conf" "$HOME/.config/featherpad/"
+  done
   chmod a-w "$HOME/.config/featherpad"
   # PCManFM-Qt: the list view with 16px icons, one module per file, showing
   # only name, size and date; no side pane (Go has the places), no tab strip
