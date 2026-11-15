@@ -30,6 +30,22 @@ hook() {
   qs ipc call agents set "$PUTER_AGENT" "$state" >/dev/null 2>&1 || true
 }
 
+# Marks a folder as trusted in Claude Code's own state (~/.claude.json), as
+# accepting its "trust this folder?" prompt would.
+trust() {
+  python3 - "$1" <<'PY2' || true
+import json, os, pathlib, sys
+path = pathlib.Path.home() / ".claude.json"
+state = json.loads(path.read_text()) if path.exists() else {}
+project = state.setdefault("projects", {}).setdefault(sys.argv[1], {})
+if project.get("hasTrustDialogAccepted") is not True:
+    project["hasTrustDialogAccepted"] = True
+    tmp = path.with_name(path.name + ".puter")
+    tmp.write_text(json.dumps(state, indent=2) + "\n")
+    os.replace(tmp, path)
+PY2
+}
+
 open() {
   local agent="$1" dir="${2:-$HOME}" name
   case "$agent" in
@@ -55,6 +71,17 @@ open() {
     ((n++))
   done
   echo $$ >"$claim"
+
+  # Started from inside an agent (or from a bar that was restarted by one),
+  # the window would inherit that session's variables, and Claude Code would
+  # take itself for a nested session: no transcript, no status line.
+  local var
+  for var in $(compgen -e); do
+    [[ $var == CLAUDE* || $var == CODEX* ]] && unset "$var"
+  done
+
+  # The folder is trusted already, so Claude Code doesn't ask.
+  [[ $agent == claude ]] && trust "$dir"
 
   # Claude Code installs itself to ~/.local/bin.
   export PUTER_AGENT="$title" PATH="$HOME/.local/bin:$PATH"

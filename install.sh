@@ -376,8 +376,8 @@ NAMES
 }
 
 # Coding agents (bin/puter-agent): each opens in its own foot window, from
-# search or a folder's menu in PCManFM-Qt; their hooks tell the bar what
-# they're doing; both get the desktop through puter-desktop (an MCP server)
+# search or a folder's menu in PCManFM-Qt, in a folder it trusts; their hooks
+# tell the bar what they're doing; both get the desktop through puter-desktop (an MCP server)
 # and are told about puter (config/agents/AGENTS.md).
 agents() {
   local apps="$HOME/.local/share/applications" actions="$HOME/.local/share/file-manager/actions"
@@ -425,12 +425,23 @@ for path in (home / ".claude/settings.json", home / ".codex/hooks.json"):
                 if not any("puter-agent hook" in h.get("command", "") for h in e.get("hooks", []))]
         hooks[event] = kept + entries
     path.write_text(json.dumps(settings, indent=2) + "\n")
-# Neither agent asks before it acts: puter has nothing sensitive on it.
-# Claude Code starts in its bypass-permissions mode, without the warning,
+# Claude Code's settings (config/agents/claude.json), merged into its own,
+# which it rewrites: neither agent asks before it acts, since puter has nothing
+# sensitive on it, so it starts in bypass-permissions mode without the
+# warning; and its status line is bin/puter-statusline. It updates itself
+# (bin/puter-update runs `claude update` too), so nothing turns that off.
 claude = home / ".claude/settings.json"
 settings = json.loads(claude.read_text())
-settings.setdefault("permissions", {})["defaultMode"] = "bypassPermissions"
-settings["skipDangerousModePermissionPrompt"] = True
+ours = json.loads((repo / "config/agents/claude.json").read_text().replace("@puter-statusline", str(repo / "bin/puter-statusline")))
+for key, value in ours.items():
+    if isinstance(value, dict):
+        settings.setdefault(key, {}).update(value)
+    else:
+        settings[key] = value
+env = settings.get("env", {})
+env.pop("DISABLE_AUTOUPDATER", None)
+if not env:
+    settings.pop("env", None)
 claude.write_text(json.dumps(settings, indent=2) + "\n")
 # and Codex never asks for approval and runs outside its sandbox (top-level
 # keys, so before any table in its config).
