@@ -50,8 +50,8 @@ ShellRoot {
         id: lockScreen
     }
 
-    // The bar's lock button: `qs ipc call lock lock`. And from SSH, if the
-    // code's forgotten: `qs ipc call lock unlock`.
+    // The bar's lock button: `qs ipc call lock lock`. And from SSH, if it
+    // won't open: `qs ipc call lock unlock`.
     IpcHandler {
         target: "lock"
 
