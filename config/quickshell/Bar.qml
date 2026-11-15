@@ -6,7 +6,7 @@ import Quickshell.Wayland
 import Quickshell.Services.Pipewire
 
 // The bar floats over the bottom two modules, a gap off every edge, as
-// three pieces: the gear at the left (search), the open windows in a pill
+// three pieces (the pills in a 1px frame): the gear at the left (search), the open windows in a pill
 // right beside it, and the network, volume, the date and time, updates,
 // restart and shut down in a pill at the right. The desk shows between them,
 // and clicks there reach the windows behind.
@@ -16,6 +16,7 @@ PanelWindow {
     signal search
     signal update
     signal volume
+    signal network
 
     // Each agent window's state, by its title: working, waiting or done (set
     // by the agents' hooks over IPC, shell.qml).
@@ -36,6 +37,8 @@ PanelWindow {
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool muted: !sink || !sink.audio || sink.audio.muted || sink.audio.volume === 0
     property bool online: false
+    // The right pill's width, for the panels that stand over it.
+    readonly property int statusWidth: status.width
 
     // Search opened another way still turns the gear.
     function turn() {
@@ -82,6 +85,8 @@ PanelWindow {
         height: Theme.bar
         radius: Theme.radius
         color: Colors.bar
+        border.width: 1
+        border.color: Colors.frame
         Behavior on width {
             NumberAnimation {
                 duration: Theme.open
@@ -133,118 +138,65 @@ PanelWindow {
     }
 
     // The right pill: its buttons and the clock side by side, a gap's half
-    // in from its ends, as the windows sit in theirs. A tab on its left with
-    // a chevron folds it away off the screen's right edge, leaving only the
-    // tab there, flush with the edge; the tab brings it back, its chevron
-    // turning to point the way the pill will go.
-    property bool folded: false
-
-    Item {
+    // in from its ends, as the windows sit in theirs.
+    Rectangle {
         id: status
         y: Theme.gap
-        width: fold.width + pill.width
+        x: bar.width - width - Theme.gap
+        width: statusRow.implicitWidth + (Theme.bar - Theme.module)
         height: Theme.bar
-        x: bar.folded ? bar.width - fold.width : bar.width - width - Theme.gap
-        Behavior on x {
-            NumberAnimation {
-                duration: Theme.open
-                easing.type: Easing.OutCubic
-            }
-        }
+        radius: Theme.radius
+        color: Colors.bar
+        border.width: 1
+        border.color: Colors.frame
 
-        Rectangle {
-            id: fold
-            width: Theme.gap * 2
-            height: Theme.bar
-            // Rounded on the left; flush against the pill, or the screen's
-            // edge when folded, on the right.
-            topLeftRadius: Theme.radius
-            bottomLeftRadius: Theme.radius
-            color: foldMouse.containsMouse ? Colors.buttonHover : Colors.bar
-            Behavior on color {
-                ColorAnimation {
-                    duration: Theme.quick
-                }
+        Row {
+            id: statusRow
+            x: (Theme.bar - Theme.module) / 2
+            y: (Theme.bar - Theme.module) / 2
+
+            // The network: signal bars, struck through when offline; a click
+            // opens the Wi-Fi panel (Network.qml).
+            BarButton {
+                icon: bar.online ? "puter-network" : "puter-network-off"
+                onClicked: bar.network()
             }
 
-            IconImage {
-                anchors.centerIn: parent
-                implicitSize: 16
-                source: Quickshell.iconPath("puter-fold")
-                rotation: bar.folded ? 180 : 0
-                Behavior on rotation {
-                    NumberAnimation {
-                        duration: Theme.open
-                        easing.type: Easing.OutCubic
-                    }
+            // Volume: a speaker, muted or not; a click opens its slider
+            // (Volume.qml), the wheel turns it up or down a tenth at a time.
+            BarButton {
+                icon: bar.muted ? "puter-volume-muted" : "puter-volume"
+                onClicked: bar.volume()
+                onScrolled: steps => {
+                    if (!bar.sink?.audio)
+                        return;
+                    bar.sink.audio.muted = false;
+                    bar.sink.audio.volume = Math.max(0, Math.min(1, Math.round(bar.sink.audio.volume * 10 + steps) / 10));
                 }
             }
 
-            MouseArea {
-                id: foldMouse
-                anchors.fill: parent
-                hoverEnabled: true
-                onClicked: bar.folded = !bar.folded
+            Chip {
+                text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
+                fill: Colors.bar
+                ink: Colors.barInk
             }
-        }
 
-        Rectangle {
-            id: pill
-            x: fold.width
-            width: statusRow.implicitWidth + (Theme.bar - Theme.module)
-            height: Theme.bar
-            topRightRadius: Theme.radius
-            bottomRightRadius: Theme.radius
-            color: Colors.bar
+            // Updates (Updates.qml): the glyph turns while one runs, and the
+            // button takes the attention colour when it wants a restart.
+            BarButton {
+                icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
+                fill: bar.updates === "restart" ? Colors.attention : Colors.bar
+                onClicked: bar.update()
+            }
 
-            Row {
-                id: statusRow
-                x: (Theme.bar - Theme.module) / 2
-                y: (Theme.bar - Theme.module) / 2
+            BarButton {
+                icon: "puter-restart"
+                onClicked: Quickshell.execDetached(["systemctl", "reboot"])
+            }
 
-                // The network: signal bars, struck through when offline; opens
-                // nmtui in the terminal (networks, Wi-Fi and its passwords).
-                BarButton {
-                    icon: bar.online ? "puter-network" : "puter-network-off"
-                    onClicked: Quickshell.execDetached(["qterminal", "-e", "nmtui"])
-                }
-
-                // Volume: a speaker, muted or not; a click opens its slider
-                // (Volume.qml), the wheel turns it up or down a tenth at a time.
-                BarButton {
-                    icon: bar.muted ? "puter-volume-muted" : "puter-volume"
-                    onClicked: bar.volume()
-                    onScrolled: steps => {
-                        if (!bar.sink?.audio)
-                            return;
-                        bar.sink.audio.muted = false;
-                        bar.sink.audio.volume = Math.max(0, Math.min(1, Math.round(bar.sink.audio.volume * 10 + steps) / 10));
-                    }
-                }
-
-                Chip {
-                    text: Qt.formatDateTime(clock.date, "dddd d MMMM HH:mm")
-                    fill: Colors.bar
-                    ink: Colors.barInk
-                }
-
-                // Updates (Updates.qml): the glyph turns while one runs, and the
-                // button takes the attention colour when it wants a restart.
-                BarButton {
-                    icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
-                    fill: bar.updates === "restart" ? Colors.attention : Colors.bar
-                    onClicked: bar.update()
-                }
-
-                BarButton {
-                    icon: "puter-restart"
-                    onClicked: Quickshell.execDetached(["systemctl", "reboot"])
-                }
-
-                BarButton {
-                    icon: "puter-power"
-                    onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
-                }
+            BarButton {
+                icon: "puter-power"
+                onClicked: Quickshell.execDetached(["systemctl", "poweroff"])
             }
         }
     }

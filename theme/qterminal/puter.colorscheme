@@ -4,23 +4,23 @@ Description=puter
 Opacity=1
 
 [Background]
-Color=255,255,255
+Color=26,26,23
 
 [BackgroundIntense]
-Color=255,255,255
+Color=26,26,23
 
 [Foreground]
-Color=0,0,0
+Color=232,235,230
 
 [ForegroundIntense]
-Color=0,0,0
+Color=232,235,230
 Bold=false
 
 [Color0]
-Color=0,0,0
+Color=46,46,40
 
 [Color0Intense]
-Color=92,92,82
+Color=154,154,143
 
 [Color1]
 Color=224,36,60
@@ -35,19 +35,19 @@ Color=79,122,0
 Color=173,255,0
 
 [Color3]
-Color=178,134,0
+Color=255,214,0
 
 [Color3Intense]
 Color=255,214,0
 
 [Color4]
-Color=17,94,243
+Color=143,180,255
 
 [Color4Intense]
 Color=143,180,255
 
 [Color5]
-Color=122,63,224
+Color=171,119,255
 
 [Color5Intense]
 Color=255,196,216

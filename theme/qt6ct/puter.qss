@@ -5,8 +5,8 @@
 }
 
 QToolTip {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
     border: none;
     border-radius: 4px;
     padding: 0 8px;
@@ -17,10 +17,10 @@ QToolTip {
 /* The menu bar: paper, each menu's name one inset in, a light rule along its
    foot inside its module. */
 QMenuBar {
-    background: #ffffff;
-    color: #000000;
+    background: #1a1a17;
+    color: #e8ebe6;
     border: none;
-    border-bottom: 1px dotted #c9d3cc;
+    border-bottom: 1px dotted #36362f;
     padding: 0;
     spacing: 0;
 }
@@ -35,8 +35,8 @@ QMenuBar::item:selected, QMenuBar::item:pressed {
 /* Menus: in the muted colour, standing off the paper windows they open
    over, an item per module, a dotted rule between sections. */
 QMenu {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
     border: none;
     padding: 0;
     margin: 0;
@@ -49,11 +49,11 @@ QMenu::item:selected {
     color: #000000;
 }
 QMenu::item:disabled {
-    color: #8a8a7f;
+    color: #9a9a8f;
 }
 QMenu::separator {
     height: 1px;
-    background: #c9d3cc;
+    background: #36362f;
     margin: 0;
 }
 QMenu::icon {
@@ -106,7 +106,7 @@ QToolBar {
     /* The rule along the foot is painted, not a border: a border on a toolbar
        becomes a frame on every side and pushes it off the module. */
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-        stop: 0 #ffffff, stop: 0.966 #ffffff, stop: 0.967 #c9d3cc, stop: 1 #c9d3cc);
+        stop: 0 #1a1a17, stop: 0.966 #1a1a17, stop: 0.967 #36362f, stop: 1 #36362f);
     border: none;
     padding: 0;
     margin: 0;
@@ -123,7 +123,7 @@ QToolBar::handle, QToolBar::separator {
    with words 30 tall, their words one inset in. */
 QToolButton {
     background: transparent;
-    color: #000000;
+    color: #e8ebe6;
     border: none;
     padding: 0;
     margin: 0;
@@ -139,8 +139,8 @@ QToolButton[toolButtonStyle="3"], Fm--PathBar QToolButton {
     padding: 0 8px;
 }
 QToolButton:hover, QToolButton:pressed, QToolButton:checked {
-    background: #c9d3cc;
-    color: #000000;
+    background: #36362f;
+    color: #e8ebe6;
 }
 QToolButton::menu-indicator {
     image: none;
@@ -150,14 +150,14 @@ QToolButton::menu-indicator {
 /* PCManFM-Qt's path bar: its folder buttons are a module tall like any
    other toolbar button. */
 Fm--PathBar QToolButton:checked {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
 }
 
 /* Buttons with words, as on the bar: a muted fill at the corner. */
 QPushButton {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
     border: none;
     border-radius: 4px;
     padding: 0 8px;
@@ -170,13 +170,13 @@ QPushButton:hover, QPushButton:pressed, QPushButton:checked {
     color: #000000;
 }
 QPushButton:disabled {
-    color: #8a8a7f;
+    color: #9a9a8f;
 }
 
 /* Fields: a muted fill at the corner, one module tall, text one inset in. */
 QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
     border: none;
     border-radius: 4px;
     padding: 5px 8px;
@@ -190,8 +190,8 @@ QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
     background: transparent;
 }
 QComboBox QAbstractItemView {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
     border: none;
     selection-background-color: #99edff;
     selection-color: #000000;
@@ -203,7 +203,7 @@ QComboBox QAbstractItemView {
    rather than each outlined. */
 Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
     border: none;
-    border-top: 1px dotted #c9d3cc;
+    border-top: 1px dotted #36362f;
     padding: 0 8px;
     min-height: 29px;
     max-height: 29px;
@@ -211,13 +211,13 @@ Fm--FileDialog QLineEdit#fileName, Fm--FileDialog QComboBox#fileTypeCombo {
 Fm--FileDialog QDialogButtonBox QPushButton,
 Fm--FileDialog QDialogButtonBox QPushButton:default {
     border: none;
-    border-top: 1px dotted #c9d3cc;
-    border-left: 1px dotted #c9d3cc;
+    border-top: 1px dotted #36362f;
+    border-left: 1px dotted #36362f;
     min-height: 29px;
     max-height: 29px;
 }
 Fm--FileDialog QDialogButtonBox QPushButton:disabled {
-    border-color: #c9d3cc;
+    border-color: #36362f;
 }
 
 QCheckBox, QRadioButton {
@@ -227,7 +227,7 @@ QCheckBox, QRadioButton {
    than outlined boxes, which double their outlines where they stack. */
 QDialog QLineEdit, QDialog QComboBox, QDialog QSpinBox, QDialog QDoubleSpinBox {
     border: none;
-    border-bottom: 1px dotted #c9d3cc;
+    border-bottom: 1px dotted #36362f;
     padding: 0 8px;
     min-height: 29px;
     max-height: 29px;
@@ -246,25 +246,25 @@ QDialog QCheckBox, QDialog QRadioButton {
    text), no lines between them, the open one in the title colour. */
 QTabWidget::pane {
     border: none;
-    border-top: 1px dotted #c9d3cc;
+    border-top: 1px dotted #36362f;
     top: -1px;
 }
 QTabBar {
-    background: #ffffff;
+    background: #1a1a17;
     /* No base line of its own: the rule above (the menu bar's) is the only
        one, where the base style drew a second, in a gray of its own. */
     qproperty-drawBase: 0;
 }
 QTabBar::tab {
-    background: #ffffff;
-    color: #000000;
+    background: #1a1a17;
+    color: #e8ebe6;
 }
 QTabBar::tab:selected {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
 }
 QTabBar::tab:hover:!selected {
-    background: #c9d3cc;
+    background: #36362f;
 }
 /* A tab's close button: a one-module square at its right end, the 16px
    glyph in its middle (width and height hold the padding, so the glyph gets
@@ -277,19 +277,19 @@ QTabBar::close-button {
     padding: 7px;
 }
 QTabBar::close-button:hover {
-    background: #c9d3cc;
+    background: #36362f;
 }
 
 /* Lists, trees and tables: paper, rows one module, light rules, the row under
    the pointer washed, the chosen one in the highlight gray. */
 QAbstractItemView {
-    background: #ffffff;
-    alternate-background-color: #ffffff;
-    color: #000000;
+    background: #1a1a17;
+    alternate-background-color: #1a1a17;
+    color: #e8ebe6;
     border: none;
     selection-background-color: #99edff;
     selection-color: #000000;
-    gridline-color: #c9d3cc;
+    gridline-color: #36362f;
     outline: none;
 }
 /* What fills a main window (a picture, a text, a page) has no frame of its
@@ -298,22 +298,22 @@ QMainWindow QAbstractScrollArea {
     border: none;
 }
 QTreeView::item:hover, QListView::item:hover {
-    background: #e5ece7;
+    background: #262622;
 }
 QTreeView::item:selected, QListView::item:selected {
     background: #99edff;
     color: #000000;
 }
 QHeaderView {
-    background: #e5ece7;
+    background: #262622;
     border: none;
 }
 QHeaderView::section {
-    background: #e5ece7;
-    color: #000000;
+    background: #262622;
+    color: #e8ebe6;
     border: none;
-    border-right: 1px dotted #c9d3cc;
-    border-bottom: 1px dotted #c9d3cc;
+    border-right: 1px dotted #36362f;
+    border-bottom: 1px dotted #36362f;
     padding: 0 8px;
     height: 29px;
 }
@@ -321,22 +321,22 @@ QHeaderView::section {
    rule under each, the table's outline beside them. */
 QHeaderView::section:vertical {
     padding: 0 8px;
-    border-right: 1px dotted #c9d3cc;
-    border-bottom: 1px dotted #c9d3cc;
-    color: #8a8a7f;
+    border-right: 1px dotted #36362f;
+    border-bottom: 1px dotted #36362f;
+    color: #9a9a8f;
 }
 QTableView QTableCornerButton::section {
-    background: #e5ece7;
+    background: #262622;
     border: none;
-    border-right: 1px dotted #c9d3cc;
-    border-bottom: 1px dotted #c9d3cc;
+    border-right: 1px dotted #36362f;
+    border-bottom: 1px dotted #36362f;
 }
 
 /* The status bar: one module, a light rule along its top. */
 QStatusBar {
-    background: #ffffff;
-    color: #000000;
-    border-top: 1px dotted #c9d3cc;
+    background: #1a1a17;
+    color: #e8ebe6;
+    border-top: 1px dotted #36362f;
 }
 QStatusBar::item {
     border: none;
@@ -347,27 +347,27 @@ QStatusBar::item {
    it, as wide as the gutter, darker under the pointer and while dragged.
    No arrows. */
 QScrollBar:vertical {
-    background: #ffffff;
+    background: #1a1a17;
     width: 30px;
     margin: 0;
     border: none;
-    border-left: 1px dotted #c9d3cc;
+    border-left: 1px dotted #36362f;
 }
 QScrollBar:horizontal {
-    background: #ffffff;
+    background: #1a1a17;
     height: 30px;
     margin: 0;
     border: none;
-    border-top: 1px dotted #c9d3cc;
+    border-top: 1px dotted #36362f;
 }
 QScrollBar::handle {
-    background: #c9d3cc;
+    background: #36362f;
     border: none;
     min-height: 30px;
     min-width: 30px;
 }
 QScrollBar::handle:hover, QScrollBar::handle:pressed {
-    background: #8a8a7f;
+    background: #9a9a8f;
 }
 QScrollBar::add-line, QScrollBar::sub-line {
     width: 0;
@@ -379,7 +379,7 @@ QScrollBar::add-page, QScrollBar::sub-page {
 }
 
 QSplitter::handle {
-    background: #c9d3cc;
+    background: #36362f;
 }
 QSplitter::handle:horizontal {
     width: 1px;
@@ -392,9 +392,9 @@ QDockWidget {
     titlebar-close-icon: none;
 }
 QDockWidget::title {
-    background: #e5ece7;
+    background: #262622;
     padding: 5px 8px 4px 8px;
-    border-bottom: 1px dotted #c9d3cc;
+    border-bottom: 1px dotted #36362f;
 }
 
 /* A group is its title, a heading row over what it holds, and no box (whose
@@ -410,14 +410,14 @@ QGroupBox::title {
 }
 
 QProgressBar {
-    background: #e5ece7;
+    background: #262622;
     border: none;
     border-radius: 4px;
     text-align: center;
     min-height: 20px;
 }
 QProgressBar::chunk {
-    background: #c9d3cc;
+    background: #36362f;
 }
 
 /* The calculator (src/calc). The sum on a row of its own, a rule above;
@@ -426,7 +426,7 @@ QProgressBar::chunk {
    paper, operators on bone, equals in the accent. */
 QLineEdit#calcInput {
     border: none;
-    border-top: 1px dotted #c9d3cc;
+    border-top: 1px dotted #36362f;
     /* A field keeps 2px of its own around the text: 6 + 2 is the inset. */
     padding: 0 6px;
     min-height: 29px;
@@ -434,24 +434,24 @@ QLineEdit#calcInput {
 }
 QLabel#calcResult {
     padding: 0 8px;
-    color: #8a8a7f;
+    color: #9a9a8f;
 }
 QLabel#calcResult[final="true"] {
-    color: #000000;
+    color: #e8ebe6;
     font-weight: 600;
 }
 QListWidget#calcHistory {
     border: none;
 }
 CalcKeypad {
-    qproperty-digitColor: #ffffff;
-    qproperty-operatorColor: #e5ece7;
+    qproperty-digitColor: #1a1a17;
+    qproperty-operatorColor: #262622;
     qproperty-equalsColor: #99edff;
     qproperty-equalsInk: #000000;
-    qproperty-inkColor: #000000;
-    qproperty-ruleColor: #c9d3cc;
-    qproperty-hoverColor: #c9d3cc;
-    qproperty-hoverInk: #000000;
+    qproperty-inkColor: #e8ebe6;
+    qproperty-ruleColor: #36362f;
+    qproperty-hoverColor: #36362f;
+    qproperty-hoverInk: #e8ebe6;
     qproperty-pressedColor: #adff00;
     qproperty-pressedInk: #000000;
 }

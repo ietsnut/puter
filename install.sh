@@ -69,12 +69,33 @@ on_bus() {
   if [[ -n ${DBUS_SESSION_BUS_ADDRESS:-} ]]; then "$@"; else dbus-run-session -- "$@"; fi
 }
 
+# A Mozilla profile's user.js: puter's prefs, then its pages, toolbars and
+# windows dark or light as the palette is (theme/mode; 0 is dark, 1 light).
+mozilla_prefs() { # prefs profile/user.js
+  local scheme=1
+  [[ $(cat "$repo/theme/mode") == dark ]] && scheme=0
+  rm -f "$2"
+  {
+    cat "$1"
+    echo
+    echo "// Written by install.sh config from theme/mode."
+    echo "user_pref(\"layout.css.prefers-color-scheme.content-override\", $scheme);"
+    echo "user_pref(\"browser.theme.toolbar-theme\", $scheme);"
+    echo "user_pref(\"browser.theme.content-theme\", $scheme);"
+  } >"$2"
+}
+
 settings() {
   # GTK on Wayland reads its theme from gsettings rather than settings.ini.
   gsettings set org.gnome.desktop.interface gtk-theme puter
   gsettings set org.gnome.desktop.interface icon-theme puter
-  # Light, for the apps that ask (GTK 4, portals).
-  gsettings set org.gnome.desktop.interface color-scheme default
+  # Dark or light as the palette is (theme/mode), for the apps that ask
+  # (GTK 4, portals).
+  if [[ $(cat "$repo/theme/mode") == dark ]]; then
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+  else
+    gsettings set org.gnome.desktop.interface color-scheme default
+  fi
   gsettings set org.gnome.desktop.interface font-name "puter-sans 11"
   gsettings set org.gnome.desktop.interface enable-animations false
   gsettings set org.gnome.desktop.interface font-antialiasing grayscale
@@ -234,7 +255,7 @@ CONF
     [[ -f $ff/profiles.ini ]] || timeout 30 firefox --headless about:blank >/dev/null 2>&1 || true
     profile="$(firefox_profile "$ff/profiles.ini")"
     if [[ -n $profile && -d $ff/$profile ]]; then
-      ln -sfn "$repo/config/firefox/user.js" "$ff/$profile/user.js"
+      mozilla_prefs "$repo/config/firefox/user.js" "$ff/$profile/user.js"
       ln -sfn "$repo/theme/firefox/chrome" "$ff/$profile/chrome"
     fi
   fi
@@ -246,7 +267,7 @@ CONF
     [[ -f $tb/profiles.ini ]] || timeout 30 thunderbird --headless >/dev/null 2>&1 || true
     profile="$(firefox_profile "$tb/profiles.ini")"
     if [[ -n $profile && -d $tb/$profile ]]; then
-      ln -sfn "$repo/config/thunderbird/user.js" "$tb/$profile/user.js"
+      mozilla_prefs "$repo/config/thunderbird/user.js" "$tb/$profile/user.js"
       ln -sfn "$repo/theme/thunderbird/chrome" "$tb/$profile/chrome"
     fi
   fi
@@ -347,7 +368,7 @@ NAMES
 
   agents
 
-  on_bus bash -c "$(declare -f settings); settings"
+  on_bus bash -c "repo=$(printf %q "$repo"); $(declare -f settings); settings"
 }
 
 # Coding agents (bin/puter-agent): each opens in its own foot window, from
@@ -400,10 +421,26 @@ for path in (home / ".claude/settings.json", home / ".codex/hooks.json"):
                 if not any("puter-agent hook" in h.get("command", "") for h in e.get("hooks", []))]
         hooks[event] = kept + entries
     path.write_text(json.dumps(settings, indent=2) + "\n")
-# Claude Code in its light theme, in the terminal's own colours (the palette's).
+# Neither agent asks before it acts: puter has nothing sensitive on it.
+# Claude Code starts in its bypass-permissions mode, without the warning,
+claude = home / ".claude/settings.json"
+settings = json.loads(claude.read_text())
+settings.setdefault("permissions", {})["defaultMode"] = "bypassPermissions"
+settings["skipDangerousModePermissionPrompt"] = True
+claude.write_text(json.dumps(settings, indent=2) + "\n")
+# and Codex never asks for approval and runs outside its sandbox (top-level
+# keys, so before any table in its config).
+codex = home / ".codex/config.toml"
+lines = codex.read_text().splitlines() if codex.exists() else []
+ours = {"approval_policy": '"never"', "sandbox_mode": '"danger-full-access"'}
+table = next((i for i, line in enumerate(lines) if line.lstrip().startswith("[")), len(lines))
+top = [line for line in lines[:table] if line.split("=")[0].strip() not in ours]
+codex.write_text("\n".join([f"{key} = {value}" for key, value in ours.items()] + top + lines[table:]) + "\n")
+# Claude Code in the terminal's own colours (the palette's), dark or light
+# as the palette is (theme/mode).
 config = home / ".claude.json"
 settings = json.loads(config.read_text()) if config.exists() else {}
-settings["theme"] = "light-ansi"
+settings["theme"] = (repo / "theme/mode").read_text().strip() + "-ansi"
 config.write_text(json.dumps(settings, indent=2) + "\n")
 HOOKS
 

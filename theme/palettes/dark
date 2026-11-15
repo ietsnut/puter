@@ -1,0 +1,221 @@
+# Stack, dark: the same olive desk, bug and colours, with the windows, bar
+# and tabs in warm near-blacks and the type light. The brights (cyan, lime,
+# pink) keep black type on them. puter's default (theme/palette); `stack`
+# is the light one.
+# Roles on the left, the palette's colours on the right. `theme/make` writes
+# every app's colours from the palette named in theme/palette.
+
+# The interface.
+desk          olive
+desk-dot      olive           # no grid
+# The big bug in the desk's middle (Desk.qml).
+mark          bone
+# The dinosaurs standing on the bar (Desk.qml).
+dino-1        lilac
+dino-2        lime
+# The screensaver's life (Life.qml): four colours of cell on the desk.
+life-1        lime
+life-2        cyan
+life-3        pink
+life-4        lilac
+bar           mint            # the floating bar's pills and the clock
+bar-ink       ink
+bar-edge      mint            # no line along the bar
+search        cyan            # the search mark's tile
+search-ink    black
+tab           mint            # a window's tab on the bar
+tab-ink       ink
+tab-active    charcoal-light  # the focused window's tab
+tab-active-ink  ink
+paper         paper
+ink           ink
+accent        cyan            # highlights and selections
+accent-ink    black
+muted         mint            # headers, the bar's other tabs
+muted-ink     stone
+outline       mint            # no outlines: where an edge must be drawn, it's the faintest fill
+frame         gray  # a 1px line around every window, the bar's pills and panels, for contrast
+rule          mint-dark       # the lines inside: table grids, dividers
+title         mint            # title bars, and the open tab inside apps
+title-ink     ink
+title-active  paper           # the focused window's tab: it joins its body
+
+# What's under the pointer inside apps: buttons, tabs, the scroll bar.
+hover         mint-dark
+hover-ink     ink
+
+# The bar's buttons and tabs, and the window buttons, under the pointer.
+button-hover      lime
+button-hover-ink  black
+close-hover       pink
+close-hover-ink   black
+# An agent's taskbar tab while it waits for you (bin/puter-agent).
+attention         pink
+attention-ink     black
+
+# Syntax highlighting in the text editor, on paper.
+code-comment   stone
+code-keyword   lilac
+code-string    lime
+code-number    orange
+code-type      cyan-light
+code-constant  peach
+code-function  blue-light
+code-builtin   pink
+code-regex     pink-dark
+code-tag       lilac-light
+code-value     cyan
+code-other     yellow
+
+# The terminal's sixteen ANSI colours, on paper.
+ansi0   charcoal-light
+ansi1   red
+ansi2   green
+ansi3   yellow
+ansi4   blue-light
+ansi5   lilac
+ansi6   cyan
+ansi7   sand
+ansi8   stone
+ansi9   coral
+ansi10  green-light
+ansi11  yellow
+ansi12  blue-light
+ansi13  pink
+ansi14  cyan-light
+ansi15  white
+
+# KiCad boards.
+board-background  black
+board-text        white
+board-grid        stone-dark
+board-faint       sand
+copper-front      red
+copper-back       blue-light
+copper-inner-1    green-light
+copper-inner-2    yellow
+copper-inner-3    pink
+copper-inner-4    purple
+copper-inner-5    coral
+copper-inner-6    cyan-light
+silk-front        white
+silk-back         pink
+mask-front        green
+mask-back         blue-dark
+paste-front       sand
+paste-back        coral
+edge              yellow
+margin            pink
+courtyard-front   pink
+courtyard-back    blue-light
+fab-front         sand
+fab-back          blue-light
+user-drawings     sand
+user-comments     blue-light
+user-eco1         green-light
+user-eco2         yellow
+hole-pad          yellow
+hole-npth         blue-light
+hole-via          sand
+error             red
+warning           yellow
+board-worksheet   red
+
+# KiCad schematics, on paper.
+sch-grid          stone-dark
+sch-wire          green-light
+sch-bus           blue-light
+sch-outline       ink
+sch-body          charcoal-light
+sch-pin           ink
+sch-pin-name      blue-light
+sch-pin-number    stone
+sch-text          ink
+sch-fields        stone
+sch-label-global  red
+sch-label-hier    coral
+sch-sheet         ink
+sch-worksheet     ink
+sch-hidden        stone-dark
+
+# KiCad's 3D view.
+3d-background     charcoal
+3d-board          yellow-dark
+3d-copper         yellow
+3d-mask           green
+3d-silk           white
+
+[fonts]
+sans      Geist
+mono      Geist Mono
+headline  Geist
+
+# Each app's dot, by its icon name.
+[apps]
+featherpad            orange
+pcmanfm-qt            lilac
+utilities-terminal    lime
+lximage-qt            pink
+firefox               yellow
+x-office-spreadsheet  blue
+jlcone                peach
+kicad                 green-light
+pcbnew                green-light
+eeschema              green-light
+mpv                   pink-dark
+xdg-desktop-portal-lxqt  lilac
+org.mozilla.Thunderbird  cyan
+qpdfview              red
+lxqt-archiver         violet
+accessories-calculator  blue-light
+qps                   lime-dark
+claude                coral-dark
+codex                 cyan
+
+[colors]
+ink              #e8ebe6
+charcoal         #121210
+charcoal-light   #2e2e28
+stone-dark       #55554c
+stone            #9a9a8f
+sand             #c9d3cc
+bone             #e5ece7
+paper            #1a1a17
+mint             #262622
+gray             #42423b
+mint-dark        #36362f
+olive            #403700
+olive-light      #6b5d00
+cyan             #99edff
+cyan-dark        #1f8fa8
+cyan-light       #c5e9ff
+lime             #adff00
+lime-dark        #4f7a00
+lime-pale        #f1ffd2
+blue             #115ef3
+blue-dark        #0b3fa8
+blue-light       #8fb4ff
+violet           #5718c0
+lilac            #ab77ff
+lilac-dark       #7a3fe0
+lilac-light      #d5bbff
+pink             #ffc4d8
+pink-dark        #e0457b
+forest           #004012
+orange           #ff7a1a
+peach            #ffc49e
+yellow           #ffd600
+yellow-dark      #b28600
+sky              #c5e9ff
+plum             #403700
+periwinkle       #8fb4ff
+periwinkle-dark  #115ef3
+black            #000000
+white            #ffffff
+coral            #ff7a1a
+coral-dark       #d4520a
+magenta          #7a3fe0
+red              #e0243c
+green            #4f7a00
+green-light      #adff00
+purple           #5718c0

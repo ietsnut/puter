@@ -42,7 +42,5 @@ user_pref("toolkit.cosmeticAnimations.enabled", false);
 // Plain-text mail in the sans, like everything else.
 user_pref("mail.fixed_width_messages", false);
 
-// Mail and windows light, as every window is.
-user_pref("layout.css.prefers-color-scheme.content-override", 1);
-user_pref("browser.theme.toolbar-theme", 1);
-user_pref("browser.theme.content-theme", 1);
+// Mail and windows light or dark, as every window is: install.sh config
+// adds the colour-scheme prefs from theme/mode.

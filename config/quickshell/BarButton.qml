@@ -20,11 +20,6 @@ Rectangle {
     height: Theme.module
     color: mouse.containsMouse ? Colors.buttonHover : fill
     radius: Theme.radius / 2
-    Behavior on color {
-        ColorAnimation {
-            duration: Theme.quick
-        }
-    }
 
     IconImage {
         x: (button.width - width) / 2

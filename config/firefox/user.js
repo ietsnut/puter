@@ -34,5 +34,5 @@ user_pref("browser.tabs.hoverPreview.enabled", false);
 user_pref("ui.prefersReducedMotion", 1);
 user_pref("toolkit.cosmeticAnimations.enabled", false);
 
-// Pages light, as every window is.
-user_pref("layout.css.prefers-color-scheme.content-override", 1);
+// Pages light or dark, as every window is: install.sh config adds
+// layout.css.prefers-color-scheme.content-override from theme/mode.

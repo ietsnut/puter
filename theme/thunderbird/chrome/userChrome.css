@@ -4,26 +4,26 @@
     font-family: puter-sans !important;
     --font-size-scale: 1 !important;
     font-size: 15px !important;
-    --layout-background-0: #ffffff !important;
-    --layout-background-1: #ffffff !important;
-    --layout-background-2: #ffffff !important;
-    --layout-background-3: #ffffff !important;
-    --layout-background-4: #ffffff !important;
-    --layout-color-0: #000000 !important;
-    --layout-color-1: #000000 !important;
-    --layout-color-2: #8a8a7f !important;
-    --layout-color-3: #8a8a7f !important;
-    --layout-border-0: #c9d3cc !important;
-    --layout-border-1: #c9d3cc !important;
-    --layout-border-2: #c9d3cc !important;
-    --toolbar-bgcolor: #ffffff !important;
-    --toolbar-color: #000000 !important;
-    --toolbar-field-background-color: #ffffff !important;
-    --toolbar-field-color: #000000 !important;
-    --toolbar-field-border-color: #e5ece7 !important;
+    --layout-background-0: #1a1a17 !important;
+    --layout-background-1: #1a1a17 !important;
+    --layout-background-2: #1a1a17 !important;
+    --layout-background-3: #1a1a17 !important;
+    --layout-background-4: #1a1a17 !important;
+    --layout-color-0: #e8ebe6 !important;
+    --layout-color-1: #e8ebe6 !important;
+    --layout-color-2: #9a9a8f !important;
+    --layout-color-3: #9a9a8f !important;
+    --layout-border-0: #36362f !important;
+    --layout-border-1: #36362f !important;
+    --layout-border-2: #36362f !important;
+    --toolbar-bgcolor: #1a1a17 !important;
+    --toolbar-color: #e8ebe6 !important;
+    --toolbar-field-background-color: #1a1a17 !important;
+    --toolbar-field-color: #e8ebe6 !important;
+    --toolbar-field-border-color: #262622 !important;
     --toolbarbutton-border-radius: 0 !important;
-    --toolbarbutton-hover-background: #c9d3cc !important;
-    --toolbarbutton-active-background: #c9d3cc !important;
+    --toolbarbutton-hover-background: #36362f !important;
+    --toolbarbutton-active-background: #36362f !important;
     --button-border-radius: 0 !important;
     --border-radius-small: 0 !important;
     --border-radius-medium: 0 !important;
@@ -37,22 +37,22 @@
     --listbox-selected-bg: #99edff !important;
     --listbox-selected-color: #000000 !important;
     --listbox-focused-selected-bg: #99edff !important;
-    --listbox-hover: #c9d3cc !important;
-    --treeitem-background-hover: #c9d3cc !important;
-    --tree-view-bg: #ffffff !important;
-    --tree-pane-background: #ffffff !important;
-    --sidebar-background: #ffffff !important;
-    --sidebar-background-color: #ffffff !important;
-    --foldertree-background: #ffffff !important;
-    --splitter-color: #c9d3cc !important;
-    --arrowpanel-background: #ffffff !important;
-    --arrowpanel-color: #000000 !important;
-    --arrowpanel-border-color: #e5ece7 !important;
+    --listbox-hover: #36362f !important;
+    --treeitem-background-hover: #36362f !important;
+    --tree-view-bg: #1a1a17 !important;
+    --tree-pane-background: #1a1a17 !important;
+    --sidebar-background: #1a1a17 !important;
+    --sidebar-background-color: #1a1a17 !important;
+    --foldertree-background: #1a1a17 !important;
+    --splitter-color: #36362f !important;
+    --arrowpanel-background: #1a1a17 !important;
+    --arrowpanel-color: #e8ebe6 !important;
+    --arrowpanel-border-color: #262622 !important;
     --arrowpanel-border-radius: 0 !important;
     --panel-border-radius: 0 !important;
     --panel-shadow-margin: 0 !important;
     --panel-shadow: none !important;
-    --tabs-toolbar-background-color: #ffffff !important;
+    --tabs-toolbar-background-color: #1a1a17 !important;
     --tab-min-height: 30px !important;
     --tab-border-radius: 0 !important;
     --tab-shadow-max-size: 0 !important;
@@ -63,7 +63,7 @@
 /* The window: paper, nothing but the menu bar and tabs above the folders. */
 #titlebar, #navigation-toolbox, #messengerBody, #tabmail-container,
 #tabmail-tabbox, #tabpanelcontainer, #mail-menubar {
-    background: #ffffff !important;
+    background: #1a1a17 !important;
     border: none !important;
     box-shadow: none !important;
     appearance: none !important;
@@ -102,9 +102,9 @@
     overflow: visible !important;
     padding: 0 !important;
     margin: 0 !important;
-    background: #ffffff !important;
+    background: #1a1a17 !important;
     border: none !important;
-    border-bottom: 1px solid #c9d3cc !important;
+    border-bottom: 1px solid #36362f !important;
     box-shadow: none !important;
     appearance: none !important;
 }
@@ -130,8 +130,8 @@
     max-height: 30px !important;
     padding: 0 !important;
     margin: 0 !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #c9d3cc !important;
+    background: #1a1a17 !important;
+    border-bottom: 1px solid #36362f !important;
 }
 .tabmail-tab {
     min-height: 29px !important;
@@ -146,10 +146,10 @@
     box-shadow: none !important;
     outline: none !important;
     border: none !important;
-    background: #ffffff !important;
+    background: #1a1a17 !important;
 }
 .tabmail-tab[selected] .tab-background {
-    background: #e5ece7 !important;
+    background: #262622 !important;
 }
 .tabmail-tab::before, .tabmail-tab::after, .tabmail-tab .tab-line {
     display: none !important;
@@ -160,7 +160,7 @@
     display: none !important;
 }
 #folderPane, #threadPane, #messagePane, #folderTree, #threadTree {
-    background: #ffffff !important;
+    background: #1a1a17 !important;
 }
 /* The panes meet on 1px rules: folders nine modules (with their rule),
    the list taking what's left (eighteen in a 48-module window), the message
@@ -173,7 +173,7 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
 }
 #folderPaneSplitter, #messagePaneSplitter {
     --splitter-width: 1px !important;
-    background: #c9d3cc !important;
+    background: #36362f !important;
     width: 1px !important;
     min-width: 1px !important;
     border: none !important;
@@ -259,19 +259,19 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     content: url("icons/expanded.svg") !important;
 }
 :root {
-    --folder-color-folder: #000000 !important;
-    --folder-color-inbox: #000000 !important;
-    --folder-color-sent: #000000 !important;
-    --folder-color-draft: #000000 !important;
-    --folder-color-outbox: #000000 !important;
-    --folder-color-trash: #000000 !important;
-    --folder-color-archive: #000000 !important;
-    --folder-color-spam: #000000 !important;
-    --folder-color-template: #000000 !important;
-    --folder-color-newsletter: #000000 !important;
-    --folder-color-rss: #000000 !important;
-    --folder-color-folder-rss: #000000 !important;
-    --folder-color-folder-filter: #000000 !important;
+    --folder-color-folder: #e8ebe6 !important;
+    --folder-color-inbox: #e8ebe6 !important;
+    --folder-color-sent: #e8ebe6 !important;
+    --folder-color-draft: #e8ebe6 !important;
+    --folder-color-outbox: #e8ebe6 !important;
+    --folder-color-trash: #e8ebe6 !important;
+    --folder-color-archive: #e8ebe6 !important;
+    --folder-color-spam: #e8ebe6 !important;
+    --folder-color-template: #e8ebe6 !important;
+    --folder-color-newsletter: #e8ebe6 !important;
+    --folder-color-rss: #e8ebe6 !important;
+    --folder-color-folder-rss: #e8ebe6 !important;
+    --folder-color-folder-filter: #e8ebe6 !important;
 }
 #folderTree .unread-count, #folderTree .total-count, #folderTree .folder-size {
     background: transparent !important;
@@ -306,10 +306,10 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     box-sizing: border-box !important;
     height: 30px !important;
     max-height: 30px !important;
-    background: #e5ece7 !important;
+    background: #262622 !important;
     border: none !important;
-    border-inline-end: 1px solid #c9d3cc !important;
-    box-shadow: inset 0 -1px 0 #c9d3cc !important;
+    border-inline-end: 1px solid #36362f !important;
+    box-shadow: inset 0 -1px 0 #36362f !important;
     font-weight: normal !important;
     padding: 0 !important;
 }
@@ -330,14 +330,14 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     color: #000000 !important;
 }
 #threadTree tr:not(.selected):hover {
-    background: #c9d3cc !important;
+    background: #36362f !important;
 }
 #folderTree li.selected > .container {
     background: #99edff !important;
     color: #000000 !important;
 }
 #folderTree li:not(.selected) > .container:hover {
-    background: #c9d3cc !important;
+    background: #36362f !important;
 }
 
 /* about:message, the message: a ledger of one-module rows on paper (who
@@ -355,7 +355,7 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     outline: none !important;
 }
 #messageHeader {
-    background: #ffffff !important;
+    background: #1a1a17 !important;
     padding: 0 8px !important;
     row-gap: 0 !important;
     gap: 0 !important;
@@ -399,8 +399,8 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
 /* Adding an account (the account hub): paper with a 1px outline, square,
    no gradients, pictures, branding or Thundermail. */
 .account-hub-dialog, dialog.account-hub-dialog {
-    background: #ffffff !important;
-    border: 1px solid #e5ece7 !important;
+    background: #1a1a17 !important;
+    border: 1px solid #262622 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     --hub-input-border-radius: 0 !important;
@@ -409,7 +409,7 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
     display: none !important;
 }
 .account-hub-view {
-    background: #ffffff !important;
+    background: #1a1a17 !important;
     background-image: none !important;
     border-radius: 0 !important;
 }
@@ -427,9 +427,9 @@ body:is(.layout-classic, .layout-vertical, .layout-wide, .account-central) {
 
 /* Popups and menus: paper, a 1px outline, 30px items, no shadow. */
 menupopup, panel {
-    --panel-background: #ffffff !important;
-    --panel-color: #000000 !important;
-    --panel-border-color: #e5ece7 !important;
+    --panel-background: #1a1a17 !important;
+    --panel-color: #e8ebe6 !important;
+    --panel-border-color: #262622 !important;
     --panel-border-radius: 0 !important;
     --panel-padding: 0 !important;
     --panel-shadow-margin: 0 !important;
@@ -448,6 +448,6 @@ menupopup menu[_moz-menuactive], menupopup menuitem[_moz-menuactive] {
 menuseparator {
     padding: 0 !important;
     margin: 0 !important;
-    border-top: 1px solid #c9d3cc !important;
+    border-top: 1px solid #36362f !important;
     appearance: none !important;
 }

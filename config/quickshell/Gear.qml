@@ -14,11 +14,6 @@ Rectangle {
     height: Theme.bar
     radius: Theme.radius
     color: mouse.containsMouse ? Colors.buttonHover : Colors.search
-    Behavior on color {
-        ColorAnimation {
-            duration: Theme.quick
-        }
-    }
 
     // The gear's outline as an SVG path, on a 100-unit square centred at 50:
     // teeth from the root circle out to the tip, each a little narrower at

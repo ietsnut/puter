@@ -32,11 +32,6 @@ Rectangle {
 
     color: hoverable && mouse.containsMouse ? hoverFill : fill
     radius: Theme.radius / 2
-    Behavior on color {
-        ColorAnimation {
-            duration: Theme.quick
-        }
-    }
     implicitHeight: Theme.module
     width: Math.max(minModules, Math.min(maxModules, modules)) * Theme.module
 

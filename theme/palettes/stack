@@ -35,6 +35,7 @@ accent-ink    ink
 muted         mint            # headers, the bar's other tabs
 muted-ink     stone
 outline       mint            # no outlines: where an edge must be drawn, it's the faintest fill
+frame         sand  # a 1px line around every window, the bar's pills and panels, for contrast
 rule          mint-dark       # the lines inside: table grids, dividers
 title         mint            # title bars, and the open tab inside apps
 title-ink     ink

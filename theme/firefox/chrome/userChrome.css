@@ -3,25 +3,25 @@
 :root {
     font-family: puter-sans !important;
     font-size: 15px !important;
-    --toolbar-bgcolor: #ffffff !important;
-    --toolbar-color: #000000 !important;
-    --toolbar-field-background-color: #ffffff !important;
-    --toolbar-field-focus-background-color: #ffffff !important;
-    --toolbar-field-color: #000000 !important;
-    --toolbar-field-focus-color: #000000 !important;
+    --toolbar-bgcolor: #1a1a17 !important;
+    --toolbar-color: #e8ebe6 !important;
+    --toolbar-field-background-color: #1a1a17 !important;
+    --toolbar-field-focus-background-color: #1a1a17 !important;
+    --toolbar-field-color: #e8ebe6 !important;
+    --toolbar-field-focus-color: #e8ebe6 !important;
     --toolbar-field-border-color: transparent !important;
     --toolbar-field-focus-border-color: transparent !important;
     /* (The same, by the names Firefox 158 gives them.) */
-    --toolbar-field-background-color-focus: #ffffff !important;
-    --toolbar-field-text-color: #000000 !important;
-    --toolbar-field-text-color-focus: #000000 !important;
+    --toolbar-field-background-color-focus: #1a1a17 !important;
+    --toolbar-field-text-color: #e8ebe6 !important;
+    --toolbar-field-text-color-focus: #e8ebe6 !important;
     --toolbar-field-border-color-focus: transparent !important;
     --toolbarbutton-border-radius: 0 !important;
     --toolbarbutton-inner-padding: 7px !important;
     --toolbarbutton-outer-padding: 0 !important;
     --toolbar-start-end-padding: 0 !important;
-    --toolbarbutton-hover-background: #c9d3cc !important;
-    --toolbarbutton-active-background: #c9d3cc !important;
+    --toolbarbutton-hover-background: #36362f !important;
+    --toolbarbutton-active-background: #36362f !important;
     --tab-border-radius: 0 !important;
     --tab-min-height: 30px !important;
     --tab-block-margin: 0 !important;
@@ -34,9 +34,9 @@
     --border-radius-small: 0 !important;
     --border-radius-medium: 0 !important;
     --border-radius-large: 0 !important;
-    --arrowpanel-background: #ffffff !important;
-    --arrowpanel-color: #000000 !important;
-    --arrowpanel-border-color: #e5ece7 !important;
+    --arrowpanel-background: #1a1a17 !important;
+    --arrowpanel-color: #e8ebe6 !important;
+    --arrowpanel-border-color: #262622 !important;
     --arrowpanel-border-radius: 0 !important;
     --panel-border-radius: 0 !important;
     --panel-shadow-margin: 0 !important;
@@ -46,7 +46,7 @@
 /* The bars: paper, a light rule along the navigation bar's foot, inside its
    module (a border on the toolbox would set the page a pixel off). */
 #navigator-toolbox {
-    background: #ffffff !important;
+    background: #1a1a17 !important;
     border: none !important;
 }
 #browser, #tabbrowser-tabbox, #tabbrowser-tabpanels {
@@ -61,21 +61,21 @@
     margin: 0 !important;
     border: none !important;
     box-shadow: none !important;
-    background: #ffffff !important;
+    background: #1a1a17 !important;
 }
 #nav-bar {
-    border-bottom: 1px solid #c9d3cc !important;
+    border-bottom: 1px solid #36362f !important;
 }
 /* The tab bar in the title colour, as the title bar above it, so the open
    tab, in paper, runs on into the navigation bar below. */
 #TabsToolbar {
-    background: #e5ece7 !important;
+    background: #262622 !important;
 }
 
 /* The menu bar only while Alt shows it, each menu's name one inset in. */
 #toolbar-menubar:not([inactive]) {
     min-height: 30px !important;
-    background: #ffffff !important;
+    background: #1a1a17 !important;
 }
 #main-menubar > menu {
     padding: 0 8px !important;
@@ -113,17 +113,17 @@
     border-radius: 0 !important;
     box-shadow: none !important;
     outline: none !important;
-    background: #e5ece7 !important;
+    background: #262622 !important;
 }
 .tab-background:is([selected], [multiselected]) {
-    background: #ffffff !important;
+    background: #1a1a17 !important;
 }
 .tabbrowser-tab:hover > .tab-stack > .tab-background:not([selected]) {
-    background: #c9d3cc !important;
+    background: #36362f !important;
 }
 .tab-content {
     padding: 0 0 0 8px !important;
-    color: #000000 !important;
+    color: #e8ebe6 !important;
 }
 /* The close button and the new-tab button: a module square each, the
    glyph in its middle. */
@@ -140,7 +140,7 @@
     display: flex !important;
 }
 .tab-close-button:hover, #tabs-newtab-button:hover > .toolbarbutton-icon {
-    background: #c9d3cc !important;
+    background: #36362f !important;
 }
 #tabs-newtab-button > .toolbarbutton-icon {
     width: 30px !important;
@@ -208,7 +208,7 @@
     --urlbar-input-growth-open-block: 0px !important;
     --urlbar-background-border: none !important;
     --urlbar-background-border-focused: none !important;
-    --urlbar-background-border-open: 1px solid #e5ece7 !important;
+    --urlbar-background-border-open: 1px solid #262622 !important;
     --urlbar-background-outline-focused: none !important;
     --urlbar-background-box-shadow-open: none !important;
     --urlbar-input-container-border: none !important;
@@ -222,8 +222,8 @@
     --urlbarView-row-gutter: 0px !important;
     --urlbarView-row-border-radius: 0px !important;
     --urlbarView-row-padding-inline: 8px !important;
-    --urlbar-background-color: #ffffff !important;
-    --urlbar-background-color-focus: #ffffff !important;
+    --urlbar-background-color: #1a1a17 !important;
+    --urlbar-background-color-focus: #1a1a17 !important;
 }
 .urlbar-input-container {
     padding: 0 8px !important;
@@ -252,7 +252,7 @@
     border-radius: 0 !important;
 }
 .urlbarView-row:hover {
-    background: #c9d3cc !important;
+    background: #36362f !important;
 }
 .urlbarView-row[selected] {
     background: #99edff !important;
@@ -262,9 +262,9 @@
 /* Menus: paper with the outline, an item per module, a light rule between
    sections. */
 menupopup {
-    --panel-background: #ffffff !important;
-    --panel-color: #000000 !important;
-    --panel-border-color: #e5ece7 !important;
+    --panel-background: #1a1a17 !important;
+    --panel-color: #e8ebe6 !important;
+    --panel-border-color: #262622 !important;
     --panel-padding: 0 !important;
 }
 menupopup menuitem, menupopup menu {
@@ -280,5 +280,5 @@ menupopup menuitem[_moz-menuactive], menupopup menu[_moz-menuactive] {
 menupopup menuseparator {
     padding: 0 !important;
     margin: 0 !important;
-    border-top: 1px solid #c9d3cc !important;
+    border-top: 1px solid #36362f !important;
 }

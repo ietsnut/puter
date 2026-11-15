@@ -213,7 +213,9 @@ puter-network                 actions     connection-signal
 puter-network-off             actions     connection-signal--off
 puter-volume                  actions     volume--up
 puter-volume-muted            actions     volume--mute
-puter-fold                    actions     chevron--right
+puter-locked                  actions     locked
+puter-renew                   actions     renew
+puter-settings                actions     settings
 puter-update                  actions     upgrade
 puter-restart                 actions     restart
 puter-power                   actions     power

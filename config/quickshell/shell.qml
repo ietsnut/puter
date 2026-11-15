@@ -10,13 +10,15 @@ ShellRoot {
         onSearch: searchPanel.toggle()
         onUpdate: updatesPanel.toggle()
         onVolume: volumePanel.toggle()
+        onNetwork: networkPanel.toggle()
     }
 
     Dismiss {
-        visible: updatesPanel.visible || volumePanel.visible
+        visible: updatesPanel.visible || volumePanel.visible || networkPanel.visible
         onClicked: {
             updatesPanel.visible = false;
             volumePanel.visible = false;
+            networkPanel.visible = false;
         }
     }
 
@@ -30,6 +32,11 @@ ShellRoot {
 
     Volume {
         id: volumePanel
+    }
+
+    Network {
+        id: networkPanel
+        implicitWidth: bar.statusWidth
     }
 
     Toasts {}
@@ -82,6 +89,15 @@ ShellRoot {
 
         function toggle(): void {
             updatesPanel.toggle();
+        }
+    }
+
+    // `qs ipc call network toggle`.
+    IpcHandler {
+        target: "network"
+
+        function toggle(): void {
+            networkPanel.toggle();
         }
     }
 

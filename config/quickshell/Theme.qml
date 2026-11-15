@@ -23,7 +23,9 @@ Singleton {
     readonly property int textSize: 15
     // Search's own type: the query large, as Spotlight sets it.
     readonly property int queryText: 22
-    // Motion: quick for hovers, a little longer for what opens.
+    // Motion: quick for what slides (search's highlight, the switcher's
+    // cards), a little longer for what opens. Hovers don't fade: they're
+    // instant.
     readonly property int quick: 120
     readonly property int open: 260
 }

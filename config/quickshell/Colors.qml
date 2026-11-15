@@ -13,24 +13,25 @@ Singleton {
     readonly property color life2: "#99edff"
     readonly property color life3: "#ffc4d8"
     readonly property color life4: "#ab77ff"
-    readonly property color bar: "#e5ece7"
-    readonly property color barInk: "#000000"
-    readonly property color barEdge: "#e5ece7"
+    readonly property color bar: "#262622"
+    readonly property color barInk: "#e8ebe6"
+    readonly property color barEdge: "#262622"
     readonly property color search: "#99edff"
     readonly property color searchInk: "#000000"
-    readonly property color tab: "#e5ece7"
-    readonly property color tabInk: "#000000"
-    readonly property color tabActive: "#ffffff"
-    readonly property color tabActiveInk: "#000000"
-    readonly property color paper: "#ffffff"
-    readonly property color ink: "#000000"
+    readonly property color tab: "#262622"
+    readonly property color tabInk: "#e8ebe6"
+    readonly property color tabActive: "#2e2e28"
+    readonly property color tabActiveInk: "#e8ebe6"
+    readonly property color paper: "#1a1a17"
+    readonly property color ink: "#e8ebe6"
     readonly property color accent: "#99edff"
     readonly property color accentInk: "#000000"
-    readonly property color muted: "#e5ece7"
-    readonly property color mutedInk: "#8a8a7f"
-    readonly property color outline: "#e5ece7"
-    readonly property color title: "#e5ece7"
-    readonly property color titleInk: "#000000"
+    readonly property color muted: "#262622"
+    readonly property color mutedInk: "#9a9a8f"
+    readonly property color outline: "#262622"
+    readonly property color frame: "#42423b"
+    readonly property color title: "#262622"
+    readonly property color titleInk: "#e8ebe6"
     readonly property color buttonHover: "#adff00"
     readonly property color buttonHoverInk: "#000000"
     readonly property color attention: "#ffc4d8"
@@ -43,12 +44,12 @@ Singleton {
         "firefox": "#ffd600",
         "x-office-spreadsheet": "#115ef3",
         "jlcone": "#ffc49e",
-        "kicad": "#004012",
-        "pcbnew": "#004012",
-        "eeschema": "#004012",
+        "kicad": "#adff00",
+        "pcbnew": "#adff00",
+        "eeschema": "#adff00",
         "mpv": "#e0457b",
         "xdg-desktop-portal-lxqt": "#ab77ff",
-        "org.mozilla.Thunderbird": "#1f8fa8",
+        "org.mozilla.Thunderbird": "#99edff",
         "qpdfview": "#e0243c",
         "lxqt-archiver": "#5718c0",
         "accessories-calculator": "#8fb4ff",

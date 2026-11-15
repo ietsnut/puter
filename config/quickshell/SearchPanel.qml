@@ -214,9 +214,10 @@ PanelWindow {
             model: panel.results
             currentIndex: panel.selected
 
-            // One highlight, gliding to whichever row is selected.
+            // One highlight, on whichever row is selected at once.
             highlightFollowsCurrentItem: true
-            highlightMoveDuration: Theme.quick * 1.5
+            highlightMoveDuration: 0
+            highlightResizeDuration: 0
             highlightMoveVelocity: -1
             highlight: Rectangle {
                 radius: Theme.radius / 2
