@@ -43,3 +43,4 @@ application/x-7z-compressed=lxqt-archiver.desktop
 application/vnd.rar=lxqt-archiver.desktop
 x-scheme-handler/mailto=org.mozilla.Thunderbird.desktop
 message/rfc822=org.mozilla.Thunderbird.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop

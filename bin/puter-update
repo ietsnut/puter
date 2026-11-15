@@ -3,7 +3,8 @@
 #
 #   1. Arch and puter's own packages: the keyring first, then every package
 #      (the kernel, firmware files, the apps, Codex), and any package puter
-#      has added to packages.txt since. puter's own (labwc, wlroots and qps
+#      has added to packages.txt since, and every package it no longer
+#      lists removed, so nothing is left over. puter's own (labwc, wlroots and qps
 #      patched, wlrctl, qpdfview, JLCONE, and its apps from src/) come from
 #      its pacman repository, [puter], which CI builds and signs
 #      (packages/build)
@@ -150,8 +151,28 @@ system() {
   pacman -Q puter-apps >/dev/null 2>&1 || overwrite=(--overwrite '/usr/bin/puter-*'
     --overwrite /usr/lib/qt6/plugins/styles/libputerstyle.so --overwrite '/usr/share/applications/puter-*')
   pacman -Su --needed --noconfirm "${overwrite[@]}" "${pkgs[@]}" || return 1
+  prune "${pkgs[@]}" || return 1
   # The two newest of each package are kept in pacman's cache.
   if command -v paccache >/dev/null; then paccache -rk2; fi
+}
+
+# No leftovers: what packages.txt no longer lists is removed, with whatever
+# it alone pulled in. Everything listed is marked as installed on purpose,
+# everything else as a mere dependency, and dependencies nothing needs any
+# more go. A bootloader an installer put there (archinstall's GRUB) stays.
+keep=(grub efibootmgr os-prober refind limine)
+
+prune() { # the packages packages.txt lists
+  pacman -D --asexplicit "$@" >/dev/null || return 1
+  local extra orphans
+  mapfile -t extra < <(comm -23 <(pacman -Qqe | sort) <(printf '%s\n' "$@" "${keep[@]}" | sort))
+  if ((${#extra[@]})); then
+    pacman -D --asdeps "${extra[@]}" >/dev/null || return 1
+  fi
+  mapfile -t orphans < <(pacman -Qqdt)
+  ((${#orphans[@]})) || return 0
+  echo "No longer in packages.txt: ${orphans[*]}"
+  pacman -Rns --noconfirm "${orphans[@]}"
 }
 
 firmware() {
