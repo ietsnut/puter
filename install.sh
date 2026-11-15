@@ -478,6 +478,10 @@ HOOKS
       ln -sfn "$repo/config/agents/AGENTS.md" "$file"
     fi
   done
+
+  # Claude Code's keys (config/agents/claude-keybindings.json): Shift+Tab
+  # doesn't cycle the permission mode, since it stays on bypass.
+  ln -sfn "$repo/config/agents/claude-keybindings.json" "$HOME/.claude/keybindings.json"
 }
 
 # puter is for workshops and other machines with nothing sensitive on them,
