@@ -48,6 +48,9 @@
   <desktops number="1" />
 
   <keyboard>
+    <!-- The number pad types numbers from the start (the lock screen's code
+         too); an Apple keyboard has no Num Lock key to turn it on. -->
+    <numlock>on</numlock>
     <default />
     <keybind key="W-Return"><action name="Execute" command="qterminal" /></keybind>
     <keybind key="W-space"><action name="Execute" command="qs ipc call search toggle" /></keybind>

@@ -33,6 +33,25 @@ Scope {
         marker.setText("0\n");
     }
 
+    // The number pad counts with Num Lock off too (an Apple keyboard has no
+    // Num Lock key): its keys are then End, Down and the rest, told from the
+    // arrows by the keypad modifier.
+    function padDigit(key) {
+        switch (key) {
+        case Qt.Key_Insert: return 0;
+        case Qt.Key_End: return 1;
+        case Qt.Key_Down: return 2;
+        case Qt.Key_PageDown: return 3;
+        case Qt.Key_Left: return 4;
+        case Qt.Key_Clear: return 5;
+        case Qt.Key_Right: return 6;
+        case Qt.Key_Home: return 7;
+        case Qt.Key_Up: return 8;
+        case Qt.Key_PageUp: return 9;
+        }
+        return -1;
+    }
+
     // Four numbers: the fourth tries it.
     function type(digit) {
         if (code.length >= theCode.length)
@@ -98,6 +117,8 @@ Scope {
                 Keys.onPressed: event => {
                     if (event.key >= Qt.Key_0 && event.key <= Qt.Key_9)
                         root.type(String(event.key - Qt.Key_0));
+                    else if ((event.modifiers & Qt.KeypadModifier) && root.padDigit(event.key) >= 0)
+                        root.type(String(root.padDigit(event.key)));
                     else if (event.key === Qt.Key_Backspace)
                         root.code = root.code.slice(0, -1);
                     else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter)
