@@ -29,6 +29,12 @@ Singleton {
     readonly property int quick: 120
     readonly property int open: 260
 
+    // The nearest module line to a position: what's centred on
+    // the screen still stands on the grid.
+    function snap(v: real): real {
+        return Math.round(v / module) * module;
+    }
+
     // A fill bright enough that what's on it is black (the hover lime, the
     // accent, attention, a bright app colour): text and glyphs on it go dark.
     function bright(c: color): bool {

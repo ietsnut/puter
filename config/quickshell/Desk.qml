@@ -360,11 +360,11 @@ PanelWindow {
         }
     }
 
-    // The beetle, in the middle of what the bar leaves, 16 pixels square
-    // drawn blobby (Pixels.qml), a module's half each.
+    // The beetle, in the middle of what the bar leaves, on the module grid:
+    // 16 pixels square drawn blobby (Pixels.qml), a module's half each.
     Pixels {
-        anchors.centerIn: parent
-        anchors.verticalCenterOffset: -Theme.module
+        x: Theme.snap((parent.width - width) / 2)
+        y: Theme.snap((parent.height - Theme.module * 2 - height) / 2)
         cell: Theme.module / 2
         ink: Colors.mark
         rows: [
