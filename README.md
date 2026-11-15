@@ -16,7 +16,7 @@ the screensaver](docs/tour.gif)
 | --- | --- |
 | `install.sh` | sets up a plain Arch install: packages, configs, no passwords, straight into the desktop |
 | `packages.txt` | everything it installs: Arch's packages and puter's own (`[puter]`), a few marked for one architecture |
-| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
+| `config/` | linked into `~/.config` as is: `labwc/` (windows, keys, snapping, the desktop menu), `quickshell/` (the shell in QML: desk, bar, search, notifications, agents' states; `Theme.qml` holds every size), `agents/` (the agents' hooks and what they're told), `apps.names` (what each app is called), `ssh/authorized_keys` (who may log in over SSH), the portals (one file dialog for every app), fonts, GTK settings, which app opens what |
 | `theme/` | the look: `palettes/stack` assigns colours to every role, `make` writes every app's colours, buttons and icons from it; the Qt stylesheet (`qt/puter.qss`) and GTK 3 theme are edited here |
 | `bin/` | puter's commands: `puter-agent` (Claude Code and Codex as apps, and their hooks for the bar), `puter-desktop` (the desktop as an MCP server for them), `puter-update` (everything to the newest) |
 | `src/` | puter's own code: `style/` (the Qt widget style every Qt app uses), `sheet/` (the table editor), `calc/` (the calculator) and `windows/` (lists windows for the switcher's previews) |
@@ -49,6 +49,26 @@ its patches fit, for the update button to bring; one they don't fit leaves it
 where it is. If the screen stays dark, hold space as it starts and pick Arch's
 LTS kernel. Bluetooth keyboards pair with
 `bluetoothctl`, so bring a USB one to install with.
+
+### Getting in over SSH
+
+To fix a machine from another one (its Wi-Fi won't come up, the screen
+stays dark), every puter runs SSH by key only, never by password: the keys
+in `config/ssh/authorized_keys` may log in as `puter`, and the machine is
+`puter.local` (avahi). Add a key there and push; `puter-update` brings it.
+
+```
+ssh puter@puter.local
+```
+
+- **Ethernet to the router**: plug it in, and connect from a machine on the
+  same network.
+- **Ethernet straight to a Mac** (a USB-C adapter on a MacBook): turn on
+  System Settings → General → Sharing → Internet Sharing, from Wi-Fi to the
+  adapter. The Mac hands it an address and the internet, so it can update.
+- **A Thunderbolt cable straight to a Mac** (⚡ on the plug; a USB-C charging
+  cable is only USB 2 and won't do): it's the Mac's Thunderbolt Bridge,
+  addressed on its own (link-local).
 
 ## How it's built and shipped
 

@@ -7,7 +7,9 @@
 #   ./install.sh config   only link the configs and apply settings (after
 #                         changing them)
 #   ./install.sh packages only the packages, builds and settings (as an update)
-#   ./install.sh access   only stop sudo and polkit asking for a password
+#   ./install.sh access   only stop sudo and polkit asking for a password,
+#                         and let config/ssh/authorized_keys in over SSH
+#   ./install.sh remote   only that SSH (puter.local, by key)
 #   ./install.sh login    only start straight into the desktop on boot (what
 #                         the USB installer runs, iso/, beside access and
 #                         config, having installed the packages itself)
@@ -432,6 +434,56 @@ polkit.addRule(function (action, subject) {
         return polkit.Result.YES;
 });
 RULES
+
+  remote
+}
+
+# SSH, to fix the machine from another one when its screen or Wi-Fi won't:
+# by key only (the keys in config/ssh/authorized_keys, followed as the
+# checkout is updated), never by password, since there are none. avahi
+# makes it puter.local, so no address needs looking up. A Thunderbolt cable
+# straight to a Mac (its Thunderbolt Bridge) comes up on link-local
+# addresses, as there's no DHCP across it.
+remote() {
+  local conf
+  conf="$(mktemp)"
+  cat >"$conf" <<SSHD
+# puter (install.sh): in by key only.
+AuthorizedKeysFile .ssh/authorized_keys $repo/config/ssh/authorized_keys
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitEmptyPasswords no
+PermitRootLogin no
+SSHD
+  sudo install -d -m 755 /etc/ssh/sshd_config.d
+  sudo install -m 644 -o root -g root "$conf" /etc/ssh/sshd_config.d/10-puter.conf
+  rm -f "$conf"
+  # (Arch's sshd_config reads the drop-ins; should it ever stop, it reads them again.)
+  grep -q '^Include /etc/ssh/sshd_config.d/' /etc/ssh/sshd_config ||
+    sudo sed -i '1i Include /etc/ssh/sshd_config.d/*.conf' /etc/ssh/sshd_config
+  # (Its host keys now rather than on the first boot, so the check has them.)
+  sudo ssh-keygen -A
+  sudo sshd -t
+
+  sudo install -d -m 700 /etc/NetworkManager/system-connections
+  sudo tee /etc/NetworkManager/system-connections/puter-thunderbolt.nmconnection >/dev/null <<'NM'
+[connection]
+id=Thunderbolt cable
+type=ethernet
+autoconnect=true
+
+[match]
+interface-name=thunderbolt*
+
+[ipv4]
+method=link-local
+
+[ipv6]
+method=link-local
+NM
+  sudo chmod 600 /etc/NetworkManager/system-connections/puter-thunderbolt.nmconnection
+
+  sudo systemctl enable sshd.service avahi-daemon.service
 }
 
 login() {
@@ -463,6 +515,9 @@ case "${1:-all}" in
   login)
     login
     ;;
+  remote)
+    remote
+    ;;
   all)
     # First, so nothing after it asks for the password again.
     access
@@ -471,7 +526,7 @@ case "${1:-all}" in
     echo "Done. Reboot to log in to puter."
     ;;
   *)
-    echo "usage: $0 [config|packages|access|login]" >&2
+    echo "usage: $0 [config|packages|access|login|remote]" >&2
     exit 1
     ;;
 esac

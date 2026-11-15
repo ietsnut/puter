@@ -89,6 +89,10 @@ pipewire
 pipewire-pulse
 wireplumber
 wl-clipboard
+# Getting in from another machine to fix it: SSH by key only
+# (config/ssh/authorized_keys), found as puter.local
+openssh
+avahi
 # Screenshots, and the switcher's previews (grim -T, by the identifiers
 # src/windows lists)
 grim

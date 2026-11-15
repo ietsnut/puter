@@ -96,7 +96,7 @@ jobs:
           # The desktop has had the time it takes sshd to come up, and some.
           sleep 30
           echo "screendump /mnt/iso/desktop.png -f png" | socat - UNIX-CONNECT:monitor.sock
-          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version; grep -x linux-imac /usr/lib/modules/$(uname -r)/pkgbase; modinfo -p amdgpu | grep tiled_stitch; modinfo -n snd-hda-codec-cs8409 | grep updates; systemctl is-enabled bluetooth'
+          ssh vm 'pgrep -a labwc; pgrep -a quickshell; ~/.local/bin/claude --version; grep -x linux-imac /usr/lib/modules/$(uname -r)/pkgbase; modinfo -p amdgpu | grep tiled_stitch; modinfo -n snd-hda-codec-cs8409 | grep updates; systemctl is-enabled bluetooth && systemctl is-enabled sshd avahi-daemon && sudo sshd -T | grep -ix "passwordauthentication no" && grep -c ssh-ed25519 ~/puter/config/ssh/authorized_keys'
 
       - uses: oras-project/setup-oras@v1
 
