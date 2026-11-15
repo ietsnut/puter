@@ -8,7 +8,7 @@ import Quickshell.Services.Pipewire
 // The bar floats over the bottom two modules, a gap off every edge, as
 // three pieces (the pills in a 1px frame): the gear at the left (search), the open windows in a pill
 // right beside it, and the network, volume, the date and time, updates,
-// restart and shut down in a pill at the right. The desk shows between them,
+// the lock, restart and shut down in a pill at the right. The desk shows between them,
 // and clicks there reach the windows behind.
 PanelWindow {
     id: bar
@@ -17,6 +17,7 @@ PanelWindow {
     signal update
     signal volume
     signal network
+    signal lock
 
     // Each agent window's state, by its title: working, waiting or done (set
     // by the agents' hooks over IPC, shell.qml).
@@ -199,6 +200,12 @@ PanelWindow {
                 icon: bar.updates === "running" ? "puter-agent-working" : "puter-update"
                 fill: bar.updates === "restart" ? Colors.attention : Colors.bar
                 onClicked: bar.update()
+            }
+
+            // Lock the screen (Lock.qml).
+            BarButton {
+                icon: "puter-locked"
+                onClicked: bar.lock()
             }
 
             BarButton {

@@ -42,9 +42,9 @@ PanelWindow {
     readonly property int rows: Math.max(1, Math.floor((height - Theme.module * 2 - Theme.gap) / cellH))
     // The icons' pixels, big ones: 8 across is 64px.
     readonly property real iconCell: Theme.module * 4 / 15
-    // The icon's tile: the cell's width and top three modules, a half gap
-    // in.
-    readonly property real box: cellW - Theme.gap
+    // The icon's tile: three modules square, a half gap in, centred in
+    // the cell's top three modules.
+    readonly property real box: Theme.module * 3 - Theme.gap
 
     // Each name's cell, [column from the left, row from the top].
     property var placed: ({})
@@ -487,14 +487,14 @@ PanelWindow {
             height: desk.cellH
 
             // The icon, on a dark tile with a 1px frame while picked or while
-            // something's dragged over its folder: the cell's top three
-            // modules, a half gap in.
+            // something's dragged over its folder: square, in the cell's top
+            // three modules.
             Rectangle {
                 id: tile
-                x: Theme.gap / 2
+                x: (desk.cellW - width) / 2
                 y: Theme.gap / 2
                 width: desk.box
-                height: Theme.module * 3 - Theme.gap
+                height: desk.box
                 radius: Theme.radius
                 color: icon.chosen || desk.target === icon.fileName ? Colors.bar : "transparent"
                 border.width: icon.chosen || desk.target === icon.fileName ? 1 : 0
@@ -618,10 +618,17 @@ PanelWindow {
                     else if (press.y >= Theme.module * 3)
                         rename.start();
                 }
+                // A double-click on the icon opens it, on its name renames it.
                 onDoubleClicked: m => {
                     rename.stop();
-                    if (m.button === Qt.LeftButton)
+                    if (m.button !== Qt.LeftButton)
+                        return;
+                    if (m.y >= Theme.module * 3) {
+                        desk.selected = [icon.fileName];
+                        desk.renaming = icon.fileName;
+                    } else {
                         desk.open(desk.selected.includes(icon.fileName) ? desk.selected : [icon.fileName]);
+                    }
                 }
 
                 // A click on the name of the one picked renames it, unless
@@ -658,6 +665,12 @@ PanelWindow {
                     color: Colors.ink
                     selectionColor: Colors.frame
                     selectedTextColor: Colors.ink
+                    // The caret, drawn: a pixel-wide line in ink.
+                    cursorDelegate: Rectangle {
+                        width: 1
+                        color: Colors.ink
+                        visible: field.cursorVisible
+                    }
                     font.family: Theme.font
                     font.pixelSize: Theme.textSize
                     property bool done: false

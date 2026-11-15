@@ -11,6 +11,7 @@ ShellRoot {
         onUpdate: updatesPanel.toggle()
         onVolume: volumePanel.toggle()
         onNetwork: networkPanel.toggle()
+        onLock: lockScreen.lock()
     }
 
     Dismiss {
@@ -43,6 +44,24 @@ ShellRoot {
 
     Switcher {
         id: switcher
+    }
+
+    Lock {
+        id: lockScreen
+    }
+
+    // The bar's lock button: `qs ipc call lock lock`. And from SSH, if the
+    // code's forgotten: `qs ipc call lock unlock`.
+    IpcHandler {
+        target: "lock"
+
+        function lock(): void {
+            lockScreen.lock();
+        }
+
+        function unlock(): void {
+            lockScreen.unlock();
+        }
     }
 
     // Super+Space: `qs ipc call search toggle`.
