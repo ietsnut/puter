@@ -4,12 +4,13 @@ import Quickshell.Io
 import Quickshell.Wayland
 
 // The lock screen (the bar's lock button, or `qs ipc call lock lock`): the
-// desk's brown, the fly in its middle, and under it a square for each
-// number typed. Return tries the code, 2468 on every puter (it's for keeping
-// hands off in a workshop, not a secret); a wrong one flashes the squares
-// and clears them. It's the compositor's own lock (ext-session-lock):
-// nothing else takes input till it's open. While it's locked the state file
-// "locked" says so, so a shell restarted while locked locks again.
+// desk's brown, the fly in its middle, and under it four boxes that fill as
+// the numbers are typed. The fourth tries the code, 2468 on every puter
+// (it's for keeping hands off in a workshop, not a secret); a wrong one
+// flashes the boxes and clears them. It's the compositor's own lock
+// (ext-session-lock): nothing else takes input till it's open. While it's
+// locked the state file "locked" says so, so a shell restarted while locked
+// locks again.
 Scope {
     id: root
 
@@ -32,11 +33,14 @@ Scope {
         marker.setText("0\n");
     }
 
+    // Four numbers: the fourth tries it.
     function type(digit) {
-        if (code.length >= 32)
+        if (code.length >= theCode.length)
             return;
         wrong = false;
         code += digit;
+        if (code.length === theCode.length)
+            submit();
     }
 
     function submit() {
@@ -120,25 +124,25 @@ Scope {
                     ]
                 }
 
-                // A square for each number typed (half a module, half a
-                // module apart), in the attention colour when it's wrong; an
-                // empty one framed before any.
+                // Four boxes, a module square and half a module apart: framed
+                // while empty, filled as each number's typed, framed in the
+                // attention colour a moment when the code's wrong.
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    y: fly.y + fly.height + Theme.module + Theme.module / 4
+                    y: fly.y + fly.height + Theme.module
                     spacing: Theme.module / 2
 
                     Repeater {
-                        model: Math.max(1, root.code.length)
+                        model: root.theCode.length
 
                         Rectangle {
                             required property int index
-                            readonly property bool empty: root.code.length === 0
-                            width: Theme.module / 2
-                            height: Theme.module / 2
+                            readonly property bool filled: index < root.code.length
+                            width: Theme.module
+                            height: Theme.module
                             radius: Theme.radius / 2
-                            color: empty ? "transparent" : Colors.mark
-                            border.width: empty ? 1 : 0
+                            color: filled ? Colors.mark : "transparent"
+                            border.width: 1
                             border.color: root.wrong ? Colors.attention : Colors.mark
                         }
                     }
