@@ -84,9 +84,20 @@ Rectangle {
         }
     }
 
+    // How far past the tile it still takes the pointer: out to the screen's
+    // edges in its corner, so a flick there opens search (Bar.qml).
+    property real reachLeft: 0
+    property real reachTop: 0
+    property real reachRight: 0
+    property real reachBottom: 0
+
     MouseArea {
         id: mouse
         anchors.fill: parent
+        anchors.leftMargin: -tile.reachLeft
+        anchors.topMargin: -tile.reachTop
+        anchors.rightMargin: -tile.reachRight
+        anchors.bottomMargin: -tile.reachBottom
         hoverEnabled: true
         onClicked: {
             spin.restart();

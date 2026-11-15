@@ -57,7 +57,7 @@ PanelWindow {
     color: "transparent"
 
     mask: Region {
-        item: gear
+        item: gearReach
 
         Region {
             item: windows
@@ -67,11 +67,23 @@ PanelWindow {
         }
     }
 
+    // The gear takes the pointer out to the screen's left and bottom edges
+    // and half way to the windows' pill, so the corner itself opens search.
     Gear {
         id: gear
         x: Theme.gap
         y: Theme.gap
+        reachLeft: Theme.gap
+        reachTop: Theme.gap
+        reachBottom: bar.height - y - height
+        reachRight: Theme.gap / 2
         onClicked: bar.search()
+    }
+
+    Item {
+        id: gearReach
+        width: gear.x + gear.width + gear.reachRight
+        height: bar.height
     }
 
     // The windows, each a tab inside the pill: its app's dot and its title,

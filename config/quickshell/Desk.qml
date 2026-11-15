@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// The desk behind every window: plain brown with the scarab in its middle,
+// The desk behind every window: plain brown with the beetle in its middle,
 // and ~/Desktop on it, as on a Mac: its folders and files as flat pixel
 // icons on a grid filling from the top left, down each column. Click to
 // pick one (Ctrl adds, a drag round some picks those), double-click to open
@@ -33,15 +33,18 @@ PanelWindow {
     readonly property string dir: Quickshell.env("HOME") + "/Desktop"
     readonly property string helper: Quickshell.shellDir + "/../../bin/puter-desk"
 
-    // The grid: a cell three modules wide and four tall (the icon and two
-    // lines of name), a gap in from the top and left, above the bar.
-    readonly property int cellW: Theme.module * 3
+    // The grid: a cell four modules square (the icon's tile in the top
+    // three, its name in the last), a gap in from the top and left, above
+    // the bar.
+    readonly property int cellW: Theme.module * 4
     readonly property int cellH: Theme.module * 4
     readonly property int cols: Math.max(1, Math.floor((width - Theme.gap * 2) / cellW))
     readonly property int rows: Math.max(1, Math.floor((height - Theme.module * 2 - Theme.gap) / cellH))
     // The icons' pixels, big ones: 8 across is 64px.
     readonly property real iconCell: Theme.module * 4 / 15
-    readonly property real box: iconCell * 8 + Theme.inset
+    // The icon's tile: the cell's width and top three modules, a half gap
+    // in.
+    readonly property real box: cellW - Theme.gap
 
     // Each name's cell, [column from the left, row from the top].
     property var placed: ({})
@@ -51,6 +54,8 @@ PanelWindow {
     property var pending: ({})
     property var selected: []
     property string renaming: ""
+    // Names being renamed, shown as their new ones till the file follows.
+    property var renamed: ({})
     // The folder a drag is over.
     property string target: ""
     // The icon a drag was started from, and where on it.
@@ -143,7 +148,7 @@ PanelWindow {
             if (!names.includes(name))
                 still[name] = pending[name];
         pending = still;
-        selected = selected.filter(name => name in next);
+        selected = selected.filter(name => name in next || name in pending);
         spots.cells = next;
         store.writeAdapter();
     }
@@ -187,14 +192,19 @@ PanelWindow {
         if (!name || name === old)
             return;
         pending = Object.assign({}, pending, { [name]: placed[old] });
+        renamed = Object.assign({}, renamed, { [old]: name });
+        selected = [name];
         run(["rename", path(old), name], (code, out, err) => {
+            const r = Object.assign({}, renamed);
+            delete r[old];
+            renamed = r;
             if (code !== 0) {
                 const p = Object.assign({}, pending);
                 delete p[name];
                 pending = p;
+                selected = [old];
                 return say(err);
             }
-            selected = [name];
         });
     }
     function remove(names) {
@@ -233,7 +243,7 @@ PanelWindow {
             dragger.Drag.hotSpot.x = at.x;
             dragger.Drag.hotSpot.y = at.y;
             dragger.Drag.active = true;
-        });
+        }, Qt.size(item.width, item.height));
     }
     // Picked icons dropped on the desk: the one dragged lands in the cell
     // under it, the rest keep where they were from it, each in the nearest
@@ -350,7 +360,7 @@ PanelWindow {
         }
     }
 
-    // The scarab, in the middle of what the bar leaves, 16 pixels square
+    // The beetle, in the middle of what the bar leaves, 16 pixels square
     // drawn blobby (Pixels.qml), a module's half each.
     Pixels {
         anchors.centerIn: parent
@@ -358,22 +368,22 @@ PanelWindow {
         cell: Theme.module / 2
         ink: Colors.mark
         rows: [
-            "....#......#....",
             "....##....##....",
-            ".#....####....#.",
-            ".#...######...#.",
-            "..#..........#..",
-            "...####..####...",
-            "..############..",
-            "#.####.##.####.#",
-            ".###.#.##.#.###.",
-            "..##.#.##.#.##..",
-            "..##.#.##.#.##..",
-            ".#####.##.#####.",
-            "#.##.#.####.##.#",
-            "...######.###...",
-            "..#.##.#####.#..",
-            ".#...######...#."
+            "......####......",
+            "##...######...##",
+            ".#............#.",
+            "##..########..##",
+            ".##############.",
+            "...#........#...",
+            "....###..###....",
+            ".#.####..####.#.",
+            "#..####..####..#",
+            "#..####..####..#",
+            "...####..#.##...",
+            ".#.##.#..#.##.#.",
+            ".#..#.#..#.#..#.",
+            ".#............#.",
+            "..#..........#.."
         ]
     }
 
@@ -463,8 +473,11 @@ PanelWindow {
             required property string fileSuffix
             required property url fileUrl
 
-            readonly property var spot: desk.placed[fileName]
-            readonly property bool chosen: desk.selected.includes(fileName)
+            // Where it sits; a name just made (renamed, dropped) has its spot
+            // from the start, so it doesn't blink in.
+            readonly property var spot: desk.placed[fileName] ?? desk.pending[fileName]
+            readonly property string shown: desk.renamed[fileName] ?? fileName
+            readonly property bool chosen: desk.selected.includes(fileName) || desk.selected.includes(shown)
             readonly property bool picture: ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"].includes(fileSuffix.toLowerCase())
 
             visible: spot !== undefined
@@ -474,13 +487,14 @@ PanelWindow {
             height: desk.cellH
 
             // The icon, on a dark tile with a 1px frame while picked or while
-            // something's dragged over its folder.
+            // something's dragged over its folder: the cell's top three
+            // modules, a half gap in.
             Rectangle {
                 id: tile
-                x: (desk.cellW - width) / 2
+                x: Theme.gap / 2
                 y: Theme.gap / 2
                 width: desk.box
-                height: desk.box
+                height: Theme.module * 3 - Theme.gap
                 radius: Theme.radius
                 color: icon.chosen || desk.target === icon.fileName ? Colors.bar : "transparent"
                 border.width: icon.chosen || desk.target === icon.fileName ? 1 : 0
@@ -536,32 +550,31 @@ PanelWindow {
                 }
             }
 
-            // Its name, two lines at most, on the accent while picked.
+            // Its name, one line in the cell's last module row (shortened in
+            // the middle, as on a Mac), on the tile's colour while picked.
             Rectangle {
                 visible: desk.renaming !== icon.fileName
                 x: (desk.cellW - width) / 2
-                y: name.y - 1
-                width: name.contentWidth + Theme.inset
-                height: name.contentHeight + 2
+                y: Theme.module * 3
+                width: Math.min(desk.cellW, name.implicitWidth + Theme.inset * 2)
+                height: Theme.module
                 radius: Theme.radius / 2
-                color: icon.chosen ? Colors.accent : "transparent"
-            }
+                color: icon.chosen ? Colors.bar : "transparent"
+                border.width: icon.chosen ? 1 : 0
+                border.color: Colors.frame
 
-            Text {
-                id: name
-                visible: desk.renaming !== icon.fileName
-                x: 2
-                y: tile.y + tile.height + Theme.gap / 2
-                width: desk.cellW - 4
-                horizontalAlignment: Text.AlignHCenter
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                maximumLineCount: 2
-                elide: Text.ElideRight
-                text: icon.fileName
-                color: icon.chosen ? Colors.accentInk : Colors.mark
-                font.family: Theme.font
-                font.pixelSize: Theme.textSize
-                renderType: Text.CurveRendering
+                Text {
+                    id: name
+                    anchors.centerIn: parent
+                    width: parent.width - Theme.inset * 2
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideMiddle
+                    text: icon.shown
+                    color: icon.chosen ? Colors.ink : Colors.mark
+                    font.family: Theme.font
+                    font.pixelSize: Theme.textSize
+                    renderType: Text.CurveRendering
+                }
             }
 
             MouseArea {
@@ -602,7 +615,7 @@ PanelWindow {
                         return;
                     if (desk.selected.length > 1)
                         desk.selected = [icon.fileName];
-                    else if (press.y > tile.y + tile.height)
+                    else if (press.y >= Theme.module * 3)
                         rename.start();
                 }
                 onDoubleClicked: m => {
@@ -620,20 +633,19 @@ PanelWindow {
                 }
             }
 
-            // Renaming: the name in a field where it was, all but its
-            // extension picked; Return keeps it, Escape doesn't, a click
-            // elsewhere keeps it.
+            // Renaming: the name in a field in the cell's last module row,
+            // the cell's width, all but its extension picked; Return keeps
+            // it, Escape doesn't, a click elsewhere keeps it.
             Rectangle {
                 visible: desk.renaming === icon.fileName
-                // Wider than the cell, but not off the screen's edge.
-                x: Math.max(-Theme.module / 2, Theme.gap / 2 - icon.x)
-                y: name.y - 2
-                width: desk.cellW + Theme.module
+                x: 0
+                y: Theme.module * 3
+                width: desk.cellW
                 height: Theme.module
                 radius: Theme.radius / 2
                 color: Colors.paper
                 border.width: 1
-                border.color: Colors.accent
+                border.color: Colors.frame
 
                 TextInput {
                     id: field
@@ -644,8 +656,8 @@ PanelWindow {
                     horizontalAlignment: TextInput.AlignHCenter
                     clip: true
                     color: Colors.ink
-                    selectionColor: Colors.accent
-                    selectedTextColor: Colors.accentInk
+                    selectionColor: Colors.frame
+                    selectedTextColor: Colors.ink
                     font.family: Theme.font
                     font.pixelSize: Theme.textSize
                     property bool done: false
@@ -793,10 +805,12 @@ PanelWindow {
         onClicked: desk.asking = []
     }
 
+    // Twelve modules wide, a half gap in all round: what, why, and the
+    // two buttons, a module each with a half gap between.
     PanelWindow {
         visible: desk.asking.length > 0
         implicitWidth: Theme.module * 12 + Theme.gap
-        implicitHeight: Theme.module * 3 + Theme.gap * 2
+        implicitHeight: ask.implicitHeight + Theme.gap
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
         WlrLayershell.layer: WlrLayer.Overlay
@@ -806,12 +820,12 @@ PanelWindow {
         Card {
             anchors.fill: parent
 
-            Item {
+            Column {
                 id: ask
                 x: Theme.gap / 2
                 y: Theme.gap / 2
                 width: parent.width - Theme.gap
-                height: parent.height - Theme.gap
+                spacing: Theme.gap / 2
                 focus: true
                 Keys.onReturnPressed: desk.remove(desk.asking)
                 Keys.onEnterPressed: desk.remove(desk.asking)
@@ -830,7 +844,6 @@ PanelWindow {
                 }
 
                 Item {
-                    y: Theme.module
                     width: parent.width
                     height: Theme.module
 
@@ -840,28 +853,27 @@ PanelWindow {
                     }
                 }
 
-                Chip {
-                    y: Theme.module * 2 + Theme.gap / 2
-                    anchors.right: deleteButton.left
-                    anchors.rightMargin: Theme.gap / 2
-                    minModules: 3
-                    maxModules: 3
-                    hoverable: true
-                    text: "Cancel"
-                    onClicked: desk.asking = []
-                }
-
-                Chip {
-                    id: deleteButton
-                    y: Theme.module * 2 + Theme.gap / 2
+                Row {
                     anchors.right: parent.right
-                    minModules: 3
-                    maxModules: 3
-                    hoverable: true
-                    fill: Colors.attention
-                    ink: Colors.attentionInk
-                    text: "Delete"
-                    onClicked: desk.remove(desk.asking)
+                    spacing: Theme.gap / 2
+
+                    Chip {
+                        minModules: 3
+                        maxModules: 3
+                        hoverable: true
+                        text: "Cancel"
+                        onClicked: desk.asking = []
+                    }
+
+                    Chip {
+                        minModules: 3
+                        maxModules: 3
+                        hoverable: true
+                        fill: Colors.attention
+                        ink: Colors.attentionInk
+                        text: "Delete"
+                        onClicked: desk.remove(desk.asking)
+                    }
                 }
             }
         }

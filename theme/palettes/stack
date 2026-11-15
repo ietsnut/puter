@@ -1,5 +1,5 @@
 # Stack: after fal.ai's identity (2026). A deep brown desk with puter's
-# scarab in its middle (a big pixel bug), a floating mint bar, white
+# beetle in its middle (a big pixel bug), a floating mint bar, white
 # windows under mint tabs, no outlines anywhere: things part by colour alone, at a 4px
 # corner. Strong flat colours, each app its own, shown as a dot on its tab.
 # Set in Geist.
@@ -9,7 +9,7 @@
 # The interface.
 desk          cherry          # deep cherry-wood brown
 desk-dot      cherry          # no grid
-# The scarab in the desk's middle, and the names under its icons (Desk.qml).
+# The beetle in the desk's middle, and the names under its icons (Desk.qml).
 mark          mint
 # The desk's folders (Desk.qml): flat pixel folders.
 folder        cyan

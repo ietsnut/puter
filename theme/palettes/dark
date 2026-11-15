@@ -1,4 +1,4 @@
-# Stack, dark: the same brown desk, scarab and colours, with the windows, bar
+# Stack, dark: the same brown desk, beetle and colours, with the windows, bar
 # and tabs in warm near-blacks and the type light. The brights (cyan, lime,
 # pink) keep black type on them. puter's default (theme/palette); `stack`
 # is the light one.
@@ -8,7 +8,7 @@
 # The interface.
 desk          cherry          # deep cherry-wood brown
 desk-dot      cherry          # no grid
-# The scarab in the desk's middle, and the names under its icons (Desk.qml).
+# The beetle in the desk's middle, and the names under its icons (Desk.qml).
 mark          bone
 # The desk's folders (Desk.qml): flat pixel folders.
 folder        cyan
