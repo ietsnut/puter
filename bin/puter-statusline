@@ -42,4 +42,4 @@ for key, name in (("five_hour", "5h"), ("seven_day", "week")):
     used = limit.get("used_percentage")
     if isinstance(used, (int, float)):
         parts.append(f"{dim}{name}{reset} {level(used)}{when(limit.get('resets_at'))}")
-print(f"{dim} · {reset}".join(parts))
+print("   ".join(parts))
