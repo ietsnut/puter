@@ -4,7 +4,7 @@ import Quickshell.Io
 import Quickshell.Wayland
 
 // The lock screen (the bar's lock button, or `qs ipc call lock lock`): the
-// desk's brown, the fly in its middle, and under it four light boxes that
+// desk's brown, the beetle in its middle, and under it four light boxes that
 // take a dot as each number's typed. The fourth tries the code, 2468 on
 // every puter (it's for keeping hands off in a workshop, not a secret); a
 // wrong one flashes the boxes and clears them. It's the compositor's own lock
@@ -130,42 +130,42 @@ Scope {
                     event.accepted = true;
                 }
 
-                // The fly, where the desk's beetle sits (a module's half a
-                // pixel, eight modules square), on the module grid.
+                // The beetle, in the middle (a module's half a pixel, eight
+                // modules square), on the module grid.
                 Pixels {
-                    id: fly
+                    id: beetle
                     x: Theme.snap((parent.width - width) / 2)
                     y: Theme.snap((parent.height - Theme.module * 2 - height) / 2)
                     cell: Theme.module / 2
                     ink: Colors.mark
                     rows: [
-                        ".#...#....#...#.",
-                        "..#..##..##..#..",
-                        "..#....##....#..",
-                        "...#..####..#...",
-                        "##....####....##",
-                        "..#.#.####.#.#..",
-                        "...##.####.##...",
-                        "...##.####.##...",
-                        "..###......###..",
-                        ".#.##.####.##.#.",
-                        "#.###......###.#",
-                        "###.#.####.#.###",
-                        "##.##......##.##",
-                        "#.#.#.####.#.#.#",
-                        ".####..##..####.",
-                        "..##........##.."
+                        "....##....##....",
+                        "......####......",
+                        "##...######...##",
+                        ".#............#.",
+                        "##..########..##",
+                        ".##############.",
+                        "...#........#...",
+                        "....###..###....",
+                        ".#.####..####.#.",
+                        "#..####..####..#",
+                        "#..####..####..#",
+                        "...####..#.##...",
+                        ".#.##.#..#.##.#.",
+                        ".#..#.#..#.#..#.",
+                        ".#............#.",
+                        "..#..........#.."
                     ]
                 }
 
                 // Four boxes, two modules square and two gaps apart: ten
-                // modules across, a module wider than the fly each side, and
+                // modules across, a module wider than the beetle each side, and
                 // two modules under it. In the light ink, a dark dot in each as
                 // its number's typed, the attention colour a moment when the
                 // code's wrong.
                 Row {
-                    x: fly.x + (fly.width - width) / 2
-                    y: fly.y + fly.height + Theme.module * 2
+                    x: beetle.x + (beetle.width - width) / 2
+                    y: beetle.y + beetle.height + Theme.module * 2
                     spacing: Theme.gap * 2
 
                     Repeater {

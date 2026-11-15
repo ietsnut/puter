@@ -4,7 +4,7 @@ My Arch desktop: labwc for floating windows, Quickshell for the bar, desk and
 search, and Qt Widgets apps, all on a 30px module, flat, at a 4px corner, with
 Carbon icons. Made for workshops and machines with nothing sensitive on
 them: nothing asks for a password (sudo, polkit, the login), like Kali.
-One look, after fal.ai: a deep brown desk with a pixel beetle and
+One look, after fal.ai: a deep brown desk with a circuit board in white lines and
 ~/Desktop on it as flat pixel folders and files, a floating bar, rounded
 windows that float a gap apart and fade in and out, dark, a 1px frame
 round every window and pill, a colour for every app, Geist.

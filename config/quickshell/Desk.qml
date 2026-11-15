@@ -4,7 +4,8 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// The desk behind every window: plain brown with the beetle in its middle,
+// The desk behind every window: plain brown with the logic analyzer drawn in
+// white lines in its middle,
 // and ~/Desktop on it, as on a Mac: its folders and files as flat pixel
 // icons on a grid filling from the top left, down each column. Click to
 // pick one (Ctrl adds, a drag round some picks those), double-click to open
@@ -360,31 +361,19 @@ PanelWindow {
         }
     }
 
-    // The beetle, in the middle of what the bar leaves, on the module grid:
-    // 16 pixels square drawn blobby (Pixels.qml), a module's half each.
-    Pixels {
+    // The logic analyzer (~/Desktop/Boards/logic-analyzer) in white lines,
+    // in the middle of what the bar leaves, twenty-four modules tall, on the
+    // module grid. board.svg is `fil svg logic-analyzer` (~/Desktop/Tools/fil).
+    Image {
+        height: Theme.module * 24
+        width: Math.round(height * implicitWidth / Math.max(1, implicitHeight))
         x: Theme.snap((parent.width - width) / 2)
         y: Theme.snap((parent.height - Theme.module * 2 - height) / 2)
-        cell: Theme.module / 2
-        ink: Colors.mark
-        rows: [
-            "....##....##....",
-            "......####......",
-            "##...######...##",
-            ".#............#.",
-            "##..########..##",
-            ".##############.",
-            "...#........#...",
-            "....###..###....",
-            ".#.####..####.#.",
-            "#..####..####..#",
-            "#..####..####..#",
-            "...####..#.##...",
-            ".#.##.#..#.##.#.",
-            ".#..#.#..#.#..#.",
-            ".#............#.",
-            "..#..........#.."
-        ]
+        source: "board.svg"
+        sourceSize.height: height * 2
+        fillMode: Image.PreserveAspectFit
+        smooth: true
+        asynchronous: true
     }
 
     // The keys, while the desk has them.
