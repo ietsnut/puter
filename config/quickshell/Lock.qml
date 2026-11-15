@@ -4,7 +4,8 @@ import Quickshell.Io
 import Quickshell.Wayland
 
 // The lock screen (the bar's lock button, or `qs ipc call lock lock`): the
-// desk's brown, the beetle in its middle, and under it four light boxes that
+// desk's brown, the logic analyzer in white lines as on the desk, and beside
+// it the beetle, and under that four light boxes that
 // take a dot as each number's typed. The fourth tries the code, 2468 on
 // every puter (it's for keeping hands off in a workshop, not a secret); a
 // wrong one flashes the boxes and clears them. It's the compositor's own lock
@@ -130,12 +131,28 @@ Scope {
                     event.accepted = true;
                 }
 
-                // The beetle, in the middle (a module's half a pixel, eight
-                // modules square), on the module grid.
+                // The logic analyzer in white lines, as on the desk (board.svg,
+                // twenty-four modules tall), and four modules right of it a
+                // column ten modules wide, centred beside it: the beetle, then
+                // the code's boxes. The two together in the middle of what the
+                // bar leaves, on the module grid.
+                Image {
+                    id: board
+                    height: Theme.module * 24
+                    width: Math.round(height * implicitWidth / Math.max(1, implicitHeight))
+                    x: Theme.snap((parent.width - (width + Theme.module * 14)) / 2)
+                    y: Theme.snap((parent.height - Theme.module * 2 - height) / 2)
+                    source: "board.svg"
+                    sourceSize.height: height * 2
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                }
+
+                // The beetle (a module's half a pixel, eight modules square).
                 Pixels {
                     id: beetle
-                    x: Theme.snap((parent.width - width) / 2)
-                    y: Theme.snap((parent.height - Theme.module * 2 - height) / 2)
+                    x: Theme.snap(board.x + board.width + Theme.module * 4 + (Theme.module * 10 - width) / 2)
+                    y: board.y + Theme.module * 6
                     cell: Theme.module / 2
                     ink: Colors.mark
                     rows: [
