@@ -139,12 +139,12 @@ Scope {
 
                 // Four boxes, two modules square and two gaps apart: ten
                 // modules across, a module wider than the fly each side, and
-                // a module under it. In the light ink, a dark dot in each as
+                // two modules under it. In the light ink, a dark dot in each as
                 // its number's typed, the attention colour a moment when the
                 // code's wrong.
                 Row {
                     x: fly.x + (fly.width - width) / 2
-                    y: fly.y + fly.height + Theme.module
+                    y: fly.y + fly.height + Theme.module * 2
                     spacing: Theme.gap * 2
 
                     Repeater {
