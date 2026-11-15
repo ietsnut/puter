@@ -195,17 +195,6 @@ Scope {
                     anchors.fill: parent
                     onClicked: parent.forceActiveFocus()
                 }
-
-                // For now, till the lock's proven: a way out in the bottom
-                // right corner, where the bar's power button sits. Take it
-                // out once locking works every time.
-                BarButton {
-                    anchors.right: parent.right
-                    anchors.bottom: parent.bottom
-                    anchors.margins: Theme.gap + (Theme.bar - Theme.module) / 2
-                    icon: "window-close"
-                    onClicked: root.unlock()
-                }
             }
         }
     }
