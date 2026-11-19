@@ -9,7 +9,8 @@ colour of each app).
   theme/labwc/themerc            title bars, menus, the window switcher
   theme/labwc/*.svg              the window buttons
   theme/icons/                   the icon theme (theme/icons.map, from
-                                 Carbon), and each app's dot in its colour
+                                 Carbon), and each app's dot in its colour,
+                                 or its own artwork from theme/apps/
   theme/gtk-3.0/colors.css       the roles, for GTK 3 apps
   theme/qt6ct/puter.qss          the Qt stylesheet, from theme/qt/puter.qss
   theme/qt6ct/puter.conf         the Qt palette
@@ -278,6 +279,18 @@ for name, color in APPS.items():
     DRAWN[16, "apps", name] = square(16, 10, color)
     DRAWN[24, "apps", name] = square(24, 14, color)
     DRAWN[64, "apps", name] = square(64, 40, color)
+
+
+# Apps with artwork of their own (theme/apps/<name>.svg, and <name>-small.svg
+# drawn for 16 and 24) instead of a dot.
+for art in sorted((theme / "apps").glob("*.svg")):
+    if art.stem.endswith("-small"):
+        continue
+    small = art.with_name(f"{art.stem}-small.svg")
+    small = (small if small.exists() else art).read_text()
+    DRAWN[16, "apps", art.stem] = small
+    DRAWN[24, "apps", art.stem] = small
+    DRAWN[64, "apps", art.stem] = art.read_text()
 
 
 icons = theme / "icons"

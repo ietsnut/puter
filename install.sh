@@ -389,6 +389,22 @@ NAMES
 
   agents
 
+  # filigree (~/Desktop/Tools/filigree, built there): designing filigree
+  # boards, in search and as the app for .filigree files, with its own icon
+  # (theme/apps/filigree.svg). TryExec keeps it out of search until it's built.
+  cat >"$HOME/.local/share/applications/filigree.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Filigree
+Comment=Filigree circuit boards
+TryExec=$HOME/Desktop/Tools/filigree/filigree
+Exec=$HOME/Desktop/Tools/filigree/filigree gui %f
+Icon=filigree
+StartupWMClass=filigree
+Terminal=false
+Categories=Development;Electronics;
+DESKTOP
+
   on_bus bash -c "repo=$(printf %q "$repo"); $(declare -f settings); settings"
 }
 
