@@ -20,8 +20,12 @@ done there, or it's lost on the next machine and undone by the next update.
   from `theme/` (`theme/make`).
 - Commit and push when it works; every puter picks it up with its next
   update.
-- Secrets stay out: tokens, passwords and logins (`~/.config/gh`, Wi-Fi
-  passwords) live only on the machine; the repo is public.
+- Secrets go in encrypted: API keys and tokens for puter's tools go in
+  `secrets.age` with `bin/puter-secret set NAME value` (tools read them with
+  `puter-secret get NAME`); never as plain text in the repo, which is public.
+  The key that opens them is only on the machines (`~/.config/puter/age.key`).
+  Logins that apps keep themselves (`~/.config/gh`, Wi-Fi passwords) stay on
+  the machine.
 
 ## The desktop
 

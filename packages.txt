@@ -72,6 +72,9 @@ jlcone-bin            x86_64
 # puter's own apps (src/): the Qt style, Sheet, Calculator, puter-windows
 puter-apps
 
+# Secrets (bin/puter-secret): age, which encrypts them.
+age
+
 # Agents (bin/puter-agent): Codex, and foot for their windows; Claude Code
 # comes from Anthropic's installer (install.sh). The pointer, typing and the
 # screen's scale for puter-desktop (and the iMac's screen at twice the size,
