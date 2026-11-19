@@ -390,7 +390,10 @@ def hex6(role):
 foot = ["# Written by theme/make from theme/palette; edit those, not this.",
         # The family by name: fontconfig would read "puter-mono" as puter at size mono.
         "[main]", f"font={FONTS['mono']}:pixelsize=15", "pad=8x8", "initial-window-size-pixels=720x540",
-        "initial-color-theme=light", "resize-by-cells=no", "",
+        "initial-color-theme=light", "resize-by-cells=no",
+        # selecting text copies it to the clipboard too, so Ctrl+V pastes it
+        # anywhere (Ctrl+C stays the interrupt)
+        "selection-target=both", "",
         "[bell]", "urgent=yes", "notify=no", "visual=no", "",
         "[scrollback]", "lines=10000", "",
         "[cursor]", "style=block", "blink=no", "",
