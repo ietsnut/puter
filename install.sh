@@ -275,6 +275,9 @@ CONF
       mozilla_prefs "$repo/config/firefox/user.js" "$ff/$profile/user.js"
       ln -sfn "$repo/theme/firefox/chrome" "$ff/$profile/chrome"
     fi
+    # its policies (config/firefox/policies.json): add-ons it installs itself, like Violentmonkey for filigree's
+    # AliExpress cart script
+    sudo install -D -m 644 "$repo/config/firefox/policies.json" /etc/firefox/policies/policies.json
   fi
 
   # Thunderbird, the same way (config/thunderbird/user.js and
