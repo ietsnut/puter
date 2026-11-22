@@ -8,7 +8,7 @@ user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 // labwc's title bar, like every window; the menu bar only on Alt.
 user_pref("browser.tabs.inTitlebar", 0);
 user_pref("browser.uidensity", 1);
-user_pref("browser.toolbars.bookmarks.visibility", "always"); // the bookmarks bar: filigree's cart bookmark lives there
+user_pref("browser.toolbars.bookmarks.visibility", "never");
 // Downloads at the right of the address field always, as Chrome has it,
 // not only once something has been downloaded.
 user_pref("browser.download.autohideButton", false);
