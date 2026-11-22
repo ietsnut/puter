@@ -58,7 +58,8 @@ qpdfview
 # and numpy (which Arch's shapely needs but doesn't pull in) for fil
 # (~/Desktop/Tools/fil: KiCad's pcbnew, shapely and Pillow in one Python), and
 # Odin, SDL3 and librsvg (its PNGs) for filigree (~/Desktop/Tools/filigree: the
-# router, its GUI, CLI and MCP)
+# router, its GUI, CLI and MCP), and poppler's pdftotext for filigree's parts
+# library (~/Desktop/filigree: datasheets, searchable)
 kicad
 kicad-library
 kicad-library-3d
@@ -67,6 +68,7 @@ python-numpy
 odin
 librsvg
 sdl3
+poppler
 jlcone-bin            x86_64
 
 # puter's own apps (src/): the Qt style, Sheet, Calculator, puter-windows
